@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane minHeight="200.0" minWidth="400.0" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sentinella.james.gui.view.ClientPlayLayoutController">
+   <children>
+      <SplitPane dividerPositions="0.5" prefHeight="600.0" prefWidth="800.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <items>
+            <SplitPane dividerPositions="0.9381270903010034" maxWidth="300.0" minWidth="200.0" orientation="VERTICAL" prefHeight="200.0" prefWidth="300.0">
+              <items>
+                <AnchorPane minHeight="0.0" minWidth="200.0" prefHeight="100.0" prefWidth="300.0">
+                     <children>
+                        <ScrollPane fitToHeight="true" fitToWidth="true" focusTraversable="false" layoutY="184.0" prefHeight="567.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <content>
+                              <VBox fx:id="chatMessages" prefHeight="200.0" prefWidth="100.0" />
+                           </content>
+                        </ScrollPane>
+                     </children>
+                  </AnchorPane>
+                <AnchorPane maxHeight="25.0" minHeight="25.0" minWidth="200.0" prefHeight="25.0" prefWidth="200.0">
+                     <children>
+                        <TextField fx:id="chatText" accessibleRole="LIST_VIEW" maxHeight="25.0" maxWidth="255.0" minHeight="25.0" minWidth="155.0" onKeyReleased="#checkEnter" prefHeight="25.0" prefWidth="255.0" promptText="Chat With Others" snapToPixel="false" AnchorPane.leftAnchor="0.0" />
+                        <Button fx:id="submitChat" layoutX="255.0" mnemonicParsing="false" onAction="#updateChat" prefWidth="45.0" text="Send" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                     </children>
+                  </AnchorPane>
+              </items>
+            </SplitPane>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0" />
+        </items>
+      </SplitPane>
+   </children>
+</AnchorPane>
