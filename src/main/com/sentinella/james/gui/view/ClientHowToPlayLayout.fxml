@@ -1,13 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            prefHeight="400.0" prefWidth="600.0">
 
+<AnchorPane prefHeight="365.0" prefWidth="590.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sentinella.james.gui.view.ClientHelpController">
+   <children>
+      <Label layoutX="14.0" layoutY="14.0" text="How To Play">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Label>
+      <Label layoutX="395.0" layoutY="20.0" text="Unranked">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
+      <Label layoutX="344.0" layoutY="45.0" maxWidth="225.0" text="In an unranked game, the person with the three of clubs goes first, and the three of clubs must be played first.  The server may or may not enforce this." wrapText="true" />
+      <Label layoutX="401.0" layoutY="125.0" text="Ranked">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
+      <Label layoutX="344.0" layoutY="149.0" maxWidth="225.0" text="In a ranked game the Warlord receives the Scumbag's best card in a swap and must give a card back to the Scumbag." wrapText="true" />
+      <Label layoutX="344.0" layoutY="204.0" maxWidth="225.0" text="Warlord - Ranked Game Only - The first person in the last game to run out of cards." wrapText="true" />
+      <Label layoutX="344.0" layoutY="259.0" maxWidth="225.0" text="Scumbag - Ranked Game Only - The last person in the last game to run out of cards." wrapText="true" />
+      <Label layoutX="17.0" layoutY="59.0" maxWidth="300.0" text="When it is your turn to play a card you must play an equal number, or up to 4 cards, of greater or equal face value than the card(s) on the table." wrapText="true" />
+      <Label layoutX="17.0" layoutY="154.0" maxWidth="300.0" text="If the face values and number of cards match what is on the table, the person who would play next is automatically skipped." wrapText="true" />
+      <Label layoutX="17.0" layoutY="115.0" maxWidth="300.0" text="The exceptions to the face values are Aces and Twos.  Twos when played initiate a new round." wrapText="true" />
+      <Label layoutX="17.0" layoutY="250.0" text="You may choose to pass on your turn." />
+      <Label layoutX="17.0" layoutY="210.0" maxWidth="300.0" text="Should everone pass after you've played a card, a new round starts with you." wrapText="true" />
+      <Label layoutX="17.0" layoutY="274.0" maxWidth="300.0" text="At the beginning of each new round any card or cards may be played on the table." wrapText="true" />
+      <Button layoutX="273.0" layoutY="324.0" mnemonicParsing="false" onAction="#close" text="Close" />
+   </children>
 </AnchorPane>

@@ -54,6 +54,7 @@ public class WarlordVScumbagClient extends Application {
 
             ClientRootLayoutController cont = loader.getController();
             cont.setPrimaryStage(primaryStage);
+            System.out.println(String.format("Width: %f - Height: %f",primaryStage.getWidth(),primaryStage.getHeight()));
         } catch (IOException e) {
             e.printStackTrace();
         }

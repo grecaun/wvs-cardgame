@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            prefHeight="400.0" prefWidth="600.0">
 
+<AnchorPane prefHeight="300.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sentinella.james.gui.view.ClientHelpController">
+   <children>
+      <Label layoutX="29.0" layoutY="67.0" text="Warlords Vs Scumbags">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Label>
+      <Label layoutX="77.0" layoutY="151.0" text="Created by James Sentinella" />
+      <Label layoutX="118.0" layoutY="118.0" text="Version 0.01" />
+      <Label layoutX="95.0" layoutY="173.0" text="james@sentinella.me" />
+      <Button layoutX="129.0" layoutY="209.0" mnemonicParsing="false" onAction="#close" text="Close" />
+   </children>
 </AnchorPane>
