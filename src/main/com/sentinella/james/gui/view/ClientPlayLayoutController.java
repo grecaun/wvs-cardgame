@@ -6,6 +6,7 @@ import com.sentinella.james.gui.WarlordVScumbagClient;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
@@ -18,25 +19,14 @@ import java.util.ArrayList;
  * Created by James on 6/30/2017.
  */
 public class ClientPlayLayoutController implements ClientCallback, WvSUpdater{
-    @FXML
-    private TextField chatText;
 
-    @FXML
-    private VBox chatMessages;
+    @FXML private SplitPane leftPane;
+    @FXML private TextField chatText;
+    @FXML private VBox chatMessages;
 
-    @FXML
-    private Button submitChat;
+    @FXML private Button submitChat;
 
     private WarlordVScumbagClient client;
-
-    public ClientPlayLayoutController() {
-
-    }
-
-    @FXML
-    private void initialize() {
-
-    }
 
     @FXML
     private void updateChat() {
@@ -100,5 +90,11 @@ public class ClientPlayLayoutController implements ClientCallback, WvSUpdater{
     @Override
     public void setOutConnection(PrintWriter out) {
 
+    }
+
+    public void setLeftPaneWidth(double v) {
+        leftPane.setMaxWidth(v);
+        leftPane.setMinWidth(v);
+        chatText.setMaxWidth(v-45.0);
     }
 }

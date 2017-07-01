@@ -18,8 +18,9 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class WarlordVScumbagClient extends Application {
-    private Stage       primaryStage;
-    private BorderPane  rootLayout;
+    private Stage                       primaryStage;
+    private BorderPane                  rootLayout;
+    private ClientRootLayoutController  rootController;
 
     Client              theClient;
     MainWorker          worker;
@@ -40,7 +41,7 @@ public class WarlordVScumbagClient extends Application {
         primaryStage.setResizable(false);
 
         initRootLayout();
-        showPlayLayout();
+        showLoginLayout();
     }
 
     private void initRootLayout() {
@@ -52,9 +53,8 @@ public class WarlordVScumbagClient extends Application {
             primaryStage.setScene(scene);
             primaryStage.show();
 
-            ClientRootLayoutController cont = loader.getController();
-            cont.setPrimaryStage(primaryStage);
-            System.out.println(String.format("Width: %f - Height: %f",primaryStage.getWidth(),primaryStage.getHeight()));
+            rootController = loader.getController();
+            rootController.setPrimaryStage(primaryStage);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -72,6 +72,7 @@ public class WarlordVScumbagClient extends Application {
             rootLayout.setCenter(playLayout);
 
             ClientPlayLayoutController cont = loader.getController();
+            rootController.setPlayController(cont);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -86,6 +87,7 @@ public class WarlordVScumbagClient extends Application {
 
             ClientLoginLayoutController cont = loader.getController();
             cont.setMainApp(this);
+            rootController.setPlayController(null);
         } catch (IOException e) {
             e.printStackTrace();
         }

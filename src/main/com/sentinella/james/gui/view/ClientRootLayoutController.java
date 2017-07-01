@@ -15,16 +15,26 @@ import java.io.IOException;
 public class ClientRootLayoutController {
     private double[] prevScreen = {816.0,639.0};
     private Stage primaryStage;
+    private ClientPlayLayoutController playController;
 
     public void setPrimaryStage(Stage pStage) {
         this.primaryStage = pStage;
     }
 
+    public void setPlayController(ClientPlayLayoutController cont) {
+        this.playController = cont;
+    }
+
     void setScreenSize(double width, double height) {
-        prevScreen[0]  = primaryStage.getWidth();
+        prevScreen[0] = primaryStage.getWidth();
         prevScreen[1] = primaryStage.getHeight();
         primaryStage.setWidth(width);
         primaryStage.setHeight(height);
+        if (width < 800) {
+            if (playController != null) playController.setLeftPaneWidth(200.00);
+        } else {
+            if (playController != null) playController.setLeftPaneWidth(300.00);
+        }
     }
 
     @FXML
@@ -47,12 +57,8 @@ public class ClientRootLayoutController {
 
     @FXML
     private void previous() {
-        double prevWidth  = primaryStage.getWidth();
-        double prevHeight = primaryStage.getHeight();
-        primaryStage.setWidth(prevScreen[0]);
-        primaryStage.setHeight(prevScreen[1]);
-        prevScreen[0] = prevWidth;
-        prevScreen[1] = prevHeight;
+        primaryStage.setMaximized(false);
+        setScreenSize(prevScreen[0],prevScreen[1]);
     }
 
     @FXML

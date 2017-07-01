@@ -11,13 +11,13 @@
    <children>
       <SplitPane dividerPositions="0.5" prefHeight="600.0" prefWidth="800.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <items>
-            <SplitPane dividerPositions="0.9381270903010034" maxWidth="300.0" minWidth="200.0" orientation="VERTICAL" prefHeight="200.0" prefWidth="300.0">
+            <SplitPane fx:id="leftPane" dividerPositions="0.9381270903010034" maxWidth="300.0" minWidth="200.0" orientation="VERTICAL" prefHeight="200.0" prefWidth="300.0">
               <items>
                 <AnchorPane minHeight="0.0" minWidth="200.0" prefHeight="100.0" prefWidth="300.0">
                      <children>
-                        <ScrollPane fitToHeight="true" fitToWidth="true" focusTraversable="false" layoutY="184.0" prefHeight="567.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        <ScrollPane fitToHeight="true" fitToWidth="true" focusTraversable="false" layoutY="184.0" maxHeight="2000.0" minHeight="0.0" prefHeight="567.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <content>
-                              <VBox fx:id="chatMessages" prefHeight="200.0" prefWidth="100.0" />
+                              <VBox fx:id="chatMessages" maxHeight="2000.0" prefHeight="200.0" prefWidth="100.0" />
                            </content>
                         </ScrollPane>
                      </children>
