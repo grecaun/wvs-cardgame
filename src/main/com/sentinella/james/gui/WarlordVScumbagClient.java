@@ -19,14 +19,13 @@ public class WarlordVScumbagClient extends Application {
     private Stage                       primaryStage;
     private BorderPane                  rootLayout;
     private ClientRootLayoutController  rootController;
-    private ClientCallback              lifeLine;
 
-    Client              theClient;
-    MainWorker          worker;
-    Table               table;
-    Lobby               lobby;
+    private Client              theClient;
+    private MainWorker          worker;
+    private Table               table;
+    private Lobby               lobby;
 
-    Thread              clientThread;
+    private Thread              clientThread;
     boolean             debug = false;
 
     public static void main(String[] args) {
@@ -41,6 +40,16 @@ public class WarlordVScumbagClient extends Application {
 
         initRootLayout();
         showLoginLayout();
+    }
+
+    @Override
+    public void stop() {
+        theClient.quit();
+        try {
+            clientThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void initRootLayout() {
@@ -69,26 +78,31 @@ public class WarlordVScumbagClient extends Application {
         if (port.length() > 0) {
             try {
                 conPort = Integer.parseInt(port.trim());
-            } catch (Exception e) {}
+            } catch (Exception e) { }
         }
         if (name.length() > 0) {
             conName = name;
         }
         try {
-            theClient   = new Client(conIP, conPort, conName, false);
-            worker      = new MainWorker(theClient.getOutConnection(), false);
-            table       = theClient.getTable();
-            lobby       = theClient.getLobby();
-            worker.setHand(theClient.getHand());
+            theClient    = new Client(conIP, conPort, conName, false);
+            worker       = new MainWorker(null, false);
             clientThread = new Thread(theClient);
-            lifeLine     = rootController;
+            table        = theClient.getTable();
+            lobby        = theClient.getLobby();
+            worker.setHand(theClient.getHand());
+            theClient.setUiThread(rootController);
+            rootController.setWorker(worker);
+            theClient.setDebug(false);
+            clientThread.start();
         } catch (UnknownHostException e) {
-            e.printStackTrace();
+            returnToLogin();
+            return;
         }
         showPlayLayout();
     }
 
     public void disconnect() {
+        theClient.quit();
         returnToLogin();
     }
 
@@ -102,6 +116,8 @@ public class WarlordVScumbagClient extends Application {
             ClientPlayLayoutController cont = loader.getController();
             rootController.setPlayController(cont);
             rootController.addMenuDisconnect();
+            cont.setWorker(rootController.getWorker());
+            theClient.setUpdater(cont);
         } catch (IOException e) {
             e.printStackTrace();
         }

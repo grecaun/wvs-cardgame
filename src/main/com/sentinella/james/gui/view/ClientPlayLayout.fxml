@@ -25,7 +25,7 @@
                 <AnchorPane maxHeight="25.0" minHeight="25.0" minWidth="200.0" prefHeight="25.0" prefWidth="200.0">
                      <children>
                         <TextField fx:id="chatText" accessibleRole="LIST_VIEW" maxHeight="25.0" maxWidth="255.0" minHeight="25.0" minWidth="155.0" onKeyReleased="#checkEnter" prefHeight="25.0" prefWidth="255.0" promptText="Chat With Others" snapToPixel="false" AnchorPane.leftAnchor="0.0" />
-                        <Button fx:id="submitChat" layoutX="255.0" mnemonicParsing="false" onAction="#updateChat" prefWidth="45.0" text="Send" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                        <Button fx:id="submitChat" layoutX="255.0" mnemonicParsing="false" onAction="#sendChatMsg" prefWidth="45.0" text="Send" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                      </children>
                   </AnchorPane>
               </items>

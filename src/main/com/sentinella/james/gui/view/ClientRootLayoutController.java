@@ -1,6 +1,7 @@
 package com.sentinella.james.gui.view;
 
 import com.sentinella.james.ClientCallback;
+import com.sentinella.james.MainWorker;
 import com.sentinella.james.gui.WarlordVScumbagClient;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -22,6 +23,7 @@ public class ClientRootLayoutController implements ClientCallback {
     private Stage                       primaryStage;
     private ClientPlayLayoutController  playController;
     private WarlordVScumbagClient       client;
+    private MainWorker                  worker;
 
     @FXML private Menu              file;
     @FXML private MenuItem          disconnect;
@@ -153,15 +155,23 @@ public class ClientRootLayoutController implements ClientCallback {
 
     @Override
     public void finished() {
-        client.returnToLogin();
+        Platform.runLater(() ->client.returnToLogin());
     }
 
     @Override
     public void setOutConnection(PrintWriter out) {
-
+        worker.setOutConnection(out);
     }
 
     public void setClient(WarlordVScumbagClient client) {
         this.client = client;
+    }
+
+    public void setWorker(MainWorker worker) {
+        this.worker = worker;
+    }
+
+    public MainWorker getWorker() {
+        return worker;
     }
 }

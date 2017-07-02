@@ -55,7 +55,7 @@ public class Client implements Runnable {
     @Override
     public void run() {
         try {
-            Socket socket = new Socket(hostName.getHostName(), hostPort);;
+            Socket socket = new Socket(hostName.getHostName(), hostPort);
             String message;
             StringBuilder carryOver;
             BufferedReader inConnection = new BufferedReader(new InputStreamReader(socket.getInputStream()));
