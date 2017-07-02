@@ -2,10 +2,7 @@ package com.sentinella.james.gui;/**
  * Created by James on 6/30/2017.
  */
 
-import com.sentinella.james.Client;
-import com.sentinella.james.Lobby;
-import com.sentinella.james.MainWorker;
-import com.sentinella.james.Table;
+import com.sentinella.james.*;
 import com.sentinella.james.gui.view.ClientLoginLayoutController;
 import com.sentinella.james.gui.view.ClientPlayLayoutController;
 import com.sentinella.james.gui.view.ClientRootLayoutController;
@@ -16,11 +13,13 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import java.io.IOException;
+import java.net.UnknownHostException;
 
 public class WarlordVScumbagClient extends Application {
     private Stage                       primaryStage;
     private BorderPane                  rootLayout;
     private ClientRootLayoutController  rootController;
+    private ClientCallback              lifeLine;
 
     Client              theClient;
     MainWorker          worker;
@@ -55,13 +54,42 @@ public class WarlordVScumbagClient extends Application {
 
             rootController = loader.getController();
             rootController.setPrimaryStage(primaryStage);
+            rootController.setClient(this);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void login(String ip, String port, String name) {
+        String conIP = null, conName = null;
+        int conPort = 0;
+        if (ip.length() > 0) {
+            conIP = ip;
+        }
+        if (port.length() > 0) {
+            try {
+                conPort = Integer.parseInt(port.trim());
+            } catch (Exception e) {}
+        }
+        if (name.length() > 0) {
+            conName = name;
+        }
+        try {
+            theClient   = new Client(conIP, conPort, conName, false);
+            worker      = new MainWorker(theClient.getOutConnection(), false);
+            table       = theClient.getTable();
+            lobby       = theClient.getLobby();
+            worker.setHand(theClient.getHand());
+            clientThread = new Thread(theClient);
+            lifeLine     = rootController;
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
         showPlayLayout();
+    }
+
+    public void disconnect() {
+        returnToLogin();
     }
 
     private void showPlayLayout() {
@@ -73,6 +101,7 @@ public class WarlordVScumbagClient extends Application {
 
             ClientPlayLayoutController cont = loader.getController();
             rootController.setPlayController(cont);
+            rootController.addMenuDisconnect();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -93,4 +122,8 @@ public class WarlordVScumbagClient extends Application {
         }
     }
 
+    public void returnToLogin() {
+        rootController.removeMenuDisconnect();
+        showLoginLayout();
+    }
 }

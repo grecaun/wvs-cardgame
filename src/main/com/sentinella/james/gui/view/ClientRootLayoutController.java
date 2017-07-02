@@ -1,21 +1,31 @@
 package com.sentinella.james.gui.view;
 
+import com.sentinella.james.ClientCallback;
 import com.sentinella.james.gui.WarlordVScumbagClient;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
  * Created by James on 7/1/2017.
  */
-public class ClientRootLayoutController {
-    private double[] prevScreen = {816.0,639.0};
-    private Stage primaryStage;
-    private ClientPlayLayoutController playController;
+public class ClientRootLayoutController implements ClientCallback {
+    private double[]                    prevScreen = {816.0,639.0};
+    private Stage                       primaryStage;
+    private ClientPlayLayoutController  playController;
+    private WarlordVScumbagClient       client;
+
+    @FXML private Menu              file;
+    @FXML private MenuItem          disconnect;
+    @FXML private SeparatorMenuItem menuSep;
 
     public void setPrimaryStage(Stage pStage) {
         this.primaryStage = pStage;
@@ -38,6 +48,23 @@ public class ClientRootLayoutController {
     }
 
     @FXML
+    private void initialize() {
+        disconnect  = new MenuItem("Disconnect");
+        disconnect.setOnAction(e -> disconnect());
+        menuSep     = new SeparatorMenuItem();
+    }
+
+    public void addMenuDisconnect() {
+        file.getItems().add(2,disconnect);
+        file.getItems().add(3,menuSep);
+    }
+
+    public void removeMenuDisconnect() {
+        file.getItems().remove(disconnect);
+        file.getItems().remove(menuSep);
+    }
+
+    @FXML
     private void startAI() {
 
     }
@@ -46,6 +73,11 @@ public class ClientRootLayoutController {
     private void close() {
         Platform.exit();
         System.exit(0);
+    }
+
+    @FXML
+    private void disconnect() {
+        client.disconnect();
     }
 
     @FXML
@@ -83,7 +115,6 @@ public class ClientRootLayoutController {
 
     @FXML
     private void closeServer() {
-
     }
 
     @FXML
@@ -118,5 +149,19 @@ public class ClientRootLayoutController {
         }
         ((ClientHelpController)loader.getController()).setStage(newStage);
         newStage.show();
+    }
+
+    @Override
+    public void finished() {
+        client.returnToLogin();
+    }
+
+    @Override
+    public void setOutConnection(PrintWriter out) {
+
+    }
+
+    public void setClient(WarlordVScumbagClient client) {
+        this.client = client;
     }
 }

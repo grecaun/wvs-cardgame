@@ -247,6 +247,34 @@ public class MainWorker {
         }
     }
 
+    public void sendPlay(int[] cards) {
+        StringBuilder outMessage = new StringBuilder();
+        outMessage.append("[cplay|");       // build string, max of 4 cards can be played
+        int endIndex = cards.length > 4 ? 4 : cards.length, numPlayed = 0;
+        for (int i=0; i<endIndex; i++) {
+            outMessage.append(String.format("%02d", cards[i]));
+            hand.remove(cards[i]);
+            if (i < 3) outMessage.append(","); // put commas after every card but last
+            numPlayed++;
+        }                                   // pad the play to 4 cards with 52 (no card)
+        for (int j=numPlayed; j<4; j++) {
+            outMessage.append("52");
+            if (j < 3) outMessage.append(",");
+            numPlayed++;
+        }
+        outMessage.append("]");
+        if (outConnection!= null) outConnection.println(outMessage.toString());
+        if (debug) System.err.println(outMessage.toString());
+        else System.out.println(outMessage.toString());
+    }
+
+    public void sendSwap(int card) {
+        hand.remove(card);
+        if (outConnection!= null) outConnection.println(String.format("[cswap|%02d]", card));
+        if (debug) System.err.println(String.format("[cswap|%02d]", card));
+        else System.out.println(String.format("[cswap|%02d]", card));
+    }
+
     public void setHand(PlayerHand iHand) {
         this.hand = iHand;
     }

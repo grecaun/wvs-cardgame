@@ -39,7 +39,15 @@ public class testingArena {
         players[3].removeCard(2);
         players[6].setStatus(pStatus.DISCONNECTED);
         nextPlayer(); //2, currentSeat*/
-        System.out.println(String.format("%s server.run - NEW GAME", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+        int test1 = 0;
+        try {
+            test1 = Integer.parseInt("something");
+        } catch (Exception e) {
+
+        }
+        int test2 = Integer.parseInt(" 12 ".trim());
+        int test3 = Integer.parseInt("12");
+        System.out.println(String.format("%d %d %d", test1, test2, test3));
     }
 
     private static void nextPlayer() {
