@@ -7,6 +7,7 @@ import com.sentinella.james.gui.view.ClientLoginLayoutController;
 import com.sentinella.james.gui.view.ClientPlayLayoutController;
 import com.sentinella.james.gui.view.ClientRootLayoutController;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
@@ -22,11 +23,9 @@ public class WarlordVScumbagClient extends Application {
 
     private Client              theClient;
     private MainWorker          worker;
-    private Table               table;
-    private Lobby               lobby;
 
     private Thread              clientThread;
-    boolean             debug = false;
+            boolean             debug = false;
 
     public static void main(String[] args) {
         launch(args);
@@ -44,9 +43,9 @@ public class WarlordVScumbagClient extends Application {
 
     @Override
     public void stop() {
-        theClient.quit();
+        if (theClient != null) theClient.quit();
         try {
-            clientThread.join();
+            if (clientThread != null) clientThread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -78,7 +77,7 @@ public class WarlordVScumbagClient extends Application {
         if (port.length() > 0) {
             try {
                 conPort = Integer.parseInt(port.trim());
-            } catch (Exception e) { }
+            } catch (Exception e) { conPort = 0; }
         }
         if (name.length() > 0) {
             conName = name;
@@ -87,8 +86,6 @@ public class WarlordVScumbagClient extends Application {
             theClient    = new Client(conIP, conPort, conName, false);
             worker       = new MainWorker(null, false);
             clientThread = new Thread(theClient);
-            table        = theClient.getTable();
-            lobby        = theClient.getLobby();
             worker.setHand(theClient.getHand());
             theClient.setUiThread(rootController);
             rootController.setWorker(worker);
@@ -102,7 +99,8 @@ public class WarlordVScumbagClient extends Application {
     }
 
     public void disconnect() {
-        theClient.quit();
+        worker.sendQuit();
+        Platform.runLater(() -> theClient.quit());
         returnToLogin();
     }
 
@@ -118,6 +116,8 @@ public class WarlordVScumbagClient extends Application {
             rootController.addMenuDisconnect();
             cont.setWorker(rootController.getWorker());
             theClient.setUpdater(cont);
+            cont.setPrimaryStage(primaryStage);
+            cont.updateView();
         } catch (IOException e) {
             e.printStackTrace();
         }

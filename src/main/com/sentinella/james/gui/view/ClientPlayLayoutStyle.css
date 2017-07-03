@@ -1,0 +1,36 @@
+.nameLabel-s {
+    -fx-font-size: 18px;
+    -fx-alignment: CENTER-LEFT;
+}
+.nameLabel-m {
+    -fx-font-size: 18px;
+    -fx-alignment: CENTER-LEFT;
+}
+.nameLabel-l {
+    -fx-font-size: 18px;
+    -fx-alignment: CENTER-LEFT;
+}
+.cardNoLabel-s {
+    -fx-font-size: 12px;
+    -fx-alignment: CENTER-LEFT;
+}
+.cardNoLabel-m {
+    -fx-font-size: 12px;
+    -fx-alignment: CENTER-LEFT;
+}
+.cardNoLabel-l {
+    -fx-font-size: 12px;
+    -fx-alignment: CENTER-LEFT;
+}
+.strikeNoLabel-s {
+    -fx-font-size: 12px;
+    -fx-alignment: CENTER-LEFT;
+}
+.strikeNoLabel-m {
+    -fx-font-size: 12px;
+    -fx-alignment: CENTER-LEFT;
+}
+.strikeNoLabel-l {
+    -fx-font-size: 12px;
+    -fx-alignment: CENTER-LEFT;
+}

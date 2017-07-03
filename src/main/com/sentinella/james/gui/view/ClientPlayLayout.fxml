@@ -5,32 +5,31 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane minHeight="200.0" minWidth="400.0" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sentinella.james.gui.view.ClientPlayLayoutController">
+<AnchorPane minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sentinella.james.gui.view.ClientPlayLayoutController">
    <children>
-      <SplitPane dividerPositions="0.5" prefHeight="600.0" prefWidth="800.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <SplitPane dividerPositions="0.5" prefHeight="561.0" prefWidth="800.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <items>
-            <SplitPane fx:id="leftPane" dividerPositions="0.9381270903010034" maxWidth="300.0" minWidth="200.0" orientation="VERTICAL" prefHeight="200.0" prefWidth="300.0">
-              <items>
-                <AnchorPane minHeight="0.0" minWidth="200.0" prefHeight="100.0" prefWidth="300.0">
+            <BorderPane fx:id="leftPane" maxWidth="200.0" minWidth="200.0" prefWidth="200.0">
+               <center>
+                  <ScrollPane fitToHeight="true" fitToWidth="true" focusTraversable="false" hbarPolicy="NEVER">
+                     <content>
+                        <VBox fx:id="chatMessages" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="532.0" prefWidth="198.0" />
+                     </content>
+                  </ScrollPane>
+               </center>
+               <bottom>
+                <AnchorPane maxHeight="25.0" minHeight="25.0" minWidth="200.0" prefHeight="25.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                      <children>
-                        <ScrollPane fitToHeight="true" fitToWidth="true" focusTraversable="false" layoutY="184.0" maxHeight="2000.0" minHeight="0.0" prefHeight="567.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                           <content>
-                              <VBox fx:id="chatMessages" maxHeight="2000.0" prefHeight="200.0" prefWidth="100.0" />
-                           </content>
-                        </ScrollPane>
-                     </children>
-                  </AnchorPane>
-                <AnchorPane maxHeight="25.0" minHeight="25.0" minWidth="200.0" prefHeight="25.0" prefWidth="200.0">
-                     <children>
-                        <TextField fx:id="chatText" accessibleRole="LIST_VIEW" maxHeight="25.0" maxWidth="255.0" minHeight="25.0" minWidth="155.0" onKeyReleased="#checkEnter" prefHeight="25.0" prefWidth="255.0" promptText="Chat With Others" snapToPixel="false" AnchorPane.leftAnchor="0.0" />
+                        <TextField fx:id="chatText" accessibleRole="LIST_VIEW" maxHeight="25.0" maxWidth="155.0" minHeight="25.0" minWidth="155.0" onKeyReleased="#checkEnter" prefHeight="25.0" prefWidth="155.0" promptText="Chat With Others" snapToPixel="false" AnchorPane.leftAnchor="0.0" />
                         <Button fx:id="submitChat" layoutX="255.0" mnemonicParsing="false" onAction="#sendChatMsg" prefWidth="45.0" text="Send" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                      </children>
                   </AnchorPane>
-              </items>
-            </SplitPane>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0" />
+               </bottom>
+            </BorderPane>
+          <AnchorPane fx:id="displPane" />
         </items>
       </SplitPane>
    </children>

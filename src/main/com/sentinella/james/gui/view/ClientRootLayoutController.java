@@ -42,11 +42,12 @@ public class ClientRootLayoutController implements ClientCallback {
         prevScreen[1] = primaryStage.getHeight();
         primaryStage.setWidth(width);
         primaryStage.setHeight(height);
-        if (width < 800) {
-            if (playController != null) playController.setLeftPaneWidth(200.00);
+        if (width < 1200) {
+            if (playController != null) playController.updateLeftPane(200.00);
         } else {
-            if (playController != null) playController.setLeftPaneWidth(300.00);
+            if (playController != null) playController.updateLeftPane(300.00);
         }
+        if (playController != null) playController.updateView();
     }
 
     @FXML

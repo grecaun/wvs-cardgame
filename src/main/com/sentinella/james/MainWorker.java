@@ -192,7 +192,10 @@ public class MainWorker {
         hand.remove(cardNumber);
         if (outConnection!= null) outConnection.println(String.format("[cswap|%02d]", cardNumber));
         if (debug) System.err.println(String.format("[cswap|%02d]", cardNumber));
-        else System.out.println(String.format("[cswap|%02d]", cardNumber));
+    }
+
+    public void sendQuit() {
+        if (outConnection!= null) outConnection.println("[cquit]");
     }
 
     /**
