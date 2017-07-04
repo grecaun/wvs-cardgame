@@ -127,7 +127,6 @@ public class Client implements Runnable {
         } catch (IOException e) {
             printer.printErrorMessage("Unable to establish connection to server. Program terminating.");
             if (uiThread!=null) uiThread.finished();
-            return;
         }
     }
 
@@ -218,14 +217,16 @@ public class Client implements Runnable {
         Matcher matcher = RegexPatterns.serverLobby.matcher(iInformation);
         int numLobby = Integer.parseInt(iInformation.substring(0,2));
         cLobby.clear();
+        ArrayList<String> names = new ArrayList<String>();
         while (matcher.find()) {
             cLobby.addPlayer(new Player(matcher.group(1)));
+            names.add(matcher.group(1).trim());
         }
         if (numLobby != cLobby.numInLobby()) {
             cLobby.clear();
             return errVal.LOBBYERR;
         }
-        updater.updateLobby();
+        updater.updateLobby(names);
         return errVal.NOERR;
     }
 
@@ -309,7 +310,7 @@ public class Client implements Runnable {
                 cHand.add(Card.CardCreator(cardNum));
             }
         }
-        updater.updateHand();
+        updater.updateHand(cHand.getHand());
         return errVal.NOERR;
     }
 

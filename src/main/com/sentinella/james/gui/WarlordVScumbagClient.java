@@ -117,6 +117,8 @@ public class WarlordVScumbagClient extends Application {
             cont.setWorker(rootController.getWorker());
             theClient.setUpdater(cont);
             cont.setPrimaryStage(primaryStage);
+            cont.setClient(theClient);
+            cont.setRootController(rootController);
             cont.updateView();
         } catch (IOException e) {
             e.printStackTrace();

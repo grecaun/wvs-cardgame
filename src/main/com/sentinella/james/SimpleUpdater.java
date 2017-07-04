@@ -1,5 +1,7 @@
 package com.sentinella.james;
 
+import java.util.ArrayList;
+
 /**
  * Created by James on 4/7/2016.
  */
@@ -41,7 +43,7 @@ public class SimpleUpdater implements WvSUpdater {
     }
 
     @Override
-    public void updateLobby() {
+    public void updateLobby(ArrayList<String> names) {
     }
 
     @Override
@@ -54,6 +56,6 @@ public class SimpleUpdater implements WvSUpdater {
     }
 
     @Override
-    public void updateHand() {
+    public void updateHand(ArrayList<Card> cards) {
     }
 }

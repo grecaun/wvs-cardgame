@@ -68,4 +68,8 @@ public class Lobby {
         }
         return nameStr.toString();
     }
+
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
 }

@@ -8,7 +8,7 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="600.0" minWidth="800.0" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sentinella.james.gui.view.ClientRootLayoutController">
    <top>
-      <MenuBar BorderPane.alignment="CENTER">
+      <MenuBar fx:id="menu" BorderPane.alignment="CENTER">
         <menus>
           <Menu fx:id="file" mnemonicParsing="false" text="File">
             <items>
@@ -19,7 +19,6 @@
           </Menu>
             <Menu mnemonicParsing="false" text="Window Size">
                <items>
-                  <MenuItem mnemonicParsing="false" onAction="#fullscreen" text="Fullscreen" />
                   <MenuItem mnemonicParsing="false" onAction="#previous" text="Previous" />
                   <MenuItem mnemonicParsing="false" onAction="#screenOptions" text="Options" />
                </items>

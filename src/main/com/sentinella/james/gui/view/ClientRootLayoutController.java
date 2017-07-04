@@ -7,13 +7,12 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 /**
  * Created by James on 7/1/2017.
@@ -25,9 +24,11 @@ public class ClientRootLayoutController implements ClientCallback {
     private WarlordVScumbagClient       client;
     private MainWorker                  worker;
 
+    @FXML private MenuBar           menu;
     @FXML private Menu              file;
-    @FXML private MenuItem          disconnect;
-    @FXML private SeparatorMenuItem menuSep;
+          private MenuItem          disconnect;
+          private Menu              lobby;
+          private SeparatorMenuItem menuSep;
 
     public void setPrimaryStage(Stage pStage) {
         this.primaryStage = pStage;
@@ -55,16 +56,26 @@ public class ClientRootLayoutController implements ClientCallback {
         disconnect  = new MenuItem("Disconnect");
         disconnect.setOnAction(e -> disconnect());
         menuSep     = new SeparatorMenuItem();
+        lobby       = new Menu("Lobby");
     }
 
     public void addMenuDisconnect() {
+        menu.getMenus().add(3,lobby);
         file.getItems().add(2,disconnect);
         file.getItems().add(3,menuSep);
     }
 
     public void removeMenuDisconnect() {
+        menu.getMenus().remove(lobby);
         file.getItems().remove(disconnect);
         file.getItems().remove(menuSep);
+    }
+
+    public void updateLobby(ArrayList<String> members) {
+        lobby.getItems().clear();
+        for (String person: members) {
+            lobby.getItems().add(new MenuItem(person));
+        }
     }
 
     @FXML
@@ -84,15 +95,7 @@ public class ClientRootLayoutController implements ClientCallback {
     }
 
     @FXML
-    private void fullscreen() {
-        prevScreen[0] = primaryStage.getWidth();
-        prevScreen[1] = primaryStage.getHeight();
-        primaryStage.setMaximized(true);
-    }
-
-    @FXML
     private void previous() {
-        primaryStage.setMaximized(false);
         setScreenSize(prevScreen[0],prevScreen[1]);
     }
 
