@@ -1,8 +1,5 @@
 package com.sentinella.james;
 
-import java.util.Collection;
-import java.util.Collections;
-
 /**
  * Created by James on 4/6/2016.
  */
@@ -33,6 +30,18 @@ public class Table {
         sortInPlay();
     }
 
+    public synchronized String getPlayerbySeat(int seatNo) {
+        return players[seatNo] == null? "" : players[seatNo].getName();
+    }
+
+    public synchronized int[] getInPlay() {
+        int[] retVal = {inPlay[0] == null? 52 : inPlay[0].getCardIndexNumber(),
+                        inPlay[1] == null? 52 : inPlay[1].getCardIndexNumber(),
+                        inPlay[2] == null? 52 : inPlay[2].getCardIndexNumber(),
+                        inPlay[3] == null? 52 : inPlay[3].getCardIndexNumber()};
+        return retVal;
+    }
+
     public synchronized int numInPlay() {
         int counter = 0;
         counter += inPlay[0] == null ? 0 : 1;
@@ -47,7 +56,7 @@ public class Table {
         for (int i=0; i<3; i++) {
             for (int j=i+1; j<4; j++) {
                 if (inPlay[i] != null) {
-                    if (inPlay[j] != null && inPlay[j].getCardValue() < inPlay[i].getCardValue()) {
+                    if (inPlay[j] != null && inPlay[j].getCardIndexNumber() < inPlay[i].getCardIndexNumber()) {
                         temp      = inPlay[i];
                         inPlay[i] = inPlay[j];
                         inPlay[j] = temp;
@@ -65,7 +74,7 @@ public class Table {
 
     public synchronized int getInPlayValue() {
         sortInPlay();
-        return inPlay[0] == null ? -1 : inPlay[0].getNumValue();
+        return inPlay[0] == null ? -1 : inPlay[0].getCardNumericFaceValue();
     }
 
     public synchronized void setPlayer(int seatNumber, pStatus status, int strikes, String name, int cardCount) {

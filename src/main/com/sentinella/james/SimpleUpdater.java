@@ -21,7 +21,7 @@ public class SimpleUpdater implements WvSUpdater {
     }
 
     @Override
-    public void updateTable() {
+    public void updateTable(Table table) {
         lTable.printTable(lName);
         lHand.printHand();
     }
@@ -36,7 +36,7 @@ public class SimpleUpdater implements WvSUpdater {
     }
 
     @Override
-    public void updateStatus() {
+    public void updateStatus(Table table) {
         if (lTable.getPlayerStatus(lName) == pStatus.ACTIVE) {
             System.out.println("The server is waiting on you.");
         }

@@ -88,7 +88,7 @@ public class PlayerHandTest {
         assertTrue(lowest.isSameCard(8));
 
         List<Card> lowestCards = theHand.getLowest(0,2);
-        assertEquals(2, lowestCards.get(0).getNumValue());
+        assertEquals(2, lowestCards.get(0).getCardNumericFaceValue());
         assertEquals(2, lowestCards.size());
 
         theHand.add(4);
@@ -96,11 +96,11 @@ public class PlayerHandTest {
         theHand.add(6);
         theHand.add(7);
         lowestCards = theHand.getLowest(0,2);
-        assertEquals(1, lowestCards.get(0).getNumValue());
+        assertEquals(1, lowestCards.get(0).getCardNumericFaceValue());
         assertEquals(4, lowestCards.size());
 
         lowestCards = theHand.getLowest(6,1);
-        assertEquals(6, lowestCards.get(0).getNumValue());
+        assertEquals(6, lowestCards.get(0).getCardNumericFaceValue());
         assertEquals(1, lowestCards.size());
 
         theHand.clear();

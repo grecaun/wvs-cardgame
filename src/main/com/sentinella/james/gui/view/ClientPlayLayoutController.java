@@ -1,7 +1,6 @@
 package com.sentinella.james.gui.view;
 
 import com.sentinella.james.*;
-import com.sentinella.james.gui.WarlordVScumbagClient;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -43,6 +42,9 @@ public class ClientPlayLayoutController implements WvSUpdater {
     private ImageView[] handCards = {null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null};
     private boolean[]   handCardSelected = {false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false};
     private int         numberHandCardSelected = 0;
+
+    private Label       myName;
+    private String      myNameString;
 
     private Button      sendPlay;
 
@@ -130,9 +132,25 @@ public class ClientPlayLayoutController implements WvSUpdater {
         sendPlay.setOnAction(e -> sendPlayButtonPress());
         sendPlay.setVisible(false);
         displPane.getChildren().add(sendPlay);
+
+        myName = new Label();
+        myName.setText("You are John");
+        myName.setVisible(false);
+        displPane.getChildren().add(myName);
     }
 
     private void sendPlayButtonPress() {
+        // PLAYGROUND
+        Table table = new Table();
+        table.setInPlay(12,13,14,52);
+        table.setPlayer(0,pStatus.ACTIVE,0,"John",10);
+        table.setPlayer(1,pStatus.WAITING,0,"Jon",10);
+        table.setPlayer(2,pStatus.DISCONNECTED,0,"James",10);
+        table.setPlayer(3,pStatus.PASSED,0,"Jim",10);
+        table.setPlayer(4,pStatus.WAITING,0,"Rhaegar",10);
+        table.setPlayer(5,pStatus.WAITING,0,"Tom",10);
+        table.setPlayer(6,pStatus.WAITING,0,"Tim",10);
+        runLaterUpdateTable(table);
     }
 
     private void handCardClick(MouseEvent event) {
@@ -148,7 +166,6 @@ public class ClientPlayLayoutController implements WvSUpdater {
             handCardSelected[cardNo] = true;
             numberHandCardSelected++;
         }
-        System.out.println(String.format("Card number %d selected. There are %d cards selected.", cardNo, numberHandCardSelected));
     }
 
     public void updateView() {
@@ -161,7 +178,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
         double  topStatusAnchor = 50.0, topAvatarAnchor, topNameAnchor, topCardAnchor, topStrikeAnchor;
         double  iconWidth, iconLabelLeftAnchorDiff, iconLabelDiff;
 
-        double cardWidth, cardOffset, topTableCardAnchor, topHandCardAnchor, leftHandCardAnchor = 25.0, leftTableCardAnchor, sendButtonDiff;
+        double cardWidth, cardOffset, topTableCardAnchor, topHandCardAnchor, leftHandCardAnchor = 25.0, leftTableCardAnchor, sendButtonDiff, topMyNameAnchor;
 
         switch (avatarWidth) {
             case 122:
@@ -194,6 +211,9 @@ public class ClientPlayLayoutController implements WvSUpdater {
                 topHandCardAnchor = topTableCardAnchor + 151;
                 leftTableCardAnchor = 125;
                 sendButtonDiff = 11;
+                // Name Label Vals
+                topMyNameAnchor = topHandCardAnchor + 101;
+                myName.setFont(Font.font(25.0));
                 break;
             case MEDIUM:
                 // Players @ Table
@@ -211,6 +231,9 @@ public class ClientPlayLayoutController implements WvSUpdater {
                 topHandCardAnchor = topTableCardAnchor + 169;
                 leftTableCardAnchor = 250;
                 sendButtonDiff = 29;
+                // Name Label Vals
+                topMyNameAnchor = topHandCardAnchor + 119;
+                myName.setFont(Font.font(35.0));
                 break;
             default:
                 // Players @ Table
@@ -228,11 +251,14 @@ public class ClientPlayLayoutController implements WvSUpdater {
                 topHandCardAnchor = topTableCardAnchor + 265;
                 leftTableCardAnchor = 500;
                 sendButtonDiff = 47;
+                // Name Label Vals
+                topMyNameAnchor = topHandCardAnchor + 185;
+                myName.setFont(Font.font(45.0));
         }
         for (int i=0; i<7; i++) {
             switch (screenSize) {
                 case SMALL:
-                    playerNames[i].setFont(Font.font(18.0));
+                    playerNames[i].setFont(Font.font(16.0));
                     playerCards[i].setFont(Font.font(12.0));
                     playerStrikes[i].setFont(Font.font(12.0));
                     break;
@@ -301,6 +327,8 @@ public class ClientPlayLayoutController implements WvSUpdater {
             AnchorPane.setLeftAnchor(handCards[i],leftHandCardAnchor);
             leftHandCardAnchor += cardOffset;
         }
+        AnchorPane.setTopAnchor(myName,topMyNameAnchor);
+        AnchorPane.setLeftAnchor(myName,50.0);
     }
 
     @FXML
@@ -318,23 +346,158 @@ public class ClientPlayLayoutController implements WvSUpdater {
     }
 
     @Override
-    public void updateTable() {
+    public void updateTable(Table table) {
+        Platform.runLater(() -> runLaterUpdateTable(table));
+    }
 
+    private void runLaterUpdateTable(Table table) {
+        for (int i=0;i<7;i++) {
+            StringBuilder avatarURL = new StringBuilder("/com/sentinella/james/gui/view/images/avatars/");
+            switch (i) {
+                case 0:
+                    if (table.isNotRanked()) {
+                        avatarURL.append("0avatar.png");
+                    } else {
+                        avatarURL.append("crown.png");
+                    }
+                    break;
+                case 6:
+                    if (table.isNotRanked()) {
+                        avatarURL.append("6avatar.png");
+                    } else {
+                        avatarURL.append("hat.png");
+                    }
+                    break;
+                default:
+                    avatarURL.append(i);
+                    avatarURL.append("avatar.png");
+                    break;
+            }
+            playerStatusIcons[i].setVisible(false);
+            if (table.getSeatStatus(i) == pStatus.EMPTY) {
+                playerAvatar[i].setImage(new Image("/com/sentinella/james/gui/view/images/avatars/chair.png"));
+                playerAvatar[i].setVisible(true);
+                playerNames[i].setVisible(false);
+                playerCardIcons[i].setVisible(false);
+                playerCards[i].setVisible(false);
+                playerStrikeIcons[i].setVisible(false);
+                playerStrikes[i].setVisible(false);
+            } else {
+                playerStatusIcons[i].setVisible(false);
+                switch (table.getSeatStatus(i)) {
+                    case ACTIVE:
+                        playerStatusIcons[i].setImage(new Image("/com/sentinella/james/gui/view/images/status/active.png"));
+                        playerStatusIcons[i].setVisible(true);
+                        break;
+                    case DISCONNECTED:
+                        playerStatusIcons[i].setImage(new Image("/com/sentinella/james/gui/view/images/status/dc.png"));
+                        playerStatusIcons[i].setVisible(true);
+                        break;
+                    case PASSED:
+                        playerStatusIcons[i].setImage(new Image("/com/sentinella/james/gui/view/images/status/passed.png"));
+                        playerStatusIcons[i].setVisible(true);
+                        break;
+                }
+                playerAvatar[i].setImage(new Image(avatarURL.toString()));
+                playerAvatar[i].setVisible(true);
+                String thisPlayerName = table.getPlayerbySeat(i).trim();
+                playerNames[i].setText(thisPlayerName.equalsIgnoreCase(myNameString)?"You":thisPlayerName);
+                playerNames[i].setVisible(true);
+                playerCardIcons[i].setVisible(true);
+                playerCards[i].setText(String.valueOf(table.getCardsLeftBySeat(i)));
+                playerCards[i].setVisible(true);
+                playerStrikeIcons[i].setVisible(true);
+                playerStrikes[i].setText(String.valueOf(table.getStrikesBySeat(i)));
+                playerStrikes[i].setVisible(true);
+            }
+        }
+        int[] inPlay = table.getInPlay();
+        for (int i=0;i<4;i++) {
+            if (inPlay[i] < 52) {
+                int cardV = inPlay[i] / 4;
+                int cardS = inPlay[i] % 4;
+                StringBuilder url = new StringBuilder("/com/sentinella/james/gui/view/images/playingcards/");
+                switch (cardV) {
+                    case 8:
+                        url.append("ja_");
+                        break;
+                    case 9:
+                        url.append("qu_");
+                        break;
+                    case 10:
+                        url.append("ki_");
+                        break;
+                    case 11:
+                        url.append("ac_");
+                        break;
+                    case 12:
+                        url.append("02_");
+                        break;
+                    default:
+                        url.append(String.format("%02d_", cardV + 3));
+                }
+                switch (cardS) {
+                    case 0:
+                        url.append("clubs.png");
+                        break;
+                    case 1:
+                        url.append("diamonds.png");
+                        break;
+                    case 2:
+                        url.append("hearts.png");
+                        break;
+                    default:
+                        url.append("spades.png");
+                }
+                tableCards[i].setImage(new Image(url.toString()));
+                tableCards[i].setVisible(true);
+            } else {
+                tableCards[i].setVisible(false);
+            }
+        }
+        runLaterUpdateStatus(table);
     }
 
     @Override
     public void updatePlayer() {
-
+        Platform.runLater(()->runLaterUpdatePlayer(client.getName()));
     }
 
     @Override
     public void updatePlayer(String name) {
+        Platform.runLater(()->runLaterUpdatePlayer(name));
+    }
 
+    private void runLaterUpdatePlayer(String name) {
+        myNameString = name.trim();
+        runLaterUpdateStatus(client.getTable());
     }
 
     @Override
-    public void updateStatus() {
+    public void updateStatus(Table table) {
+        Platform.runLater(() -> runLaterUpdateStatus(client.getTable()));
+    }
 
+    private void runLaterUpdateStatus(Table table) {
+        String statusString;
+        switch (table.getPlayerStatus(myNameString)) {
+            case ACTIVE:
+                statusString = " It is your turn.";
+                break;
+            case PASSED:
+                statusString = " You were passed.";
+                break;
+            case DISCONNECTED:
+                statusString = " You are a cat.";
+                break;
+            case WAITING:
+                statusString = " You are waiting.";
+                break;
+            default:
+                statusString = "";
+        }
+        myName.setText(String.format("Your name is %s.%s",myNameString,statusString));
+        myName.setVisible(true);
     }
 
     @Override
@@ -354,9 +517,56 @@ public class ClientPlayLayoutController implements WvSUpdater {
 
     @Override
     public void updateHand(ArrayList<Card> cards) {
-
+        Platform.runLater(() -> runLaterUpdateHand(cards));
     }
 
+    private void runLaterUpdateHand(ArrayList<Card> cards) {
+        int index;
+        for (index=0;index<cards.size();index++) {
+            StringBuilder url = new StringBuilder("/com/sentinella/james/gui/view/images/playingcards/");
+            int cardNo   = cards.get(index).getCardNumericFaceValue();
+            int cardSuit = cards.get(index).getCardIndexNumber() % 4;
+            switch (cardNo) {
+                case 8:
+                    url.append("ja_");
+                    break;
+                case 9:
+                    url.append("qu_");
+                    break;
+                case 10:
+                    url.append("ki_");
+                    break;
+                case 11:
+                    url.append("ac_");
+                    break;
+                case 12:
+                    url.append("02_");
+                    break;
+                default:
+                    url.append(String.format("%02d_",cardNo+3));
+            }
+            switch (cardSuit) {
+                case 0:
+                    url.append("clubs.png");
+                    break;
+                case 1:
+                    url.append("diamonds.png");
+                    break;
+                case 2:
+                    url.append("hearts.png");
+                    break;
+                default:
+                    url.append("spades.png");
+            }
+            handCards[index].setImage(new Image(url.toString()));
+            handCards[index].setVisible(true);
+        }
+        for ( ;index<18;index++) {
+            handCards[index].setVisible(false);
+        }
+    }
+
+    // non interface/callback methods
     public void updateLeftPane(double width) {
         leftPane.setMaxWidth(width);
         leftPane.setMinWidth(width);

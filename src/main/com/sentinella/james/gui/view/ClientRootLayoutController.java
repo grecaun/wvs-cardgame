@@ -8,6 +8,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -55,6 +58,8 @@ public class ClientRootLayoutController implements ClientCallback {
     private void initialize() {
         disconnect  = new MenuItem("Disconnect");
         disconnect.setOnAction(e -> disconnect());
+        disconnect.setAccelerator(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN));
+        disconnect.setDisable(true);
         menuSep     = new SeparatorMenuItem();
         lobby       = new Menu("Lobby");
     }
@@ -63,12 +68,14 @@ public class ClientRootLayoutController implements ClientCallback {
         menu.getMenus().add(3,lobby);
         file.getItems().add(2,disconnect);
         file.getItems().add(3,menuSep);
+        disconnect.setDisable(false);
     }
 
     public void removeMenuDisconnect() {
         menu.getMenus().remove(lobby);
         file.getItems().remove(disconnect);
         file.getItems().remove(menuSep);
+        disconnect.setDisable(true);
     }
 
     public void updateLobby(ArrayList<String> members) {

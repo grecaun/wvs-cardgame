@@ -33,11 +33,11 @@ public class Card implements Comparable<Card> {
         return cardNumber? this.value == (iValue/4) : this.value == iValue;
     }
 
-    public int getNumValue() {
+    public int getCardNumericFaceValue() {
         return value;
     }
 
-    public int getCardValue() {
+    public int getCardIndexNumber() {
         return (value * 4) + suit;
     }
 

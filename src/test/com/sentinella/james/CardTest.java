@@ -126,20 +126,20 @@ public class CardTest {
 
     @Test
     public void getNumValue() throws Exception {
-        assertEquals(card1.getNumValue(), 0);
-        assertEquals(card3.getNumValue(), 11);
-        assertEquals(card4.getNumValue(), 3);
-        assertEquals(card5.getNumValue(), 1);
-        assertEquals(card6.getNumValue(), 4);
+        assertEquals(card1.getCardNumericFaceValue(), 0);
+        assertEquals(card3.getCardNumericFaceValue(), 11);
+        assertEquals(card4.getCardNumericFaceValue(), 3);
+        assertEquals(card5.getCardNumericFaceValue(), 1);
+        assertEquals(card6.getCardNumericFaceValue(), 4);
     }
 
     @Test
     public void getCardValue() throws Exception {
-        assertEquals(0,  card1.getCardValue());
-        assertEquals(46, card3.getCardValue());
-        assertEquals(12, card4.getCardValue());
-        assertEquals(5,  card5.getCardValue());
-        assertEquals(19, card6.getCardValue());
+        assertEquals(0,  card1.getCardIndexNumber());
+        assertEquals(46, card3.getCardIndexNumber());
+        assertEquals(12, card4.getCardIndexNumber());
+        assertEquals(5,  card5.getCardIndexNumber());
+        assertEquals(19, card6.getCardIndexNumber());
 
     }
 

@@ -1,7 +1,5 @@
 package com.sentinella.james;
 
-import java.util.ArrayList;
-
 /**
  * Created by James on 4/6/2016.
  */
@@ -52,7 +50,7 @@ public class Player {
     }
 
     public boolean hasCard(Card iCard) {
-        return cards.hasCard(iCard.getCardValue());
+        return cards.hasCard(iCard.getCardIndexNumber());
     }
 
     public void removeCard(Card iCard) {

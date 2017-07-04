@@ -85,17 +85,17 @@ public class ServerPlayerTest {
         player1.addCard(51);
         player1.addCard(21);
         player1.addCard(34);
-        assertEquals(51,player1.getFirstCard().getCardValue());
+        assertEquals(51,player1.getFirstCard().getCardIndexNumber());
         player1.sortHand();
-        assertEquals(21,player1.getFirstCard().getCardValue());
+        assertEquals(21,player1.getFirstCard().getCardIndexNumber());
         player1.addCard(0);
         player1.addCard(4);
         player1.sortHand();
-        assertEquals(0,player1.getFirstCard().getCardValue());
+        assertEquals(0,player1.getFirstCard().getCardIndexNumber());
         player1.addCard(16);
         player1.addCard(35);
         player1.removeCard(0);
-        assertEquals(4,player1.getFirstCard().getCardValue());
+        assertEquals(4,player1.getFirstCard().getCardIndexNumber());
 
     }
 

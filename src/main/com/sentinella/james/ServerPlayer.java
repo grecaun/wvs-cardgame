@@ -56,7 +56,7 @@ public class ServerPlayer extends Player {
     public CONERROR sendHand() {
         StringBuilder output = new StringBuilder("[shand|");
         sortHand();
-        for (Card c : getHand().getHand()) output.append(String.format("%02d,", c.getCardValue()));
+        for (Card c : getHand().getHand()) output.append(String.format("%02d,", c.getCardIndexNumber()));
         while (output.length() < 61) output.append("52,");
         output.replace(output.length()-1, output.length(), "]");
         return sendMessage(output.toString());
@@ -70,7 +70,7 @@ public class ServerPlayer extends Player {
         addCard(warlordCard);
         sortHand();
         if (sendHand() == CONERROR.NOERROR) {
-            return sendMessage(String.format("[swapw|%02d]",warlordCard.getCardValue()));
+            return sendMessage(String.format("[swapw|%02d]",warlordCard.getCardIndexNumber()));
         }
         return CONERROR.UNABLETOSEND;
     }
@@ -83,7 +83,7 @@ public class ServerPlayer extends Player {
         if (returnCard == null || warlordCard == null) return sendMessage("[swaps|52|52]");
         addCard(returnCard);
         sortHand();
-        return sendMessage(String.format("[swaps|%02d|%02d]",returnCard.getCardValue(),warlordCard.getCardValue()));
+        return sendMessage(String.format("[swaps|%02d|%02d]",returnCard.getCardIndexNumber(),warlordCard.getCardIndexNumber()));
     }
 
     public void closeSocket() {

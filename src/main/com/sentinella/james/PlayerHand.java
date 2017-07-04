@@ -21,7 +21,7 @@ public class PlayerHand {
     public synchronized void clear() { tHand.clear(); }
 
     public synchronized void add(Card iCard) {
-        if (iCard == null || hasCard(iCard.getCardValue())) return;
+        if (iCard == null || hasCard(iCard.getCardIndexNumber())) return;
         tHand.add(iCard);
     }
 
@@ -59,13 +59,13 @@ public class PlayerHand {
         sort();
         if (debug) printHand();
         for (int i=0;i<cardsInHand-maxOffset;i++) {
-            int curCardNumVal = tHand.get(i).getNumValue();
-            if (!tHand.get(i).isLessThan(valToMatch, false) && i+maxOffset < tHand.size() && tHand.get(i+maxOffset).getNumValue()==curCardNumVal) {
+            int curCardNumVal = tHand.get(i).getCardNumericFaceValue();
+            if (!tHand.get(i).isLessThan(valToMatch, false) && i+maxOffset < tHand.size() && tHand.get(i+maxOffset).getCardNumericFaceValue()==curCardNumVal) {
                 for (int inside=i;inside<i+maxOffset;inside++) {
                    output.add(tHand.get(inside));
                 }
                 for (int extra=i+maxOffset;extra<i+4;extra++){
-                    if (extra < tHand.size() && curCardNumVal == tHand.get(extra).getNumValue()) {
+                    if (extra < tHand.size() && curCardNumVal == tHand.get(extra).getCardNumericFaceValue()) {
                        output.add(tHand.get(extra));
                     }
                 }
@@ -90,7 +90,7 @@ public class PlayerHand {
     public String toString() {
         StringBuilder output = new StringBuilder();
         for (Card c : tHand) {
-            output.append(c.getCardValue());
+            output.append(c.getCardIndexNumber());
             output.append(" ");
         }
         return output.toString().trim();

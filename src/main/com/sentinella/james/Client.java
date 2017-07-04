@@ -160,7 +160,7 @@ public class Client implements Runnable {
     private ClientState sendSwap() {
         Card outCard = cHand.getLowest();
         printer.printString(String.format("Giving the %s to the scumbag.", outCard.getStringRep()));
-        String output = String.format("[cswap|%02d]",outCard.getCardValue());
+        String output = String.format("[cswap|%02d]",outCard.getCardIndexNumber());
         outConnection.println(output);
         if (debug) printer.printDebugMessage(String.format("Sending swap message: %s",output));
         return ClientState.WAITSWAP;
@@ -171,7 +171,7 @@ public class Client implements Runnable {
         outMsg.append("[cplay|");
         int numPlayed = 0;
         for (Card c : playCards) {
-            outMsg.append(String.format("%02d",c.getCardValue()));
+            outMsg.append(String.format("%02d",c.getCardIndexNumber()));
             if (++numPlayed < 4) outMsg.append(",");
         }
         while (numPlayed < 4) {
@@ -273,7 +273,7 @@ public class Client implements Runnable {
                     cTable.setPlayer(i, curStatus, curStrikes, name, cardCount);
                     if (name.trim().equalsIgnoreCase(cName)) {
                         if (curStatus == pStatus.ACTIVE) {
-                            updater.updateStatus();
+                            updater.updateStatus(cTable);
                             cState = ClientState.CLIENTTURN;
                         }
                     }
@@ -284,7 +284,7 @@ public class Client implements Runnable {
                     Integer.parseInt(matcher.group(24)),
                     Integer.parseInt(matcher.group(25)));
             cTable.setNotRanked(Integer.parseInt(matcher.group(26)) == 1);
-            updater.updateTable();
+            updater.updateTable(cTable);
             return errVal.NOERR;
         }
         return errVal.NOMATCH;
@@ -323,10 +323,10 @@ public class Client implements Runnable {
             int strikeVal = Integer.parseInt(matcher.group(1));
             if ((strikeVal / 10) == 7 && cState == ClientState.WAITSWAP) {
                 cState = ClientState.SWAP;
-                updater.updateStatus();
+                updater.updateStatus(cTable);
             } else if ((strikeVal / 10) == 1 && cState == ClientState.WAITTURN) {
                 cState = ClientState.CLIENTTURN;
-                updater.updateStatus();
+                updater.updateStatus(cTable);
             }
             cStrikes = Integer.parseInt(matcher.group(2));
             printStrike(strikeVal);
@@ -355,7 +355,7 @@ public class Client implements Runnable {
         cHand.sort();
         printer.printString(String.format("The scumbag gave you (the warlord) the %s. They are demanding you give them a card in return",newCard.getStringRep()));
         cHand.printHand();
-        updater.updateStatus();
+        updater.updateStatus(cTable);
         return errVal.NOERR;
     }
 
@@ -370,7 +370,7 @@ public class Client implements Runnable {
             cHand.remove(oldCard);
             cHand.add(newCard);
             printer.printString(String.format("You received the %s from the warlord.  You lost the %s.",newCard.getStringRep(),oldCard.getStringRep()));
-            updater.updateStatus();
+            updater.updateStatus(cTable);
             return errVal.NOERR;
         }
         return errVal.NOMATCH;

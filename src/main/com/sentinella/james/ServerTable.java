@@ -318,7 +318,7 @@ public class ServerTable extends Table {
         }
         outBuild.deleteCharAt(outBuild.length()-1);
         int[] cards = new int[4];
-        for (int i=0; i<4; i++) cards[i] = inPlay[i] == null ? 52 : inPlay[i].getCardValue();
+        for (int i=0; i<4; i++) cards[i] = inPlay[i] == null ? 52 : inPlay[i].getCardIndexNumber();
         outBuild.append(String.format("|%02d,%02d,%02d,%02d|%01d]",cards[0],cards[1],cards[2],cards[3],isNotRanked ? 0 : 1));
         return outBuild.toString();
     }
@@ -345,9 +345,9 @@ public class ServerTable extends Table {
                         if (play[cardNo]/4 != play[verify]/4) return 11;
                     }
                 }
-                if (inPlay[0] != null && play[cardNo]/4 < inPlay[0].getNumValue()) return 12;
+                if (inPlay[0] != null && play[cardNo]/4 < inPlay[0].getCardNumericFaceValue()) return 12;
             }
-            if (inPlay[0] != null && play[cardNo]/4 == inPlay[0].getNumValue()) match = true;
+            if (inPlay[0] != null && play[cardNo]/4 == inPlay[0].getCardNumericFaceValue()) match = true;
         }
         if (currentNumCards == 0) {
             if (numInPlay() == 0) return 18;

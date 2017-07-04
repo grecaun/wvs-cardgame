@@ -4,6 +4,7 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.BorderPane?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="600.0" minWidth="800.0" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sentinella.james.gui.view.ClientRootLayoutController">
@@ -12,7 +13,10 @@
         <menus>
           <Menu fx:id="file" mnemonicParsing="false" text="File">
             <items>
-              <MenuItem mnemonicParsing="false" onAction="#startAI" text="Start AI Client" />
+              <MenuItem mnemonicParsing="false" onAction="#startAI" text="Start AI Client">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="A" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem mnemonicParsing="false" onAction="#close" text="Exit" />
             </items>
@@ -25,9 +29,18 @@
             </Menu>
           <Menu mnemonicParsing="false" text="Server">
             <items>
-              <MenuItem mnemonicParsing="false" onAction="#startServer" text="Start" />
-                  <MenuItem mnemonicParsing="false" onAction="#closeServer" text="Close" />
-                  <MenuItem mnemonicParsing="false" onAction="#optionsServer" text="Options" />
+              <MenuItem mnemonicParsing="false" onAction="#startServer" text="Start">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="E" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
+                  <MenuItem mnemonicParsing="false" onAction="#closeServer" text="Close">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="W" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
+                  <MenuItem mnemonicParsing="false" onAction="#optionsServer" text="Options">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="Q" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Help">

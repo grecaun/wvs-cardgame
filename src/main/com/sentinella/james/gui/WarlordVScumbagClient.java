@@ -90,6 +90,15 @@ public class WarlordVScumbagClient extends Application {
             theClient.setUiThread(rootController);
             rootController.setWorker(worker);
             theClient.setDebug(false);
+            theClient.setPrinter(new Printer() {
+                @Override public void printString(String string) { }
+
+                @Override public void printErrorMessage(String string) { }
+
+                @Override public void printDebugMessage(String string) { }
+
+                @Override public void printLine() { }
+            });
             clientThread.start();
         } catch (UnknownHostException e) {
             returnToLogin();
