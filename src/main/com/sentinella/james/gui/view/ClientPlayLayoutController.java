@@ -51,7 +51,6 @@ public class ClientPlayLayoutController implements WvSUpdater {
     private Client                      client;
     private MainWorker                  worker;
     private ClientRootLayoutController  rootController;
-    private ScreenSize                  screenSize;
 
     @FXML
     private void initialize() {
@@ -140,17 +139,31 @@ public class ClientPlayLayoutController implements WvSUpdater {
     }
 
     private void sendPlayButtonPress() {
-        // PLAYGROUND
-        Table table = new Table();
-        table.setInPlay(12,13,14,52);
-        table.setPlayer(0,pStatus.ACTIVE,0,"John",10);
-        table.setPlayer(1,pStatus.WAITING,0,"Jon",10);
-        table.setPlayer(2,pStatus.DISCONNECTED,0,"James",10);
-        table.setPlayer(3,pStatus.PASSED,0,"Jim",10);
-        table.setPlayer(4,pStatus.WAITING,0,"Rhaegar",10);
-        table.setPlayer(5,pStatus.WAITING,0,"Tom",10);
-        table.setPlayer(6,pStatus.WAITING,0,"Tim",10);
-        runLaterUpdateTable(table);
+        int[] cards = {52,52,52,52};
+        int   cardsIx = 0;
+        PlayerHand hand = client.getHand();
+        for (int i=0;i<hand.count();i++) {
+            if (handCardSelected[i]) {
+                cards[cardsIx++] = hand.getHand().get(i).getCardIndexNumber();
+            }
+        }
+        for (int card : cards) {
+            hand.remove(card);
+        }
+        worker.sendPlay(cards);
+        resetHand();
+        runLaterUpdateHand(hand.getHand());
+    }
+
+    private void resetHand() {
+        for (int i=0;i<18;i++) {
+            if (handCardSelected[i]) {
+                double oldTopAnchor = AnchorPane.getTopAnchor(handCards[i]);
+                AnchorPane.setTopAnchor(handCards[i], oldTopAnchor + 20);
+                handCardSelected[i] = false;
+                numberHandCardSelected--;
+            }
+        }
     }
 
     private void handCardClick(MouseEvent event) {
@@ -180,6 +193,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
 
         double cardWidth, cardOffset, topTableCardAnchor, topHandCardAnchor, leftHandCardAnchor = 25.0, leftTableCardAnchor, sendButtonDiff, topMyNameAnchor;
 
+        ScreenSize screenSize;
         switch (avatarWidth) {
             case 122:
                 spacer = 10;
@@ -351,6 +365,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
     }
 
     private void runLaterUpdateTable(Table table) {
+        updatePlayer();
         for (int i=0;i<7;i++) {
             StringBuilder avatarURL = new StringBuilder("/com/sentinella/james/gui/view/images/avatars/");
             switch (i) {
@@ -455,6 +470,8 @@ public class ClientPlayLayoutController implements WvSUpdater {
                 tableCards[i].setVisible(false);
             }
         }
+        sendPlay.setVisible(false);
+        if (table.getPlayerStatus(myNameString) == pStatus.ACTIVE) sendPlay.setVisible(true);
         runLaterUpdateStatus(table);
     }
 
@@ -465,7 +482,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
 
     @Override
     public void updatePlayer(String name) {
-        Platform.runLater(()->runLaterUpdatePlayer(name));
+        Platform.runLater(()->runLaterUpdatePlayer(client.getName()));
     }
 
     private void runLaterUpdatePlayer(String name) {
@@ -507,7 +524,13 @@ public class ClientPlayLayoutController implements WvSUpdater {
 
     @Override
     public void updateChat(String name, String message) {
-        Platform.runLater(() -> chatMessages.getChildren().add(new Label(String.format("%8s: %s",name,message))));
+        Platform.runLater(() -> runLaterUpdateChat(name,message));
+    }
+
+    public void runLaterUpdateChat(String name, String message) {
+        Label newMsg = new Label(String.format("%8s: %s",name,message));
+        newMsg.setWrapText(true);
+        chatMessages.getChildren().add(newMsg);
     }
 
     @Override

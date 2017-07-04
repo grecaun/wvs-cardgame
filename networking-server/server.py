@@ -168,7 +168,7 @@ def main():
                 print "----------------------------------"
             else:                                               # otherwise check the time
                 rightnow = time.time()
-                if rightnow > gvals.to_time + gvals.timeout or Table.player[7] not in gvals.clientlist:
+                if (gvals.timeout > 0 and rightnow > gvals.to_time + gvals.timeout) or Table.player[1] not in gvals.clientlist:
                     strike(Table.player[1],20)                  # we haven't received a message yet, strike the player (warlord is default player 1)
                     if Table.passof[1] == 2:                    # if they're dead, we need to get the next player, because they were set as current player
                         Table.getNextPlayer()
@@ -189,7 +189,7 @@ def main():
                 Table.Play()
             else:                                               # otherwise, check the time and strike if necessary
                 rightnow = time.time()
-                if rightnow > gvals.to_time + gvals.timeout:
+                if gvals.timeout > 0 and rightnow > gvals.to_time + gvals.timeout:
                     strike(Table.player[Table.curplayer],20)
                     Table.passof[Table.curplayer] = 1 if Table.passof[Table.curplayer] != 2 else 2 # set pass value to pass or dead, whichever applies
                     Table.getNextPlayer()                       # get next player

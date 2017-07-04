@@ -84,18 +84,18 @@ public class WarlordVScumbagClient extends Application {
         }
         try {
             theClient    = new Client(conIP, conPort, conName, false);
-            worker       = new MainWorker(null, false);
+            worker       = new MainWorker(null, true);
             clientThread = new Thread(theClient);
             worker.setHand(theClient.getHand());
             theClient.setUiThread(rootController);
             rootController.setWorker(worker);
-            theClient.setDebug(false);
+            theClient.setDebug(true);
             theClient.setPrinter(new Printer() {
-                @Override public void printString(String string) { }
+                @Override public void printString(String string) { System.out.println(String.format("MSG: %s",string)); }
 
-                @Override public void printErrorMessage(String string) { }
+                @Override public void printErrorMessage(String string) { System.err.println(String.format("ERR: %s",string)); }
 
-                @Override public void printDebugMessage(String string) { }
+                @Override public void printDebugMessage(String string) { System.out.println(String.format("DBG: %s",string)); }
 
                 @Override public void printLine() { }
             });
@@ -128,6 +128,11 @@ public class WarlordVScumbagClient extends Application {
             cont.setPrimaryStage(primaryStage);
             cont.setClient(theClient);
             cont.setRootController(rootController);
+            if (primaryStage.getWidth() < 1280) {
+                cont.updateLeftPane(200.00);
+            } else {
+                cont.updateLeftPane(300);
+            }
             cont.updateView();
         } catch (IOException e) {
             e.printStackTrace();
