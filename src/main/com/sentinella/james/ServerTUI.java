@@ -67,8 +67,8 @@ public class ServerTUI {
                     break;
                 default:
                     System.out.println("-p <portnumber> Sets the server's port number. Default is 36789.");
-                    System.out.println("-l <seconds> Sets the time (in seconds) the server will wait before starting a game once the minimum number of players are in the lobby. Default of 30.");
-                    System.out.println("-t <seconds> Sets the time (in seconds) the server will wait for a player to send a play when it becomes their turn. Default of 15. Set to 0 for no timeout.");
+                    System.out.println("-l <seconds> Sets the time (in seconds) the server will wait before starting a game once the minimum number of players are in the lobby. Default of 15.");
+                    System.out.println("-t <seconds> Sets the time (in seconds) the server will wait for a player to send a play when it becomes their turn. Default of 30. Set to 0 for no timeout.");
                     System.out.println("-m <number> Sets the minimum number of players for a game to run.");
                     System.out.println("-s <number> Sets the number of strikes given out before disconnecting a client. Default is 3. Set to 0 to never disconnect people.");
                     System.out.println("-c <number> Sets the maximum number of clients allowed in the lobby. Default of 35.");

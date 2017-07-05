@@ -26,6 +26,7 @@ public class ClientRootLayoutController implements ClientCallback {
     private ClientPlayLayoutController  playController;
     private WarlordVScumbagClient       client;
     private MainWorker                  worker;
+    private ServerOptionHolder          serverOptions;
 
     @FXML private MenuBar           menu;
     @FXML private Menu              file;
@@ -56,12 +57,13 @@ public class ClientRootLayoutController implements ClientCallback {
 
     @FXML
     private void initialize() {
-        disconnect  = new MenuItem("Disconnect");
+        disconnect      = new MenuItem("Disconnect");
         disconnect.setOnAction(e -> disconnect());
         disconnect.setAccelerator(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN));
         disconnect.setDisable(true);
-        menuSep     = new SeparatorMenuItem();
-        lobby       = new Menu("Lobby");
+        menuSep         = new SeparatorMenuItem();
+        lobby           = new Menu("Lobby");
+        serverOptions   = new ServerOptionHolder();
     }
 
     public void addMenuDisconnect() {
@@ -133,6 +135,15 @@ public class ClientRootLayoutController implements ClientCallback {
     @FXML
     private void optionsServer() {
         Stage newStage = new Stage();
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(WarlordVScumbagClient.class.getResource("view/ClientServerOptionsLayout.fxml"));
+        try {
+            newStage.setScene(new Scene(loader.load()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ((ClientServerOptionsLayoutController)loader.getController()).setOptions(serverOptions);
+        ((ClientServerOptionsLayoutController)loader.getController()).setStage(newStage);
         newStage.show();
     }
 
@@ -184,5 +195,62 @@ public class ClientRootLayoutController implements ClientCallback {
 
     public MainWorker getWorker() {
         return worker;
+    }
+
+    class ServerOptionHolder {
+        private int portNumber = 36789;
+        private int lobbyTime  = 15;
+        private int playTime   = 90;
+        private int minPlayers = 3;
+        private int maxClients = 90;
+        private int maxStrikes = 5;
+
+        int getPortNumber() {
+            return portNumber;
+        }
+
+        void setPortNumber(int portNumber) {
+            this.portNumber = portNumber;
+        }
+
+        int getLobbyTime() {
+            return lobbyTime;
+        }
+
+        void setLobbyTime(int lobbyTime) {
+            this.lobbyTime = lobbyTime;
+        }
+
+        int getPlayTime() {
+            return playTime;
+        }
+
+        void setPlayTime(int playTime) {
+            this.playTime = playTime;
+        }
+
+        int getMinPlayers() {
+            return minPlayers;
+        }
+
+        void setMinPlayers(int minPlayers) {
+            this.minPlayers = minPlayers;
+        }
+
+        int getMaxClients() {
+            return maxClients;
+        }
+
+        void setMaxClients(int maxClients) {
+            this.maxClients = maxClients;
+        }
+
+        int getMaxStrikes() {
+            return maxStrikes;
+        }
+
+        void setMaxStrikes(int maxStrikes) {
+            this.maxStrikes = maxStrikes;
+        }
     }
 }
