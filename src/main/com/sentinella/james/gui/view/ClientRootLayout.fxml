@@ -17,6 +17,7 @@
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="A" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator></MenuItem>
+                  <MenuItem fx:id="closeAIMenuItem" disable="true" mnemonicParsing="false" onAction="#closeAI" text="Stop AI Clients" />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem mnemonicParsing="false" onAction="#close" text="Exit" />
             </items>

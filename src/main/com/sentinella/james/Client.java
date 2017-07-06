@@ -24,13 +24,14 @@ public class Client implements Runnable {
     private   ClientCallback              uiThread;
 
     private   WvSUpdater          updater;
-    private   Printer             printer = new BasicPrinter();
+    protected Printer             printer = new BasicPrinter();
 
     private   Table               cTable;
     private   Lobby               cLobby;
     private   PlayerHand          cHand;
     private   String              cName;
     private   int                 cStrikes;
+    private   int                 delay = 0;
 
     public Client(String iHostName, int iHostPort, String iName, boolean iIsAuto) throws UnknownHostException {
         if (iHostName != null)
@@ -128,7 +129,7 @@ public class Client implements Runnable {
             if (uiThread!=null) uiThread.finished();
         } catch (IOException e) {
             printer.printErrorMessage("Unable to establish connection to server. Program terminating.");
-            if (uiThread!=null) uiThread.finished();
+            if (uiThread!=null) uiThread.unableToConnect();
         }
         if (debug) printer.printDebugMessage("All done.");
     }
@@ -136,6 +137,11 @@ public class Client implements Runnable {
     private void doSomething() {
         switch (cState) {
             case CLIENTTURN:
+                try {
+                    Thread.sleep(delay * 1000);
+                } catch (InterruptedException e) {
+                    printer.printErrorMessage("Something went wrong when we tried to wait.");
+                }
                 if (cHand.count() != 0) {
                     int toMatch = cTable.numInPlay();
                     int valToMatch = cTable.getInPlayValue();
@@ -150,6 +156,11 @@ public class Client implements Runnable {
                 }
                 break;
             case SWAP:
+                try {
+                    Thread.sleep(delay * 1000);
+                } catch (InterruptedException e) {
+                    printer.printErrorMessage("Something went wrong when we tried to wait.");
+                }
                 if (cHand.count() != 0) {
                     cHand.sort();
                     cState = sendSwap();
@@ -412,6 +423,10 @@ public class Client implements Runnable {
 
     public void setUiThread(ClientCallback uiThread) {
         this.uiThread = uiThread;
+    }
+
+    public void setDelay(int delay) {
+        this.delay = delay;
     }
 
     public enum ClientState {

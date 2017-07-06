@@ -98,8 +98,10 @@ public class ServerTUI {
                 System.err.println("server thread no longer running.");
                 ServerTUI.keepAlive = false;
             }
-            @Override
-            public void setOutConnection(PrintWriter out) {}
+
+            @Override public void unableToConnect() {}
+
+            @Override public void setOutConnection(PrintWriter out) {}
         };
         if (debug) debugStream.println(String.format("%s ServerTUI.Main - Setting Callback in server Thread.",LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
         theServer.setUiThread(lifeLine);

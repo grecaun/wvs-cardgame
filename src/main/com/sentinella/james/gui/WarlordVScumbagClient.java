@@ -10,6 +10,8 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
@@ -45,6 +47,7 @@ public class WarlordVScumbagClient extends Application {
     @Override
     public void stop() {
         if (theClient != null) theClient.quit();
+        if (rootController != null) rootController.closeAI();
         try {
             if (clientThread != null) clientThread.join();
         } catch (InterruptedException e) {
@@ -64,6 +67,7 @@ public class WarlordVScumbagClient extends Application {
             rootController = loader.getController();
             rootController.setPrimaryStage(primaryStage);
             rootController.setClient(this);
+            rootController.setDebug(debug);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -85,7 +89,7 @@ public class WarlordVScumbagClient extends Application {
         }
         try {
             theClient    = new GUIClient(conIP, conPort, conName, false);
-            worker       = new MainWorker(null, true);
+            worker       = new MainWorker(null, debug);
             clientThread = new Thread(theClient);
             worker.setHand(theClient.getHand());
             theClient.setUiThread(rootController);
@@ -110,6 +114,7 @@ public class WarlordVScumbagClient extends Application {
                 public void setOutputStream(PrintStream stream) { }
             });
         } catch (UnknownHostException e) {
+            new Alert(Alert.AlertType.ERROR, "Unable to connect.", ButtonType.CLOSE).showAndWait();
             returnToLogin();
             return;
         }

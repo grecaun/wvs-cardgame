@@ -7,5 +7,6 @@ import java.io.PrintWriter;
  */
 public interface ClientCallback {
     void finished();
+    void unableToConnect();
     void setOutConnection(PrintWriter out);
 }

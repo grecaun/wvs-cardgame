@@ -1,9 +1,6 @@
 package com.sentinella.james.gui.view;
 
-import com.sentinella.james.ClientCallback;
-import com.sentinella.james.MainWorker;
-import com.sentinella.james.Printer;
-import com.sentinella.james.Server;
+import com.sentinella.james.*;
 import com.sentinella.james.gui.WarlordVScumbagClient;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -20,6 +17,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Created by James on 7/1/2017.
@@ -31,12 +29,14 @@ public class ClientRootLayoutController implements ClientCallback {
     private WarlordVScumbagClient       client;
     private MainWorker                  worker;
     private ServerOptionHolder          serverOptions;
-
+    private ClientOptionHolder          clientOptions;
     private GUIServer                   theServer;
-    private Thread                      serverThread;
+    private ArrayList<AIClient>         AIClients = new ArrayList<>();
+    private boolean                     debug = false;
 
     @FXML private MenuBar           menu;
     @FXML private Menu              file;
+    @FXML private MenuItem          closeAIMenuItem;
           private MenuItem          disconnect;
           private Menu              lobby;
           private SeparatorMenuItem menuSep;
@@ -71,6 +71,7 @@ public class ClientRootLayoutController implements ClientCallback {
         menuSep         = new SeparatorMenuItem();
         lobby           = new Menu("Lobby");
         serverOptions   = new ServerOptionHolder();
+        clientOptions   = new ClientOptionHolder();
     }
 
     public void addMenuDisconnect() {
@@ -96,7 +97,75 @@ public class ClientRootLayoutController implements ClientCallback {
 
     @FXML
     private void startAI() {
+        try {
+            AIClient newClient = new AIClient(clientOptions.getHostname(),clientOptions.getHostport(),null,true);
+            AIClients.add(newClient);
+            newClient.setDelay(clientOptions.getDelay());
+            newClient.setUiThread(newClient);
+            if (debug) newClient.setPrinter(new Printer() {
+                private final int AINum = AIClients.size();
 
+                @Override
+                public void printString(String string) {
+                    System.out.println(String.format("AI%d: MSG: %s",AINum,string));
+                }
+
+                @Override
+                public void printErrorMessage(String string) {
+                    System.err.println(String.format("AI%d: ERR: %s",AINum,string));
+                }
+
+                @Override
+                public void printDebugMessage(String string) {
+                    System.out.println(String.format("AI%d: DBG: %s",AINum,string));
+                }
+
+                @Override public void printLine() {}
+
+                @Override public void setDebugStream(PrintStream stream) {}
+
+                @Override public void setErrorStream(PrintStream stream) {}
+
+                @Override public void setOutputStream(PrintStream stream) {}
+            });
+            newClient.setDebug(debug);
+            new Thread(newClient).start();
+            closeAIMenuItem.setDisable(false);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void closeAI() {
+        ArrayList<AIClient> closing = new ArrayList<>();
+        for (AIClient client : AIClients) {
+            client.quit();
+            closing.add(client);
+        }
+        new Thread(()-> {
+            while (closing.size() > 0) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Iterator<AIClient> clientIterator = closing.iterator();
+                while (clientIterator.hasNext()) {
+                    AIClient curClient = clientIterator.next();
+                    if (curClient.isFinished()) {
+                        AIClients.remove(curClient);
+                        clientIterator.remove();
+                    }
+                    else curClient.quit();
+                }
+            }
+            Platform.runLater(() -> updateCloseAIMenu());
+        }).start();
+    }
+
+    private void updateCloseAIMenu() {
+        if (AIClients.size() < 1) closeAIMenuItem.setDisable(true);
     }
 
     @FXML
@@ -134,18 +203,18 @@ public class ClientRootLayoutController implements ClientCallback {
     private void startServer() {
         if (theServer != null && !theServer.hasBeenClosed()) new Alert(Alert.AlertType.ERROR, "Server already running.", ButtonType.CLOSE).showAndWait();
         try {
-            theServer = new GUIServer(serverOptions.getLobbyTime(),serverOptions.getPlayTime(),serverOptions.getMinPlayers(),serverOptions.getMaxStrikes(),serverOptions.getMaxClients(),serverOptions.getPortNumber(),true);
+            theServer = new GUIServer(serverOptions.getLobbyTime(),serverOptions.getPlayTime(),serverOptions.getMinPlayers(),serverOptions.getMaxStrikes(),serverOptions.getMaxClients(),serverOptions.getPortNumber(),debug);
             theServer.setUiThread(new ClientCallback() {
                 @Override
                 public void finished() {
                     closeServer();
                 }
 
-                @Override
-                public void setOutConnection(PrintWriter out) {
-                }
+                @Override public void unableToConnect() {}
+
+                @Override public void setOutConnection(PrintWriter out) {}
             });
-            theServer.setPrinter(new Printer() {
+            if (debug) theServer.setPrinter(new Printer() {
                 @Override
                 public void printString(String string) { System.out.println(String.format("SERV: MSG: %s",string)); }
 
@@ -167,7 +236,22 @@ public class ClientRootLayoutController implements ClientCallback {
                 @Override
                 public void setOutputStream(PrintStream stream) { }
             });
-            serverThread = new Thread(theServer);
+            else theServer.setPrinter(new Printer() {
+                @Override public void printString(String string) {}
+
+                @Override public void printErrorMessage(String string) {}
+
+                @Override public void printDebugMessage(String string) {}
+
+                @Override public void printLine() {}
+
+                @Override public void setDebugStream(PrintStream stream) {}
+
+                @Override public void setErrorStream(PrintStream stream) {}
+
+                @Override public void setOutputStream(PrintStream stream) {}
+            });
+            Thread serverThread = new Thread(theServer);
             serverThread.start();
         } catch (UnknownHostException e) {
             new Alert(Alert.AlertType.ERROR, "Unable to start server.", ButtonType.CLOSE).showAndWait();
@@ -229,6 +313,14 @@ public class ClientRootLayoutController implements ClientCallback {
     }
 
     @Override
+    public void unableToConnect() {
+        Platform.runLater( () -> {
+            new Alert(Alert.AlertType.ERROR, "Unable to connect.", ButtonType.CLOSE).showAndWait();
+            client.returnToLogin();
+        });
+    }
+
+    @Override
     public void setOutConnection(PrintWriter out) {
         worker.setOutConnection(out);
     }
@@ -243,6 +335,40 @@ public class ClientRootLayoutController implements ClientCallback {
 
     public MainWorker getWorker() {
         return worker;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
+
+    class ClientOptionHolder {
+        private String hostname = "localhost";
+        private int    hostport = 36789;
+        private int    delay    = 5;
+
+        public int getHostport() {
+            return hostport;
+        }
+
+        public void setHostport(int hostport) {
+            this.hostport = hostport;
+        }
+
+        public String getHostname() {
+            return hostname;
+        }
+
+        public void setHostname(String hostname) {
+            this.hostname = hostname;
+        }
+
+        public int getDelay() {
+            return delay;
+        }
+
+        public void setDelay(int delay) {
+            this.delay = delay;
+        }
     }
 
     class ServerOptionHolder {
@@ -302,21 +428,43 @@ public class ClientRootLayoutController implements ClientCallback {
         }
     }
 
-     class GUIServer extends Server {
-        private boolean hasBeenClosed = false;
+    class AIClient extends Client implements ClientCallback {
+        private boolean finished = false;
 
-        public GUIServer(int lobbyTimeOut, int playTimeOut, int minPlayers, int strikesAllowed, int maxClients, int port, boolean debug) throws UnknownHostException {
-            super(lobbyTimeOut, playTimeOut, minPlayers, strikesAllowed, maxClients, port, debug);
-        }
-
-        public boolean hasBeenClosed() {
-            return hasBeenClosed;
+        public AIClient(String iHostName, int iHostPort, String iName, boolean iIsAuto) throws UnknownHostException {
+            super(iHostName, iHostPort, iName, iIsAuto);
         }
 
         @Override
-        public void done() {
-            System.out.println("SERVER TERMINATED");
-            hasBeenClosed = true;
+        public void finished() {
+            printer.printString("Setting finished to true.");
+            finished = true;
         }
+
+        @Override public void unableToConnect() {}
+
+        @Override public void setOutConnection(PrintWriter out) { }
+
+        public boolean isFinished() {
+            printer.printString("Someone is checking if I'm finished.");
+            return finished; }
+    }
+
+    class GUIServer extends Server {
+       private boolean hasBeenClosed = false;
+
+       public GUIServer(int lobbyTimeOut, int playTimeOut, int minPlayers, int strikesAllowed, int maxClients, int port, boolean debug) throws UnknownHostException {
+           super(lobbyTimeOut, playTimeOut, minPlayers, strikesAllowed, maxClients, port, debug);
+       }
+
+       public boolean hasBeenClosed() {
+            return hasBeenClosed;
+        }
+
+       @Override
+       public void done() {
+           System.out.println("SERVER TERMINATED");
+           hasBeenClosed = true;
+       }
     }
 }

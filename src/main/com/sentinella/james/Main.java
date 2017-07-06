@@ -23,6 +23,7 @@ public class Main {
         boolean     auto  = true;
         boolean     debug = false;
         int         argc  = args.length;
+        int         delay = 0;
         for (int i=0; i<argc; i++) {
             switch (args[i]) {
                 case "-s":
@@ -31,7 +32,11 @@ public class Main {
                     break;
                 case "-p":
                 case "-P":
-                    port = Integer.parseInt(args[++i]);
+                    try {
+                        port = Integer.parseInt(args[++i]);
+                    } catch (Exception e) {
+                        System.out.println("Unknown value given for as a port number.");
+                    }
                     break;
                 case "-n":
                 case "-N":
@@ -45,10 +50,19 @@ public class Main {
                 case "-D":
                     debug = true;
                     break;
+                case "a":
+                case "A":
+                    try {
+                        delay = Integer.parseInt(args[++i]);
+                    } catch (Exception e) {
+                        System.out.println("Unknown value given for a delay.");
+                    }
+                    break;
                 default:
                     System.out.println("-s <servername> Sets the server IP address.");
                     System.out.println("-p <portnumber> Sets the server's port number.");
                     System.out.println("-n <name> Sets the name you wish to use while playing. 8 character limit.");
+                    System.out.println("-a <delay> Sets the time (seconds) the AI will wait before sending a play/swap message.");
                     System.out.println("-m Tells the client to run in manual mode instead of auto.");
             }
         }
@@ -57,6 +71,7 @@ public class Main {
             myWorker      = new MainWorker(theClient.getOutConnection(),debug);
             clientLobby   = theClient.getLobby();
             clientTable   = theClient.getTable();
+            theClient.setDelay(delay);
             myWorker.setHand(theClient.getHand());
             clientThread  = new Thread(theClient);
             ClientCallback lifeLine = new ClientCallback() {
@@ -66,8 +81,9 @@ public class Main {
                     keepAlive = false;
                 }
 
-                @Override
-                public void setOutConnection(PrintWriter out) {
+                @Override public void unableToConnect() {}
+
+                @Override public void setOutConnection(PrintWriter out) {
                     myWorker.setOutConnection(out);
                 }
             };
