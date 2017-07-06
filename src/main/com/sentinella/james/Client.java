@@ -402,6 +402,10 @@ public class Client implements Runnable {
         cState = ClientState.QUIT;
     }
 
+    public ClientState getState() {
+        return cState;
+    }
+
     public void setDebug(boolean debug) {
         this.debug = debug;
     }
@@ -410,7 +414,7 @@ public class Client implements Runnable {
         this.uiThread = uiThread;
     }
 
-    protected enum ClientState {
+    public enum ClientState {
         QUIT, CLIENTTURN, SWAP, WAITSWAP, WAIT, WAITTURN, INIT
     }
 

@@ -51,6 +51,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
     private ImageView[] handCards = {null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null};
     private boolean[]   handCardSelected = {false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false};
     private int         numberHandCardSelected = 0;
+    private int         maxHandCardsSelected = 4;
 
     private Label       myName;
     private String      myNameString;
@@ -157,20 +158,35 @@ public class ClientPlayLayoutController implements WvSUpdater {
     }
 
     private void sendPlayButtonPress() {
-        int[] cards = {52,52,52,52};
-        int   cardsIx = 0;
-        PlayerHand hand = client.getHand();
-        for (int i=0;i<hand.count();i++) {
-            if (handCardSelected[i]) {
-                cards[cardsIx++] = hand.getHand().get(i).getCardIndexNumber();
+        if (sendPlay.getText() == "Send Play") {
+            int[] cards = {52, 52, 52, 52};
+            int cardsIx = 0;
+            PlayerHand hand = client.getHand();
+            for (int i = 0; i < hand.count(); i++) {
+                if (handCardSelected[i]) {
+                    cards[cardsIx++] = hand.getHand().get(i).getCardIndexNumber();
+                }
             }
-        }
-        for (int card : cards) {
+            for (int card : cards) {
+                hand.remove(card);
+            }
+            worker.sendPlay(cards);
+            resetHand();
+            runLaterUpdateHand(hand.getHand());
+        } else {
+            int card = 52;
+            PlayerHand hand = client.getHand();
+            for (int i = 0; i < hand.count(); i++) {
+                if (handCardSelected[i]) {
+                    card = hand.getHand().get(i).getCardIndexNumber();
+                    break;
+                }
+            }
             hand.remove(card);
+            worker.sendSwap(card);
+            resetHand();
+            runLaterUpdateHand(hand.getHand());
         }
-        worker.sendPlay(cards);
-        resetHand();
-        runLaterUpdateHand(hand.getHand());
     }
 
     private void resetHand() {
@@ -197,7 +213,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
             handCardSelected[cardNo] = false;
             numberHandCardSelected--;
         } else {
-            if (numberHandCardSelected > 3) return;
+            if (numberHandCardSelected >= maxHandCardsSelected) return;
             AnchorPane.setTopAnchor(handCards[cardNo], oldTopAnchor - 20);
             handCardSelected[cardNo] = true;
             numberHandCardSelected++;
@@ -495,8 +511,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
                 tableCards[i].setVisible(false);
             }
         }
-        sendPlay.setVisible(false);
-        if (table.getPlayerStatus(myNameString) == pStatus.ACTIVE) sendPlay.setVisible(true);
+        sendPlay.setVisible(true);
         runLaterUpdateStatus(table);
     }
 
@@ -528,9 +543,6 @@ public class ClientPlayLayoutController implements WvSUpdater {
         if (debug) System.out.println("ClientPlayLayoutController.runLaterUpdateStatus");
         String statusString;
         switch (table.getPlayerStatus(myNameString)) {
-            case ACTIVE:
-                statusString = " It is your turn.";
-                break;
             case PASSED:
                 statusString = " You were passed.";
                 break;
@@ -542,6 +554,25 @@ public class ClientPlayLayoutController implements WvSUpdater {
                 break;
             default:
                 statusString = "";
+        }
+        switch (client.getState()) {
+            case SWAP: // waiting for swap message
+                statusString = " Select a card for the Scumbag.";
+                sendPlay.setDisable(false);
+                sendPlay.setText("Send Swap");
+                resetHand();
+                maxHandCardsSelected = 1;
+                break;
+            case CLIENTTURN: // waiting for play
+                statusString = " It is your turn.";
+                sendPlay.setDisable(false);
+                sendPlay.setText("Send Play");
+                resetHand();
+                maxHandCardsSelected = 4;
+                break;
+            default:
+                sendPlay.setDisable(true);
+                sendPlay.setText("Waiting");
         }
         myName.setText(String.format("Your name is %s.%s", myNameString, statusString));
         myName.setVisible(true);
