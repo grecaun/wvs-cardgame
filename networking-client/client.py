@@ -18,6 +18,7 @@ import re
 import errors
 import threading
 import Queue
+import time
 from cTable import Table, Card, Player
 
 '''
@@ -29,6 +30,7 @@ from cTable import Table, Card, Player
 D_HOST = 'localhost'
 D_PORT = 36789
 D_AUTO = True
+D_DELA = 0
 SIZE   = 1024
 PAD    = "                                                               "
 
@@ -61,18 +63,21 @@ auto = True
 def main():
     global auto             # need access to auto values and state values
     global state
+    global delay
         # command line argument parser code
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--manual", dest="m", action="store_true", help="Run the client in manual mode.")
+    parser.add_argument("-d", "--delay", dest="d", type=int, default=D_DELA, help="Sets the time the AI will wait before sending a play message.")
     parser.add_argument("-s", "--server", dest="s", type=str, default=D_HOST, help="Server IP address.")
     parser.add_argument("-p", "--port", dest="p", type=int, default=D_PORT, help="Server port number.")
     parser.add_argument("-n", "--name", dest="n", type=str, help="The name you wish to use while playing.")
     args = parser.parse_args()
 
     # set up values based upon command line arguments
-    auto = True if args.m == False else False
-    host = args.s
-    port = args.p
+    auto  = True if args.m == False else False
+    host  = args.s
+    port  = args.p
+    delay = args.d
     if args.n:                  # check if a name was given
         if len(args.n) < 8:     # if it was less than 8 characters, pad it to 8 characters
             name = args.n[0:8] + PAD[0:8-len(args.n)]
@@ -163,6 +168,9 @@ def input_thread(inQueue, lock):
 # method that automatically generates a play that won't send a strike to the client
 def auto_Play(con):
     global keepalive
+    global delay
+
+    time.sleep(delay)
     numcards = len(Table.myhand)                # number of cards the client has
     if numcards == 0:                           # if 0, we can't actually do anything, so we'll take a timeout strike
         return
@@ -195,6 +203,9 @@ def auto_Play(con):
 # method for automatically swapping a card
 def auto_Swap(con):
     global keepalive
+    global delay
+
+    time.sleep(delay)
     numcards = len(Table.myhand)    # ensure we have a card to give
     if numcards == 0:
         return
