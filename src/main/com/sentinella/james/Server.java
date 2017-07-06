@@ -57,30 +57,31 @@ public class Server implements Runnable {
 
     @Override
     public void run() {
+        ServerSocketChannel socket = null;
         if (debug) {
             sTable.setDebug(true);
             sTable.setDebugStream(debugStream);
         }
         try {
-            if (debug) debugStream.println(String.format("%s server.run - Starting Procedure to Establish Socket", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+            if (debug) printer.printDebugMessage(String.format("%s server.run - Starting Procedure to Establish Socket", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
             printer.printString(String.format("Attempting to establish server on port %d",port));
             Selector            selector    = Selector.open();
-            if (debug) debugStream.println(String.format("%s server.run - Opening Socket", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
-            ServerSocketChannel socket      = ServerSocketChannel.open();
+            if (debug) printer.printDebugMessage(String.format("%s server.run - Opening Socket", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+                                socket      = ServerSocketChannel.open();
             InetSocketAddress   sockAddress = new InetSocketAddress(port);
-            socket.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-            if (debug) debugStream.println(String.format("%s server.run - Binding Socket to Port", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+            if (debug) printer.printDebugMessage(String.format("%s server.run - Binding Socket to Port", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
             socket.bind(sockAddress);
+            socket.setOption(StandardSocketOptions.SO_REUSEADDR, true);
             socket.configureBlocking(false);
-            printer.printString(String.format("server live at %s", InetAddress.getLocalHost().getHostAddress()));
+            printer.printString(String.format("Server live at %s", InetAddress.getLocalHost().getHostAddress()));
             printer.printLine();
             printer.printString("Clients connected: 0");
             printer.printLine();
             int ops = socket.validOps();
             socket.register(selector,ops);
-            if (debug) debugStream.println(String.format("%s server.run - Setting server State to INSUFFICIENT PLAYERS", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+            if (debug) printer.printDebugMessage(String.format("%s server.run - Setting server State to INSUFFICIENT PLAYERS", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
             state = SERVERSTATE.INSUFFPLAYERS;
-            if (debug) debugStream.println(String.format("%s server.run - Starting Loop", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+            if (debug) printer.printDebugMessage(String.format("%s server.run - Starting Loop", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
             while (keepAlive) {
                 selector.select(1000);
                 Set<SelectionKey>       keys    = selector.selectedKeys();
@@ -88,29 +89,29 @@ public class Server implements Runnable {
                 while (keyIter.hasNext()) {
                     SelectionKey thisKey = keyIter.next();
                     if (thisKey.isAcceptable()) {
-                        if (debug) debugStream.println(String.format("%s server.run - New Connection", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+                        if (debug) printer.printDebugMessage(String.format("%s server.run - New Connection", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
                         // Accept new connection.
                         SocketChannel client = socket.accept();
                         if (cons.size() < maxClients) {
-                            if (debug) debugStream.println(String.format("%s server.run - Adding Client", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+                            if (debug) printer.printDebugMessage(String.format("%s server.run - Adding Client", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
                             cons.add(client);
                             printer.printString(String.format("Clients connected: %d", cons.size()));
                             printer.printLine();
                             client.configureBlocking(false);
                             client.register(selector, SelectionKey.OP_READ);
                         } else {
-                            if (debug) debugStream.println(String.format("%s server.run - Too many clients.", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+                            if (debug) printer.printDebugMessage(String.format("%s server.run - Too many clients.", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
                             PrintWriter outWriter = new PrintWriter(client.socket().getOutputStream(), true);
                             outWriter.println("[strik|81|0]");
                             client.close();
                         }
                     } else if (thisKey.isReadable()) {
-                        if (debug) debugStream.println(String.format("%s server.run - New Message", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+                        if (debug) printer.printDebugMessage(String.format("%s server.run - New Message", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
                         SocketChannel client  = (SocketChannel) thisKey.channel();
                         ByteBuffer    buffer  = ByteBuffer.allocate(256);
                         ServerPlayer  thisGuy = (ServerPlayer) ((ServerLobby)sLobby).getPlayer(client);
                         if (thisGuy == null) {
-                            if (debug) debugStream.println(String.format("%s server.run - Unknown User, adding new server Player", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+                            if (debug) printer.printDebugMessage(String.format("%s server.run - Unknown User, adding new server Player", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
                             thisGuy = new ServerPlayer(null,client,thisKey);
                             sLobby.addPlayer(thisGuy);
                         }
@@ -122,7 +123,7 @@ public class Server implements Runnable {
                         }
                         do {
                             if (bufSz == -1) {
-                                if (debug) debugStream.println(String.format("%s server.run - No Message, Remove Client", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+                                if (debug) printer.printDebugMessage(String.format("%s server.run - No Message, Remove Client", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
                                 removeClient(client, thisKey);
                             } else {
                                 thisGuy.addItem(new String(buffer.array()).trim());
@@ -138,10 +139,10 @@ public class Server implements Runnable {
                     keyIter.remove();
                 }
                 if (clientSinceBroadcast > 0) broadcastLobby(null, false);
-                if (debug) debugStream.println(String.format("%s server.run - Checking State", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+                if (debug) printer.printDebugMessage(String.format("%s server.run - Checking State", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
                 switch (state) {
                     case INSUFFPLAYERS:
-                        if (debug) debugStream.println(String.format("%s server.run - INSUFFICIENT PLAYERS", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+                        if (debug) printer.printDebugMessage(String.format("%s server.run - INSUFFICIENT PLAYERS", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
                         if (minPlayers <= sLobby.numInLobby()) {
                             state = SERVERSTATE.STARTTIMEBUFFER;
                             timeoutTime = System.currentTimeMillis();
@@ -150,7 +151,7 @@ public class Server implements Runnable {
                         }
                         break;
                     case WAITFORPLAYMSG:
-                        if (debug) debugStream.println(String.format("%s server.run - WAITING FOR PLAY MESSAGE", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+                        if (debug) printer.printDebugMessage(String.format("%s server.run - WAITING FOR PLAY MESSAGE", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
                         long currentTime;
                         if (sTable.getActivePlayers() == 0) {
                             insuffPlayers();
@@ -161,7 +162,7 @@ public class Server implements Runnable {
                         } else {
                             if (playTimeOut == 0) break;
                             currentTime = System.currentTimeMillis();
-                            if (debug) debugStream.println(String.format("%s server.run - Checking Timeout Values - TimeoutVal: '%d' Current Time:'%d'", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),timeoutTime+playTimeOut,currentTime));
+                            if (debug) printer.printDebugMessage(String.format("%s server.run - Checking Timeout Values - TimeoutVal: '%d' Current Time:'%d'", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),timeoutTime+playTimeOut,currentTime));
                             if (currentTime > timeoutTime + playTimeOut) {
                                 sTable.strikeActiveAndPass(20);
                                 sTable.nextPlayer();
@@ -171,7 +172,7 @@ public class Server implements Runnable {
                         }
                         break;
                     case WAITFORSWAPMSG:
-                        if (debug) debugStream.println(String.format("%s server.run - WAITING FOR SWAP MESSAGE", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+                        if (debug) printer.printDebugMessage(String.format("%s server.run - WAITING FOR SWAP MESSAGE", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
                         if (sTable.getActivePlayers() == 0) {
                             insuffPlayers();
                         } else if (sTable.getSeatStatus(sTable.getScumbagSeat()) == pStatus.DISCONNECTED) {
@@ -190,7 +191,7 @@ public class Server implements Runnable {
                         }
                         break;
                     case STARTTIMEBUFFER: // Only brand new game gets here.
-                        if (debug) debugStream.println(String.format("%s server.run - Buffer before game start", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+                        if (debug) printer.printDebugMessage(String.format("%s server.run - Buffer before game start", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
                         currentTime = System.currentTimeMillis();
                         if (currentTime > timeoutTime + lobbyTimeOut) {
                             printer.printString(String.format("Let the game begin! %d hands dealt.", handsDealt++));
@@ -201,7 +202,7 @@ public class Server implements Runnable {
                         }
                         break;
                     case NEWGAME:
-                        if (debug) debugStream.println(String.format("%s server.run - NEW GAME", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+                        if (debug) printer.printDebugMessage(String.format("%s server.run - NEW GAME", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
                         printer.printString(String.format("A new round is starting. %d hands dealt.", handsDealt++));
                         printer.printLine();
                         sTable.setNotRanked(false);
@@ -209,28 +210,37 @@ public class Server implements Runnable {
                         break;
                 }
             }
+            selector.close();
+            socket.close();
         } catch (BindException e) {
             printer.printErrorMessage("Unable to establish server connection. Terminating.");
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                socket.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         uiThread.finished();
+        this.done();
     }
 
     private void processMessage(ServerPlayer thisGuy) {
-        if (debug) debugStream.println(String.format("%s server.processMessage", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+        if (debug) printer.printDebugMessage(String.format("%s server.processMessage", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
         String leftOvers = thisGuy.getMessage();
         if (leftOvers.length() < 1) return;
         Matcher outMatcher, inMatcher;
         outMatcher = RegexPatterns.oneMessage.matcher(leftOvers);
         String msg, cmd;
         while (outMatcher.find()) {
-            if (debug) debugStream.println(String.format("%s server.processMessage - Message found. User: %s", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),thisGuy.getName()));
+            if (debug) printer.printDebugMessage(String.format("%s server.processMessage - Message found. User: %s", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),thisGuy.getName()));
             inMatcher = RegexPatterns.generalMessage.matcher(outMatcher.group("msg"));
             if (inMatcher.find()) {
                 msg = inMatcher.group("msg");
                 cmd = inMatcher.group("cmd");
-                if (debug) debugStream.println(String.format("%s server.processMessage - Message found. Total: '%s' Cmd: '%s' Msg: '%s'", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),leftOvers, cmd, msg));
+                if (debug) printer.printDebugMessage(String.format("%s server.processMessage - Message found. Total: '%s' Cmd: '%s' Msg: '%s'", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),leftOvers, cmd, msg));
                 switch (cmd.toLowerCase()) {
                     case "cquit":
                         removeClient(thisGuy.getCon(), thisGuy.getKey());
@@ -261,7 +271,7 @@ public class Server implements Runnable {
     }
 
     private void dealWithJoin(ServerPlayer thisGuy, String msg) {
-        if (debug) debugStream.println(String.format("%s server.dealWithJoin - User: '%s' Msg: '%s'", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),thisGuy.getName(),msg));
+        if (debug) printer.printDebugMessage(String.format("%s server.dealWithJoin - User: '%s' Msg: '%s'", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),thisGuy.getName(),msg));
         if (thisGuy.getName() != null) {
             sendStrike(thisGuy, 30);
             return;
@@ -319,7 +329,7 @@ public class Server implements Runnable {
     }
 
     private void broadcastLobby(ServerPlayer thisGuy, boolean force) {
-        if (debug) debugStream.println(String.format("%s server.broadcastLobby - Sending lobby message", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+        if (debug) printer.printDebugMessage(String.format("%s server.broadcastLobby - Sending lobby message", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
         String lobbyString = ((ServerLobby)sLobby).getLobbyMessage();
         long newTime = System.currentTimeMillis();
         if (newTime > lobbyTime + lobbyInterval || force) {
@@ -345,7 +355,7 @@ public class Server implements Runnable {
     }
 
     private void dealWithChat(ServerPlayer thisGuy, String msg) {
-        if (debug) debugStream.println(String.format("%s server.dealWithChat - User: '%s' Msg: '%s'", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),thisGuy.getName(),msg));
+        if (debug) printer.printDebugMessage(String.format("%s server.dealWithChat - User: '%s' Msg: '%s'", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),thisGuy.getName(),msg));
         if (msg.length() > 63) {
             sendStrike(thisGuy,32);
             return;
@@ -357,7 +367,7 @@ public class Server implements Runnable {
     }
 
     private void dealWithPlay(ServerPlayer thisGuy, String msg) {
-        if (debug) debugStream.println(String.format("%s server.dealWithPlay - User: '%s' Msg: '%s'", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),thisGuy.getName(),msg));
+        if (debug) printer.printDebugMessage(String.format("%s server.dealWithPlay - User: '%s' Msg: '%s'", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),thisGuy.getName(),msg));
         Matcher cardMatcher = RegexPatterns.clientPlay.matcher(msg);
         if (thisGuy.getName() == null) {
             removeClient(thisGuy.getCon(),thisGuy.getKey());
@@ -374,7 +384,7 @@ public class Server implements Runnable {
         }
         if (cardMatcher.find()) {
             int[] cards = { Integer.parseInt(cardMatcher.group("c1")), Integer.parseInt(cardMatcher.group("c2")), Integer.parseInt(cardMatcher.group("c3")), Integer.parseInt(cardMatcher.group("c4"))};
-            if (debug) debugStream.println(String.format("%s Server.dealWithPlay Cards: %d %d %d %d", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),cards[0],cards[1],cards[2],cards[3]));
+            if (debug) printer.printDebugMessage(String.format("%s Server.dealWithPlay Cards: %d %d %d %d", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),cards[0],cards[1],cards[2],cards[3]));
             int errorVal = sTable.checkPlay(cards);
             switch (errorVal) {
                 case 0:
@@ -420,12 +430,12 @@ public class Server implements Runnable {
     }
 
     private void dealWithHand(ServerPlayer thisGuy) {
-        if (debug) debugStream.println(String.format("%s server.dealWithHand - User: '%s'", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),thisGuy.getName()));
+        if (debug) printer.printDebugMessage(String.format("%s server.dealWithHand - User: '%s'", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),thisGuy.getName()));
         if (sTable.isAtTable(thisGuy) && thisGuy.sendHand() == ServerPlayer.CONERROR.UNABLETOSEND) removeClient(thisGuy.getCon(),thisGuy.getKey());
     }
 
     private void dealWithSwap(ServerPlayer thisGuy, String msg) {
-        if (debug) debugStream.println(String.format("%s server.dealWithSwap - User: '%s' Msg: '%s'", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),thisGuy.getName(),msg));
+        if (debug) printer.printDebugMessage(String.format("%s server.dealWithSwap - User: '%s' Msg: '%s'", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),thisGuy.getName(),msg));
         if (msg.length()>2) {
             sendStrike(thisGuy,32);
             return;
@@ -463,7 +473,7 @@ public class Server implements Runnable {
     }
 
     private void sendStrike(ServerPlayer player, int strikeNo) {
-        if (debug) debugStream.println(String.format("%s server.sendStrike - User: '%s' No: '%d'", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),player.getName(),strikeNo));
+        if (debug) printer.printDebugMessage(String.format("%s server.sendStrike - User: '%s' No: '%d'", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),player.getName(),strikeNo));
         printer.printString(String.format("Sending strike to %s because: %s",player.getName(),StrikeErrors.getErrorMessage(strikeNo)));
         printer.printLine();
         if (player.sendStrike(strikeNo) == ServerPlayer.CONERROR.UNABLETOSEND) removeClient(player.getCon(),player.getKey());
@@ -479,7 +489,7 @@ public class Server implements Runnable {
     }
 
     public void removeClient(SocketChannel client, SelectionKey thisKey) {
-        if (debug) debugStream.println(String.format("%s server.dealWithChat - Removing Client", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+        if (debug) printer.printDebugMessage(String.format("%s server.dealWithChat - Removing Client", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
         thisKey.cancel(); // Ensure Select doesn't show us as connected.
         try {
             client.close();
@@ -493,8 +503,16 @@ public class Server implements Runnable {
         }
     }
 
+    public void done() { }
+
     public void setDebugStream(PrintStream debugStream) {
-        this.debugStream = debugStream;
+        printer.setDebugStream(debugStream);
+    }
+
+    public void setPrinter(Printer printer) {
+        this.printer = printer;
+        ((ServerLobby)sLobby).setPrinter(printer);
+        sTable.setPrinter(printer);
     }
 
     public enum SERVERSTATE { INSUFFPLAYERS, WAITFORPLAYMSG, WAITFORSWAPMSG, STARTTIMEBUFFER, NEWGAME }

@@ -2,6 +2,8 @@ package com.sentinella.james.gui.view;
 
 import com.sentinella.james.ClientCallback;
 import com.sentinella.james.MainWorker;
+import com.sentinella.james.Printer;
+import com.sentinella.james.Server;
 import com.sentinella.james.gui.WarlordVScumbagClient;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -14,7 +16,9 @@ import javafx.scene.input.KeyCombination;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 /**
@@ -27,6 +31,9 @@ public class ClientRootLayoutController implements ClientCallback {
     private WarlordVScumbagClient       client;
     private MainWorker                  worker;
     private ServerOptionHolder          serverOptions;
+
+    private GUIServer                   theServer;
+    private Thread                      serverThread;
 
     @FXML private MenuBar           menu;
     @FXML private Menu              file;
@@ -125,11 +132,52 @@ public class ClientRootLayoutController implements ClientCallback {
 
     @FXML
     private void startServer() {
+        if (theServer != null && !theServer.hasBeenClosed()) new Alert(Alert.AlertType.ERROR, "Server already running.", ButtonType.CLOSE).showAndWait();
+        try {
+            theServer = new GUIServer(serverOptions.getLobbyTime(),serverOptions.getPlayTime(),serverOptions.getMinPlayers(),serverOptions.getMaxStrikes(),serverOptions.getMaxClients(),serverOptions.getPortNumber(),true);
+            theServer.setUiThread(new ClientCallback() {
+                @Override
+                public void finished() {
+                    closeServer();
+                }
 
+                @Override
+                public void setOutConnection(PrintWriter out) {
+                }
+            });
+            theServer.setPrinter(new Printer() {
+                @Override
+                public void printString(String string) { System.out.println(String.format("SERV: MSG: %s",string)); }
+
+                @Override
+                public void printErrorMessage(String string) { System.out.println(String.format("SERV: ERR: %s",string)); }
+
+                @Override
+                public void printDebugMessage(String string) { System.out.println(String.format("SERV: DBG: %s",string)); }
+
+                @Override
+                public void printLine() { System.out.println("SERV: ----------------------------------------"); }
+
+                @Override
+                public void setDebugStream(PrintStream stream) { }
+
+                @Override
+                public void setErrorStream(PrintStream stream) { }
+
+                @Override
+                public void setOutputStream(PrintStream stream) { }
+            });
+            serverThread = new Thread(theServer);
+            serverThread.start();
+        } catch (UnknownHostException e) {
+            new Alert(Alert.AlertType.ERROR, "Unable to start server.", ButtonType.CLOSE).showAndWait();
+        }
     }
 
     @FXML
     private void closeServer() {
+        if (theServer == null || theServer.hasBeenClosed()) new Alert(Alert.AlertType.ERROR, "No server running.", ButtonType.CLOSE).showAndWait();
+        else theServer.quit();
     }
 
     @FXML
@@ -251,6 +299,24 @@ public class ClientRootLayoutController implements ClientCallback {
 
         void setMaxStrikes(int maxStrikes) {
             this.maxStrikes = maxStrikes;
+        }
+    }
+
+     class GUIServer extends Server {
+        private boolean hasBeenClosed = false;
+
+        public GUIServer(int lobbyTimeOut, int playTimeOut, int minPlayers, int strikesAllowed, int maxClients, int port, boolean debug) throws UnknownHostException {
+            super(lobbyTimeOut, playTimeOut, minPlayers, strikesAllowed, maxClients, port, debug);
+        }
+
+        public boolean hasBeenClosed() {
+            return hasBeenClosed;
+        }
+
+        @Override
+        public void done() {
+            System.out.println("SERVER TERMINATED");
+            hasBeenClosed = true;
         }
     }
 }

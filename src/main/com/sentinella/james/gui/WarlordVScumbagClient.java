@@ -14,6 +14,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.UnknownHostException;
 
 public class WarlordVScumbagClient extends Application {
@@ -91,13 +92,22 @@ public class WarlordVScumbagClient extends Application {
             rootController.setWorker(worker);
             theClient.setDebug(debug);
             theClient.setPrinter(new Printer() {
-                @Override public void printString(String string) { System.out.println(String.format("MSG: %s",string)); }
+                @Override public void printString(String string) { System.out.println(String.format("CLIENT: MSG: %s",string)); }
 
-                @Override public void printErrorMessage(String string) { System.err.println(String.format("ERR: %s",string)); }
+                @Override public void printErrorMessage(String string) { System.err.println(String.format("CLIENT: ERR: %s",string)); }
 
-                @Override public void printDebugMessage(String string) { System.out.println(String.format("DBG: %s",string)); }
+                @Override public void printDebugMessage(String string) { System.out.println(String.format("CLIENT: DBG: %s",string)); }
 
                 @Override public void printLine() { }
+
+                @Override
+                public void setDebugStream(PrintStream stream) { }
+
+                @Override
+                public void setErrorStream(PrintStream stream) { }
+
+                @Override
+                public void setOutputStream(PrintStream stream) { }
             });
         } catch (UnknownHostException e) {
             returnToLogin();
@@ -139,7 +149,7 @@ public class WarlordVScumbagClient extends Application {
                             e.printStackTrace();
                         }
                     }
-                    Platform.runLater(() -> cont.enableChatSend());
+                    Platform.runLater(cont::enableChatSend);
                 }).start();
                 if (primaryStage.getWidth() < 1280) {
                     cont.updateLeftPane(200.00);
