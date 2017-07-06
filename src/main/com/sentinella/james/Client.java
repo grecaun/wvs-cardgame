@@ -123,11 +123,13 @@ public class Client implements Runnable {
                     message = null;
                 }
             }
+            if (debug) printer.printDebugMessage("Notifying uithread that we're done.");
             if (uiThread!=null) uiThread.finished();
         } catch (IOException e) {
             printer.printErrorMessage("Unable to establish connection to server. Program terminating.");
             if (uiThread!=null) uiThread.finished();
         }
+        if (debug) printer.printDebugMessage("All done.");
     }
 
     private void doSomething() {
@@ -394,7 +396,10 @@ public class Client implements Runnable {
     public String     getName()    { return cName; }
     public int        getStrikes() { return cStrikes; }
 
-    public void       quit()     { cState = ClientState.QUIT; }
+    public void       quit()     {
+        if (debug) printer.printDebugMessage("Setting state to quit.");
+        cState = ClientState.QUIT;
+    }
 
     public void setDebug(boolean debug) {
         this.debug = debug;

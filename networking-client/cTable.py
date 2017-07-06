@@ -116,11 +116,14 @@ class Table:
 				newstr = " You are apparently no longer connected."
 			print "You are player %d.%s" %(Table.mychair, newstr)
 		outstr = "These cards are on the table: "
-		for card in Table.inplay:
-			outstr += "%s, " %card.print_card()
+		if len(Table.inplay) == 0:
+			outstr = "There are no cards on the table.  "
+		else:
+			for card in Table.inplay:
+				outstr += "%s, " %card.print_card()
 		print outstr[0:len(outstr)-2]
 		Table.print_Hand()
-		
+
 	# method for outputting the player's hand so that they know what cards they have
 	@staticmethod
 	def print_Hand():

@@ -25,7 +25,7 @@ public class WarlordVScumbagClient extends Application {
     private MainWorker          worker;
 
     private Thread              clientThread;
-            boolean             debug = false;
+            boolean             debug = true;
 
     public static void main(String[] args) {
         launch(args);
@@ -89,7 +89,7 @@ public class WarlordVScumbagClient extends Application {
             worker.setHand(theClient.getHand());
             theClient.setUiThread(rootController);
             rootController.setWorker(worker);
-            theClient.setDebug(true);
+            theClient.setDebug(debug);
             theClient.setPrinter(new Printer() {
                 @Override public void printString(String string) { System.out.println(String.format("MSG: %s",string)); }
 
@@ -99,43 +99,49 @@ public class WarlordVScumbagClient extends Application {
 
                 @Override public void printLine() { }
             });
-            clientThread.start();
         } catch (UnknownHostException e) {
             returnToLogin();
             return;
         }
         showPlayLayout();
+        clientThread.start();
     }
 
     public void disconnect() {
-        worker.sendQuit();
-        Platform.runLater(() -> theClient.quit());
-        returnToLogin();
+        synchronized (this) {
+            worker.sendQuit();
+            theClient.quit();
+        }
     }
 
     private void showPlayLayout() {
-        try {
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(WarlordVScumbagClient.class.getResource("view/ClientPlayLayout.fxml"));
-            AnchorPane playLayout = loader.load();
-            rootLayout.setCenter(playLayout);
+        synchronized (this) {
+            try {
+                FXMLLoader loader = new FXMLLoader();
+                loader.setLocation(WarlordVScumbagClient.class.getResource("view/ClientPlayLayout.fxml"));
+                AnchorPane playLayout = loader.load();
+                rootLayout.setCenter(playLayout);
 
-            ClientPlayLayoutController cont = loader.getController();
-            rootController.setPlayController(cont);
-            rootController.addMenuDisconnect();
-            cont.setWorker(rootController.getWorker());
-            theClient.setUpdater(cont);
-            cont.setPrimaryStage(primaryStage);
-            cont.setClient(theClient);
-            cont.setRootController(rootController);
-            if (primaryStage.getWidth() < 1280) {
-                cont.updateLeftPane(200.00);
-            } else {
-                cont.updateLeftPane(300);
+                ClientPlayLayoutController cont = loader.getController();
+                rootController.setPlayController(cont);
+                rootController.addMenuDisconnect();
+                cont.setWorker(rootController.getWorker());
+                theClient.setUpdater(cont);
+                cont.setPrimaryStage(primaryStage);
+                cont.setClient(theClient);
+                cont.setRootController(rootController);
+                cont.setDebug(debug);
+                if (primaryStage.getWidth() < 1280) {
+                    cont.updateLeftPane(200.00);
+                } else {
+                    cont.updateLeftPane(300);
+                }
+                synchronized (rootController) {
+                    cont.updateView();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            cont.updateView();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 

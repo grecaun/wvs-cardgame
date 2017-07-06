@@ -3,6 +3,8 @@ package com.sentinella.james.gui.view;
 import com.sentinella.james.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -14,9 +16,12 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Created by James on 6/30/2017.
@@ -30,6 +35,9 @@ public class ClientPlayLayoutController implements WvSUpdater {
     @FXML private VBox       chatMessages;
     @FXML private AnchorPane displPane;
 
+    private double     messageWidth = 189.0;
+    private ScreenSize screenSize = ScreenSize.SMALL;
+
     private ImageView[] playerAvatar = {null,null,null,null,null,null,null};
     private ImageView[] playerCardIcons = {null,null,null,null,null,null,null};
     private ImageView[] playerStrikeIcons = {null,null,null,null,null,null,null};
@@ -39,8 +47,8 @@ public class ClientPlayLayoutController implements WvSUpdater {
     private Label[]     playerStrikes = {null,null,null,null,null,null,null};
 
     private ImageView[] tableCards = {null,null,null,null};
-    private ImageView[] handCards = {null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null};
-    private boolean[]   handCardSelected = {false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false};
+    private ImageView[] handCards = {null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null};
+    private boolean[]   handCardSelected = {false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false};
     private int         numberHandCardSelected = 0;
 
     private Label       myName;
@@ -52,9 +60,11 @@ public class ClientPlayLayoutController implements WvSUpdater {
     private MainWorker                  worker;
     private ClientRootLayoutController  rootController;
 
+    private boolean     debug = false;
+
     @FXML
     private void initialize() {
-        for (int i=0; i<7; i++) {
+        for (int i=0; i<playerAvatar.length; i++) {
             playerAvatar[i] = new ImageView();
             playerAvatar[i].setImage(new Image("/com/sentinella/james/gui/view/images/avatars/chair.png"));
             playerAvatar[i].setPreserveRatio(true);
@@ -102,7 +112,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
             playerStrikes[i].setVisible(false);
             displPane.getChildren().add(playerStrikes[i]);
         }
-        for (int i=0; i<4; i++) {
+        for (int i=0; i<tableCards.length; i++) {
             tableCards[i] = new ImageView();
             tableCards[i].setImage(new Image("/com/sentinella/james/gui/view/images/playingcards/02_clubs.png"));
             tableCards[i].setPreserveRatio(true);
@@ -111,7 +121,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
             tableCards[i].setVisible(false);
             displPane.getChildren().add(tableCards[i]);
         }
-        for (int i=0; i<18; i++) {
+        for (int i=0; i<handCards.length; i++) {
             handCards[i] = new ImageView();
             handCards[i].setImage(new Image("/com/sentinella/james/gui/view/images/playingcards/02_clubs.png"));
             handCards[i].setPreserveRatio(true);
@@ -136,6 +146,10 @@ public class ClientPlayLayoutController implements WvSUpdater {
         myName.setText("You are John");
         myName.setVisible(false);
         displPane.getChildren().add(myName);
+
+        chatMessages.setMinWidth(198);
+        chatMessages.setMaxWidth(198);
+        chatMessages.setAlignment(Pos.TOP_RIGHT);
     }
 
     private void sendPlayButtonPress() {
@@ -156,7 +170,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
     }
 
     private void resetHand() {
-        for (int i=0;i<18;i++) {
+        for (int i=0;i<handCardSelected.length;i++) {
             if (handCardSelected[i]) {
                 double oldTopAnchor = AnchorPane.getTopAnchor(handCards[i]);
                 AnchorPane.setTopAnchor(handCards[i], oldTopAnchor + 20);
@@ -182,6 +196,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
     }
 
     public void updateView() {
+        if (debug) System.out.println("ClientPlayLayoutController.updateView");
         // window attributes
         double  paneWidth   = primaryStage.getWidth();
         paneWidth -= paneWidth < 1200 ? 200 : 300;
@@ -193,7 +208,6 @@ public class ClientPlayLayoutController implements WvSUpdater {
 
         double cardWidth, cardOffset, topTableCardAnchor, topHandCardAnchor, leftHandCardAnchor = 25.0, leftTableCardAnchor, sendButtonDiff, topMyNameAnchor;
 
-        ScreenSize screenSize;
         switch (avatarWidth) {
             case 122:
                 spacer = 10;
@@ -269,7 +283,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
                 topMyNameAnchor = topHandCardAnchor + 185;
                 myName.setFont(Font.font(45.0));
         }
-        for (int i=0; i<7; i++) {
+        for (int i=0; i<playerNames.length; i++) {
             switch (screenSize) {
                 case SMALL:
                     playerNames[i].setFont(Font.font(16.0));
@@ -323,15 +337,15 @@ public class ClientPlayLayoutController implements WvSUpdater {
             anchor += (spacer + avatarWidth);
         }
 
-        for (int i=0;i<4;i++) {
-            tableCards[i].setFitWidth(cardWidth);
-            AnchorPane.setTopAnchor(tableCards[i],topTableCardAnchor);
-            AnchorPane.setLeftAnchor(tableCards[i],leftTableCardAnchor);
+        for (ImageView tableCard : tableCards) {
+            tableCard.setFitWidth(cardWidth);
+            AnchorPane.setTopAnchor(tableCard, topTableCardAnchor);
+            AnchorPane.setLeftAnchor(tableCard, leftTableCardAnchor);
             leftTableCardAnchor += cardWidth + spacer;
         }
         AnchorPane.setTopAnchor(sendPlay, topTableCardAnchor + sendButtonDiff);
         AnchorPane.setLeftAnchor(sendPlay, leftTableCardAnchor + 45);
-        for (int i=0;i<18;i++) {
+        for (int i=0;i<handCards.length;i++) {
             handCards[i].setFitWidth(cardWidth);
             if (handCardSelected[i]) {
                 AnchorPane.setTopAnchor(handCards[i], topHandCardAnchor - 20);
@@ -361,12 +375,14 @@ public class ClientPlayLayoutController implements WvSUpdater {
 
     @Override
     public void updateTable(Table table) {
+        if (debug) System.out.println("ClientPlayLayoutController.updateTable");
         Platform.runLater(() -> runLaterUpdateTable(table));
     }
 
     private void runLaterUpdateTable(Table table) {
+        if (debug) System.out.println("ClientPlayLayoutController.runLaterUpdateTable");
         updatePlayer();
-        for (int i=0;i<7;i++) {
+        for (int i = 0; i < playerAvatar.length; i++) {
             StringBuilder avatarURL = new StringBuilder("/com/sentinella/james/gui/view/images/avatars/");
             switch (i) {
                 case 0:
@@ -416,7 +432,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
                 playerAvatar[i].setImage(new Image(avatarURL.toString()));
                 playerAvatar[i].setVisible(true);
                 String thisPlayerName = table.getPlayerbySeat(i).trim();
-                playerNames[i].setText(thisPlayerName.equalsIgnoreCase(myNameString)?"You":thisPlayerName);
+                playerNames[i].setText(thisPlayerName.equalsIgnoreCase(myNameString) ? "You" : thisPlayerName);
                 playerNames[i].setVisible(true);
                 playerCardIcons[i].setVisible(true);
                 playerCards[i].setText(String.valueOf(table.getCardsLeftBySeat(i)));
@@ -427,7 +443,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
             }
         }
         int[] inPlay = table.getInPlay();
-        for (int i=0;i<4;i++) {
+        for (int i = 0; i < tableCards.length; i++) {
             if (inPlay[i] < 52) {
                 int cardV = inPlay[i] / 4;
                 int cardS = inPlay[i] % 4;
@@ -477,25 +493,30 @@ public class ClientPlayLayoutController implements WvSUpdater {
 
     @Override
     public void updatePlayer() {
+        if (debug) System.out.println("ClientPlayLayoutController.updatePlayer");
         Platform.runLater(()->runLaterUpdatePlayer(client.getName()));
     }
 
     @Override
     public void updatePlayer(String name) {
+        if (debug) System.out.println("ClientPlayLayoutController.updatePlayer(name)");
         Platform.runLater(()->runLaterUpdatePlayer(client.getName()));
     }
 
     private void runLaterUpdatePlayer(String name) {
+        if (debug) System.out.println("ClientPlayLayoutController.runLaterUpdatePlayer");
         myNameString = name.trim();
         runLaterUpdateStatus(client.getTable());
     }
 
     @Override
     public void updateStatus(Table table) {
+        if (debug) System.out.println("ClientPlayLayoutController.updateStatus");
         Platform.runLater(() -> runLaterUpdateStatus(client.getTable()));
     }
 
     private void runLaterUpdateStatus(Table table) {
+        if (debug) System.out.println("ClientPlayLayoutController.runLaterUpdateStatus");
         String statusString;
         switch (table.getPlayerStatus(myNameString)) {
             case ACTIVE:
@@ -513,41 +534,48 @@ public class ClientPlayLayoutController implements WvSUpdater {
             default:
                 statusString = "";
         }
-        myName.setText(String.format("Your name is %s.%s",myNameString,statusString));
+        myName.setText(String.format("Your name is %s.%s", myNameString, statusString));
         myName.setVisible(true);
     }
 
     @Override
     public void updateLobby(ArrayList<String> names) {
+        if (debug) System.out.println("ClientPlayLayoutController.updateLobby");
         Platform.runLater(() -> rootController.updateLobby(names));
     }
 
     @Override
     public void updateChat(String name, String message) {
+        if (debug) System.out.println("ClientPlayLayoutController.updateChat");
         Platform.runLater(() -> runLaterUpdateChat(name,message));
     }
 
     public void runLaterUpdateChat(String name, String message) {
-        Label newMsg = new Label(String.format("%8s: %s",name,message));
+        if (debug) System.out.println("ClientPlayLayoutController.runLaterUpdateChat");
+        Label newMsg = new Label(String.format("%8s: %s", name, message));
         newMsg.setWrapText(true);
+        newMsg.setMinWidth(messageWidth);
+        newMsg.setMaxWidth(messageWidth);
         chatMessages.getChildren().add(newMsg);
     }
 
     @Override
     public void updateAll() {
-
+        if (debug) System.out.println("ClientPlayLayoutController.updateAll");
     }
 
     @Override
     public void updateHand(ArrayList<Card> cards) {
+        if (debug) System.out.println("ClientPlayLayoutController.updateHand");
         Platform.runLater(() -> runLaterUpdateHand(cards));
     }
 
     private void runLaterUpdateHand(ArrayList<Card> cards) {
+        if (debug) System.out.println("ClientPlayLayoutController.runLaterUpdateHand");
         int index;
-        for (index=0;index<cards.size();index++) {
+        for (index = 0; index < cards.size(); index++) {
             StringBuilder url = new StringBuilder("/com/sentinella/james/gui/view/images/playingcards/");
-            int cardNo   = cards.get(index).getCardNumericFaceValue();
+            int cardNo = cards.get(index).getCardNumericFaceValue();
             int cardSuit = cards.get(index).getCardIndexNumber() % 4;
             switch (cardNo) {
                 case 8:
@@ -566,7 +594,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
                     url.append("02_");
                     break;
                 default:
-                    url.append(String.format("%02d_",cardNo+3));
+                    url.append(String.format("%02d_", cardNo + 3));
             }
             switch (cardSuit) {
                 case 0:
@@ -584,17 +612,35 @@ public class ClientPlayLayoutController implements WvSUpdater {
             handCards[index].setImage(new Image(url.toString()));
             handCards[index].setVisible(true);
         }
-        for ( ;index<18;index++) {
+        for (; index < 18; index++) {
             handCards[index].setVisible(false);
         }
     }
 
     // non interface/callback methods
     public void updateLeftPane(double width) {
+        switch (screenSize) {
+            case SMALL:
+                messageWidth = width - 11;
+                break;
+            case MEDIUM:
+                messageWidth = width - 21;
+                break;
+            case LARGE:
+                messageWidth = width - 37;
+                break;
+            default:
+        }
         leftPane.setMaxWidth(width);
         leftPane.setMinWidth(width);
+        chatMessages.setMinWidth(width-2);
+        chatMessages.setMaxWidth(width-2);
         chatText.setMaxWidth(width-45.0);
         chatText.setMinWidth(width-45.0);
+        for (Node node : chatMessages.getChildren()) {
+            ((Label) node).setMinWidth(messageWidth);
+            ((Label) node).setMaxWidth(messageWidth);
+        }//*/
     }
 
     public void setClient(Client client) {
@@ -611,6 +657,10 @@ public class ClientPlayLayoutController implements WvSUpdater {
 
     public void setRootController(ClientRootLayoutController rootController) {
         this.rootController = rootController;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
     }
 
     private enum ScreenSize {SMALL, MEDIUM, LARGE}

@@ -47,12 +47,12 @@ public class ClientRootLayoutController implements ClientCallback {
         prevScreen[1] = primaryStage.getHeight();
         primaryStage.setWidth(width);
         primaryStage.setHeight(height);
+        if (playController != null) playController.updateView();
         if (width < 1200) {
             if (playController != null) playController.updateLeftPane(200.00);
         } else {
             if (playController != null) playController.updateLeftPane(300.00);
         }
-        if (playController != null) playController.updateView();
     }
 
     @FXML
@@ -67,9 +67,9 @@ public class ClientRootLayoutController implements ClientCallback {
     }
 
     public void addMenuDisconnect() {
-        menu.getMenus().add(3,lobby);
-        file.getItems().add(2,disconnect);
-        file.getItems().add(3,menuSep);
+        menu.getMenus().add(3, lobby);
+        file.getItems().add(2, disconnect);
+        file.getItems().add(3, menuSep);
         disconnect.setDisable(false);
     }
 
@@ -82,7 +82,7 @@ public class ClientRootLayoutController implements ClientCallback {
 
     public void updateLobby(ArrayList<String> members) {
         lobby.getItems().clear();
-        for (String person: members) {
+        for (String person : members) {
             lobby.getItems().add(new MenuItem(person));
         }
     }
@@ -177,7 +177,7 @@ public class ClientRootLayoutController implements ClientCallback {
 
     @Override
     public void finished() {
-        Platform.runLater(() ->client.returnToLogin());
+        Platform.runLater(() -> client.returnToLogin());
     }
 
     @Override
