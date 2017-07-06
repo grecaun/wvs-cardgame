@@ -15,22 +15,22 @@ import java.util.regex.Matcher;
  * Created by James on 4/6/2016.
  */
 public class Client implements Runnable {
-    private InetAddress                 hostName    = InetAddress.getLocalHost();
-    private int                         hostPort    = 36789;
-    private boolean                     isAuto      = true;
-    private volatile ClientState        cState      = ClientState.WAIT;
-    private boolean                     debug       = false;
-    private PrintWriter                 outConnection;
-    private ClientCallback              uiThread;
+    private   InetAddress                 hostName    = InetAddress.getLocalHost();
+    private   int                         hostPort    = 36789;
+    private   boolean                     isAuto      = true;
+    protected volatile ClientState        cState      = ClientState.INIT;
+    private   boolean                     debug       = false;
+    private   PrintWriter                 outConnection;
+    private   ClientCallback              uiThread;
 
-    private WvSUpdater          updater;
-    private Printer             printer = new BasicPrinter();
+    private   WvSUpdater          updater;
+    private   Printer             printer = new BasicPrinter();
 
-    private Table               cTable;
-    private Lobby               cLobby;
-    private PlayerHand          cHand;
-    private String              cName;
-    private int                 cStrikes;
+    private   Table               cTable;
+    private   Lobby               cLobby;
+    private   PlayerHand          cHand;
+    private   String              cName;
+    private   int                 cStrikes;
 
     public Client(String iHostName, int iHostPort, String iName, boolean iIsAuto) throws UnknownHostException {
         if (iHostName != null)
@@ -67,6 +67,7 @@ public class Client implements Runnable {
             }
             outConnection.println(String.format("[cjoin|%8s]", cName));
             if (debug) printer.printDebugMessage(String.format("[cjoin|%8s]", cName));
+            cState = ClientState.WAIT;
             while (cState != ClientState.QUIT) {
                 carryOver = new StringBuilder();
                 message = null;
@@ -409,8 +410,8 @@ public class Client implements Runnable {
         this.uiThread = uiThread;
     }
 
-    private enum ClientState {
-        QUIT, CLIENTTURN, SWAP, WAITSWAP, WAIT, WAITTURN
+    protected enum ClientState {
+        QUIT, CLIENTTURN, SWAP, WAITSWAP, WAIT, WAITTURN, INIT
     }
 
     public enum errVal {

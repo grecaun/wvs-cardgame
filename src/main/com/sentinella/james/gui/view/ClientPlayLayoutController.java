@@ -32,6 +32,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
 
     @FXML private BorderPane leftPane;
     @FXML private TextField  chatText;
+    @FXML private Button     sendChat;
     @FXML private VBox       chatMessages;
     @FXML private AnchorPane displPane;
 
@@ -150,6 +151,9 @@ public class ClientPlayLayoutController implements WvSUpdater {
         chatMessages.setMinWidth(198);
         chatMessages.setMaxWidth(198);
         chatMessages.setAlignment(Pos.TOP_RIGHT);
+
+        sendChat.setDisable(true);
+        chatText.setDisable(true);
     }
 
     private void sendPlayButtonPress() {
@@ -178,6 +182,11 @@ public class ClientPlayLayoutController implements WvSUpdater {
                 numberHandCardSelected--;
             }
         }
+    }
+
+    public void enableChatSend() {
+        sendChat.setDisable(false);
+        chatText.setDisable(false);
     }
 
     private void handCardClick(MouseEvent event) {

@@ -57,7 +57,7 @@ public class ClientServerOptionsLayoutController {
             if (portNumber.getText().length() > 0) {
                 try {
                     val = Integer.parseInt(portNumber.getText().trim());
-                    options.setPortNumber(val);
+                    if (val > 100) options.setPortNumber(val);
                 } catch (Exception e) {
                     error = true;
                 }
@@ -65,7 +65,7 @@ public class ClientServerOptionsLayoutController {
             if (lobbyTimeOut.getText().length() > 0) {
                 try {
                     val = Integer.parseInt(lobbyTimeOut.getText().trim());
-                    options.setLobbyTime(val);
+                    if (val >= 0) options.setLobbyTime(val);
                 } catch (Exception e) {
                     error = true;
                 }
@@ -73,7 +73,7 @@ public class ClientServerOptionsLayoutController {
             if (playTimeOut.getText().length() > 0) {
                 try {
                     val = Integer.parseInt(playTimeOut.getText().trim());
-                    options.setPlayTime(val);
+                    if (val >= 0) options.setPlayTime(val);
                 } catch (Exception e) {
                     error = true;
                 }
@@ -81,7 +81,7 @@ public class ClientServerOptionsLayoutController {
             if (minPlayers.getText().length() > 0) {
                 try {
                     val = Integer.parseInt(minPlayers.getText().trim());
-                    options.setMinPlayers(val);
+                    if (val > 2 || val < 8) options.setMinPlayers(val);
                 } catch (Exception e) {
                     error = true;
                 }
@@ -89,7 +89,7 @@ public class ClientServerOptionsLayoutController {
             if (maxClients.getText().length() > 0) {
                 try {
                     val = Integer.parseInt(maxClients.getText().trim());
-                    options.setMaxClients(val);
+                    if (val > 2 || val < 91) options.setMaxClients(val);
                 } catch (Exception e) {
                     error = true;
                 }
@@ -97,7 +97,7 @@ public class ClientServerOptionsLayoutController {
             if (maxStrikes.getText().length() > 0) {
                 try {
                     val = Integer.parseInt(maxStrikes.getText().trim());
-                    options.setMaxStrikes(val);
+                    if (val >= 0) options.setMaxStrikes(val);
                 } catch (Exception e) {
                     error = true;
                 }

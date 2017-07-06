@@ -21,7 +21,7 @@ public class WarlordVScumbagClient extends Application {
     private BorderPane                  rootLayout;
     private ClientRootLayoutController  rootController;
 
-    private Client              theClient;
+    private GUIClient           theClient;
     private MainWorker          worker;
 
     private Thread              clientThread;
@@ -83,7 +83,7 @@ public class WarlordVScumbagClient extends Application {
             conName = name;
         }
         try {
-            theClient    = new Client(conIP, conPort, conName, false);
+            theClient    = new GUIClient(conIP, conPort, conName, false);
             worker       = new MainWorker(null, true);
             clientThread = new Thread(theClient);
             worker.setHand(theClient.getHand());
@@ -131,14 +131,22 @@ public class WarlordVScumbagClient extends Application {
                 cont.setClient(theClient);
                 cont.setRootController(rootController);
                 cont.setDebug(debug);
+                new Thread(() -> {
+                    while (!theClient.isRunning()) {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    Platform.runLater(() -> cont.enableChatSend());
+                }).start();
                 if (primaryStage.getWidth() < 1280) {
                     cont.updateLeftPane(200.00);
                 } else {
                     cont.updateLeftPane(300);
                 }
-                synchronized (rootController) {
-                    cont.updateView();
-                }
+                cont.updateView();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -163,5 +171,16 @@ public class WarlordVScumbagClient extends Application {
     public void returnToLogin() {
         rootController.removeMenuDisconnect();
         showLoginLayout();
+    }
+
+    class GUIClient extends Client {
+
+        GUIClient(String conIP, int conPort, String conName, boolean b) throws UnknownHostException {
+            super(conIP,conPort,conName,b);
+        }
+
+        boolean isRunning() {
+            return this.cState != ClientState.INIT;
+        }
     }
 }
