@@ -3,6 +3,7 @@ package com.sentinella.james.gui;/**
  */
 
 import com.sentinella.james.*;
+import com.sentinella.james.gui.view.ClientAIListLayoutController;
 import com.sentinella.james.gui.view.ClientLoginLayoutController;
 import com.sentinella.james.gui.view.ClientPlayLayoutController;
 import com.sentinella.james.gui.view.ClientRootLayoutController;
@@ -20,9 +21,9 @@ import java.io.PrintStream;
 import java.net.UnknownHostException;
 
 public class WarlordVScumbagClient extends Application {
-    private Stage                       primaryStage;
-    private BorderPane                  rootLayout;
-    private ClientRootLayoutController  rootController;
+    private Stage                      primaryStage;
+    private BorderPane                 rootLayout;
+    private ClientRootLayoutController rootController;
 
     private GUIClient           theClient;
     private MainWorker          worker;
@@ -73,22 +74,13 @@ public class WarlordVScumbagClient extends Application {
         }
     }
 
-    public void login(String ip, String port, String name) {
-        String conIP = null, conName = null;
-        int conPort = 0;
-        if (ip.length() > 0) {
-            conIP = ip;
-        }
-        if (port.length() > 0) {
-            try {
-                conPort = Integer.parseInt(port.trim());
-            } catch (Exception e) { conPort = 0; }
-        }
+    public void login(String name) {
+        String conName = null;
         if (name.length() > 0) {
             conName = name;
         }
         try {
-            theClient    = new GUIClient(conIP, conPort, conName, false);
+            theClient    = new GUIClient(rootController.getHostName(), rootController.getHostPort(), conName, false);
             worker       = new MainWorker(null, debug);
             clientThread = new Thread(theClient);
             worker.setHand(theClient.getHand());

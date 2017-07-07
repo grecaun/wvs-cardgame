@@ -46,7 +46,7 @@ public class testingArena {
 
         }
         int test2 = Integer.parseInt(" 12 ".trim());
-        int test3 = Integer.parseInt("12");
+        int test3 = Integer.parseInt("b");
         System.out.println(String.format("%d %d %d", test1, test2, test3));
     }
 

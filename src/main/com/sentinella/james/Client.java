@@ -125,12 +125,12 @@ public class Client implements Runnable {
                     message = null;
                 }
             }
-            if (debug) printer.printDebugMessage("Notifying uithread that we're done.");
-            if (uiThread!=null) uiThread.finished();
         } catch (IOException e) {
             printer.printErrorMessage("Unable to establish connection to server. Program terminating.");
             if (uiThread!=null) uiThread.unableToConnect();
         }
+        if (debug) printer.printDebugMessage("Notifying uithread that we're done.");
+        if (uiThread!=null) uiThread.finished();
         if (debug) printer.printDebugMessage("All done.");
     }
 

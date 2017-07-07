@@ -23,20 +23,26 @@ import java.util.Iterator;
  * Created by James on 7/1/2017.
  */
 public class ClientRootLayoutController implements ClientCallback {
-    private double[]                    prevScreen = {816.0,639.0};
-    private Stage                       primaryStage;
-    private ClientPlayLayoutController  playController;
-    private WarlordVScumbagClient       client;
-    private MainWorker                  worker;
-    private ServerOptionHolder          serverOptions;
-    private ClientOptionHolder          clientOptions;
-    private GUIServer                   theServer;
-    private ArrayList<AIClient>         AIClients = new ArrayList<>();
-    private boolean                     debug = false;
+    private double[]                     prevScreen = {816.0,639.0};
+    private Stage                        primaryStage;
+    private ClientPlayLayoutController   playController;
+
+    private WarlordVScumbagClient        client;
+    private MainWorker                   worker;
+    private ClientOptionHolder           clientOptions;
+
+    private GUIServer                    theServer;
+    private ServerOptionHolder           serverOptions;
+
+    private ArrayList<AIClient>          AIClients = new ArrayList<>();
+    private ClientAIListLayoutController aiListController;
+
+    private boolean                      debug = false;
 
     @FXML private MenuBar           menu;
     @FXML private Menu              file;
     @FXML private MenuItem          closeAIMenuItem;
+    @FXML private MenuItem          listAIMenuItem;
           private MenuItem          disconnect;
           private Menu              lobby;
           private SeparatorMenuItem menuSep;
@@ -96,6 +102,21 @@ public class ClientRootLayoutController implements ClientCallback {
     }
 
     @FXML
+    private void settings() {
+        Stage newStage = new Stage();
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(WarlordVScumbagClient.class.getResource("view/ClientSettingsLayout.fxml"));
+        try {
+            newStage.setScene(new Scene(loader.load()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ((ClientSettingsLayoutController)loader.getController()).setStage(newStage);
+        ((ClientSettingsLayoutController)loader.getController()).setOptions(clientOptions);
+        newStage.show();
+    }
+
+    @FXML
     private void startAI() {
         try {
             AIClient newClient = new AIClient(clientOptions.getHostname(),clientOptions.getHostport(),null,true);
@@ -131,6 +152,8 @@ public class ClientRootLayoutController implements ClientCallback {
             newClient.setDebug(debug);
             new Thread(newClient).start();
             closeAIMenuItem.setDisable(false);
+            listAIMenuItem.setDisable(false);
+            if (aiListController != null) aiListController.setClients(AIClients);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
@@ -164,8 +187,30 @@ public class ClientRootLayoutController implements ClientCallback {
         }).start();
     }
 
+    @FXML
+    public void listAI() {
+        Stage newStage = new Stage();
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(WarlordVScumbagClient.class.getResource("view/ClientAIListLayout.fxml"));
+        try {
+            newStage.setScene(new Scene(loader.load()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        aiListController = (ClientAIListLayoutController) loader.getController();
+        aiListController.setStage(newStage);
+        aiListController.setClients(AIClients);
+        newStage.show();
+    }
+
     private void updateCloseAIMenu() {
-        if (AIClients.size() < 1) closeAIMenuItem.setDisable(true);
+        Iterator<AIClient> iterator = AIClients.iterator();
+        while (iterator.hasNext()) if (iterator.next().isFinished()) iterator.remove();
+        if (AIClients.size() < 1) {
+            if (aiListController != null) aiListController.setClients(AIClients);
+            closeAIMenuItem.setDisable(true);
+            listAIMenuItem.setDisable(true);
+        }
     }
 
     @FXML
@@ -341,6 +386,14 @@ public class ClientRootLayoutController implements ClientCallback {
         this.debug = debug;
     }
 
+    public String getHostName() {
+        return clientOptions.getHostname();
+    }
+
+    public int getHostPort() {
+        return clientOptions.getHostport();
+    }
+
     class ClientOptionHolder {
         private String hostname = "localhost";
         private int    hostport = 36789;
@@ -350,9 +403,7 @@ public class ClientRootLayoutController implements ClientCallback {
             return hostport;
         }
 
-        public void setHostport(int hostport) {
-            this.hostport = hostport;
-        }
+        public void setHostport(int hostport) { if (hostport > 1024) this.hostport = hostport; }
 
         public String getHostname() {
             return hostname;
@@ -439,6 +490,7 @@ public class ClientRootLayoutController implements ClientCallback {
         public void finished() {
             printer.printString("Setting finished to true.");
             finished = true;
+            Platform.runLater(ClientRootLayoutController.this::updateCloseAIMenu);
         }
 
         @Override public void unableToConnect() {}

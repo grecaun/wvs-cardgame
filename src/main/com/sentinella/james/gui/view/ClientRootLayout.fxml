@@ -13,10 +13,13 @@
         <menus>
           <Menu fx:id="file" mnemonicParsing="false" text="File">
             <items>
+                  <MenuItem mnemonicParsing="false" onAction="#settings" text="Settings" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
               <MenuItem mnemonicParsing="false" onAction="#startAI" text="Start AI Client">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="A" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator></MenuItem>
+                  <MenuItem fx:id="listAIMenuItem" disable="true" mnemonicParsing="false" onAction="#listAI" text="List AI Clients" />
                   <MenuItem fx:id="closeAIMenuItem" disable="true" mnemonicParsing="false" onAction="#closeAI" text="Stop AI Clients" />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem mnemonicParsing="false" onAction="#close" text="Exit" />

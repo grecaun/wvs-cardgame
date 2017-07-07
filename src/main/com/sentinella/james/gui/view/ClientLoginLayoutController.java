@@ -16,13 +16,11 @@ public class ClientLoginLayoutController {
 
     private WarlordVScumbagClient app;
 
-    @FXML private TextField ipText;
-    @FXML private TextField portText;
     @FXML private TextField nameText;
 
     @FXML
     private void login() {
-        app.login(ipText.getText(),portText.getText(),nameText.getText());
+        app.login(nameText.getText());
     }
 
     @FXML
