@@ -201,6 +201,11 @@ def main():
             Table.notranked = 0                                 # this state is only entered into if we were in a hand already, so by default it is ranked
             Table.newhand()
 
+    for c in gvals.clientlist:          # send quit message to everyone
+        try:
+            c.socket.send("[squit]\n")
+        except socket.error:            # close the socket of anyone who can't have the message sent to them
+            close(c.socket)
     server.close()                                              # we've exited our run loop, so close the socket
 
 # Function for new thread for reading input.

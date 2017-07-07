@@ -11,6 +11,7 @@ import javafx.stage.Stage;
 public class ClientServerOptionsLayoutController {
 
     private ClientRootLayoutController.ServerOptionHolder   options;
+    private ClientRootLayoutController                      rootLayoutController;
     private Stage                                           stage;
 
     @FXML private TextField portNumber;
@@ -106,6 +107,7 @@ public class ClientServerOptionsLayoutController {
                 Alert alert = new Alert(Alert.AlertType.ERROR, "One or more settings is unable to be processed. Only numerical values are acceptable.", ButtonType.CLOSE);
                 alert.showAndWait();
             } else  {
+                rootLayoutController.updateServerSettings();
                 this.stage.close();
             }
         }
@@ -126,5 +128,9 @@ public class ClientServerOptionsLayoutController {
 
     public void setStage(Stage stage) {
         this.stage = stage;
+    }
+
+    public void setRootLayoutController(ClientRootLayoutController rootLayoutController) {
+        this.rootLayoutController = rootLayoutController;
     }
 }

@@ -33,14 +33,15 @@
             </Menu>
           <Menu mnemonicParsing="false" text="Server">
             <items>
-              <MenuItem mnemonicParsing="false" onAction="#startServer" text="Start">
+              <MenuItem fx:id="startServer" mnemonicParsing="false" onAction="#startServer" text="Start">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="E" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator></MenuItem>
-                  <MenuItem mnemonicParsing="false" onAction="#closeServer" text="Close">
+                  <MenuItem fx:id="closeServer" disable="true" mnemonicParsing="false" onAction="#closeServer" text="Close">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="W" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator></MenuItem>
+                  <MenuItem fx:id="serverLog" disable="true" mnemonicParsing="false" onAction="#serverLog" text="Log" />
                   <MenuItem mnemonicParsing="false" onAction="#optionsServer" text="Options">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="Q" control="DOWN" meta="UP" shift="UP" shortcut="UP" />

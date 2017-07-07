@@ -210,6 +210,7 @@ public class Server implements Runnable {
                         break;
                 }
             }
+            ((ServerLobby)sLobby).broadcastMessage("[squit]");
             selector.close();
             socket.close();
         } catch (BindException e) {
@@ -218,6 +219,7 @@ public class Server implements Runnable {
             e.printStackTrace();
         } finally {
             try {
+                ((ServerLobby)sLobby).broadcastMessage("[squit]");
                 socket.close();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -513,6 +515,26 @@ public class Server implements Runnable {
         this.printer = printer;
         ((ServerLobby)sLobby).setPrinter(printer);
         sTable.setPrinter(printer);
+    }
+
+    public void setMinPlayers(int minPlayers) {
+        this.minPlayers = minPlayers;
+    }
+
+    public void setLobbyTimeOut(int lobbyTimeOut) {
+        this.lobbyTimeOut = lobbyTimeOut;
+    }
+
+    public void setPlayTimeOut(int playTimeOut) {
+        this.playTimeOut = playTimeOut;
+    }
+
+    public void setStrikesAllowed(int strikesAllowed) {
+        this.strikesAllowed = strikesAllowed;
+    }
+
+    public void setMaxClients(int maxClients) {
+        this.maxClients = maxClients;
     }
 
     public enum SERVERSTATE { INSUFFPLAYERS, WAITFORPLAYMSG, WAITFORSWAPMSG, STARTTIMEBUFFER, NEWGAME }

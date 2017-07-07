@@ -48,7 +48,7 @@ public class WarlordVScumbagClient extends Application {
     @Override
     public void stop() {
         if (theClient != null) theClient.quit();
-        if (rootController != null) rootController.closeAI();
+        if (rootController != null) rootController.closeEverything();
         try {
             if (clientThread != null) clientThread.join();
         } catch (InterruptedException e) {

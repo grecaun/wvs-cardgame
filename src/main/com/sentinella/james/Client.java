@@ -70,6 +70,7 @@ public class Client implements Runnable {
             if (debug) printer.printDebugMessage(String.format("[cjoin|%8s]", cName));
             cState = ClientState.WAIT;
             while (cState != ClientState.QUIT) {
+                if (debug) printer.printDebugMessage("Start of main loop.");
                 carryOver = new StringBuilder();
                 message = null;
                 try {
@@ -222,9 +223,16 @@ public class Client implements Runnable {
                 return dealWithSwapW(information);
             } else if (cmd.equalsIgnoreCase("swaps")) {
                 return dealWithSwapS(information);
+            } else if (cmd.equalsIgnoreCase("squit")) {
+                return dealWithSquit(information);
             }
         }
         return errVal.NOMATCH;
+    }
+
+    private errVal dealWithSquit(String information) {
+        cState = ClientState.QUIT;
+        return errVal.NOERR;
     }
 
     private errVal dealWithLobby(String iInformation) {

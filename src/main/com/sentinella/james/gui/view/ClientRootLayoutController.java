@@ -43,6 +43,9 @@ public class ClientRootLayoutController implements ClientCallback {
     @FXML private Menu              file;
     @FXML private MenuItem          closeAIMenuItem;
     @FXML private MenuItem          listAIMenuItem;
+    @FXML private MenuItem          startServer;
+    @FXML private MenuItem          closeServer;
+    @FXML private MenuItem          serverLog;
           private MenuItem          disconnect;
           private Menu              lobby;
           private SeparatorMenuItem menuSep;
@@ -78,6 +81,26 @@ public class ClientRootLayoutController implements ClientCallback {
         lobby           = new Menu("Lobby");
         serverOptions   = new ServerOptionHolder();
         clientOptions   = new ClientOptionHolder();
+    }
+
+    @FXML
+    private void serverLog() {
+        Stage newStage = new Stage();
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(WarlordVScumbagClient.class.getResource("view/ClientServerLogLayout.fxml"));
+        try {
+            newStage.setScene(new Scene(loader.load()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ClientServerLogLayoutController cont = loader.getController();
+        cont.setStage(newStage);
+        cont.setLog(theServer.getServerLog());
+        theServer.setListener(()->{
+            Platform.runLater(cont::updateLog);
+        });
+        cont.updateLog();
+        newStage.show();
     }
 
     public void addMenuDisconnect() {
@@ -160,7 +183,7 @@ public class ClientRootLayoutController implements ClientCallback {
     }
 
     @FXML
-    public void closeAI() {
+    private void closeAI() {
         ArrayList<AIClient> closing = new ArrayList<>();
         for (AIClient client : AIClients) {
             client.quit();
@@ -188,7 +211,7 @@ public class ClientRootLayoutController implements ClientCallback {
     }
 
     @FXML
-    public void listAI() {
+    private void listAI() {
         Stage newStage = new Stage();
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(WarlordVScumbagClient.class.getResource("view/ClientAIListLayout.fxml"));
@@ -197,7 +220,7 @@ public class ClientRootLayoutController implements ClientCallback {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        aiListController = (ClientAIListLayoutController) loader.getController();
+        aiListController = loader.getController();
         aiListController.setStage(newStage);
         aiListController.setClients(AIClients);
         newStage.show();
@@ -261,7 +284,10 @@ public class ClientRootLayoutController implements ClientCallback {
             });
             if (debug) theServer.setPrinter(new Printer() {
                 @Override
-                public void printString(String string) { System.out.println(String.format("SERV: MSG: %s",string)); }
+                public void printString(String string) {
+                    System.out.println(String.format("SERV: MSG: %s",string));
+                    theServer.addToServerLog(string);
+                }
 
                 @Override
                 public void printErrorMessage(String string) { System.out.println(String.format("SERV: ERR: %s",string)); }
@@ -270,7 +296,7 @@ public class ClientRootLayoutController implements ClientCallback {
                 public void printDebugMessage(String string) { System.out.println(String.format("SERV: DBG: %s",string)); }
 
                 @Override
-                public void printLine() { System.out.println("SERV: ----------------------------------------"); }
+                public void printLine() { printString("----------------------------------------"); }
 
                 @Override
                 public void setDebugStream(PrintStream stream) { }
@@ -282,13 +308,15 @@ public class ClientRootLayoutController implements ClientCallback {
                 public void setOutputStream(PrintStream stream) { }
             });
             else theServer.setPrinter(new Printer() {
-                @Override public void printString(String string) {}
+                @Override public void printString(String string) {
+                    theServer.addToServerLog(string);
+                }
 
                 @Override public void printErrorMessage(String string) {}
 
                 @Override public void printDebugMessage(String string) {}
 
-                @Override public void printLine() {}
+                @Override public void printLine() { printString("----------------------------------------"); }
 
                 @Override public void setDebugStream(PrintStream stream) {}
 
@@ -298,6 +326,7 @@ public class ClientRootLayoutController implements ClientCallback {
             });
             Thread serverThread = new Thread(theServer);
             serverThread.start();
+            enableCloseServer();
         } catch (UnknownHostException e) {
             new Alert(Alert.AlertType.ERROR, "Unable to start server.", ButtonType.CLOSE).showAndWait();
         }
@@ -305,8 +334,30 @@ public class ClientRootLayoutController implements ClientCallback {
 
     @FXML
     private void closeServer() {
-        if (theServer == null || theServer.hasBeenClosed()) new Alert(Alert.AlertType.ERROR, "No server running.", ButtonType.CLOSE).showAndWait();
-        else theServer.quit();
+        if (theServer == null) return;
+        theServer.quit();
+        new Thread(() -> {
+            while (!theServer.hasBeenClosed()) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            Platform.runLater(this::disableCloseServer);
+        }).start();
+    }
+
+    private void disableCloseServer() {
+        serverLog.setDisable(true);
+        closeServer.setDisable(true);
+        startServer.setDisable(false);
+    }
+
+    private void enableCloseServer() {
+        serverLog.setDisable(false);
+        closeServer.setDisable(false);
+        startServer.setDisable(true);
     }
 
     @FXML
@@ -319,8 +370,10 @@ public class ClientRootLayoutController implements ClientCallback {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        ((ClientServerOptionsLayoutController)loader.getController()).setOptions(serverOptions);
-        ((ClientServerOptionsLayoutController)loader.getController()).setStage(newStage);
+        ClientServerOptionsLayoutController cont = loader.getController();
+        cont.setOptions(serverOptions);
+        cont.setStage(newStage);
+        cont.setRootLayoutController(this);
         newStage.show();
     }
 
@@ -392,6 +445,20 @@ public class ClientRootLayoutController implements ClientCallback {
 
     public int getHostPort() {
         return clientOptions.getHostport();
+    }
+
+    public void updateServerSettings() {
+        if (theServer == null) return;
+        theServer.setMaxClients(serverOptions.getMaxClients());
+        theServer.setMinPlayers(serverOptions.getMinPlayers());
+        theServer.setStrikesAllowed(serverOptions.getMaxStrikes());
+        theServer.setLobbyTimeOut(serverOptions.getLobbyTime());
+        theServer.setPlayTimeOut(serverOptions.getPlayTime());
+    }
+
+    public void closeEverything() {
+        closeAI();
+        closeServer();
     }
 
     class ClientOptionHolder {
@@ -482,7 +549,7 @@ public class ClientRootLayoutController implements ClientCallback {
     class AIClient extends Client implements ClientCallback {
         private boolean finished = false;
 
-        public AIClient(String iHostName, int iHostPort, String iName, boolean iIsAuto) throws UnknownHostException {
+        AIClient(String iHostName, int iHostPort, String iName, boolean iIsAuto) throws UnknownHostException {
             super(iHostName, iHostPort, iName, iIsAuto);
         }
 
@@ -503,7 +570,9 @@ public class ClientRootLayoutController implements ClientCallback {
     }
 
     class GUIServer extends Server {
-       private boolean hasBeenClosed = false;
+       private ArrayList<String> serverLog = new ArrayList<>();
+       private ServerListener    listener;
+       private boolean           hasBeenClosed = false;
 
        public GUIServer(int lobbyTimeOut, int playTimeOut, int minPlayers, int strikesAllowed, int maxClients, int port, boolean debug) throws UnknownHostException {
            super(lobbyTimeOut, playTimeOut, minPlayers, strikesAllowed, maxClients, port, debug);
@@ -515,8 +584,20 @@ public class ClientRootLayoutController implements ClientCallback {
 
        @Override
        public void done() {
-           System.out.println("SERVER TERMINATED");
            hasBeenClosed = true;
+       }
+
+       public void addToServerLog(String string) {
+           serverLog.add(string);
+           if (listener != null) listener.updateServerLog();
+       }
+
+       public ArrayList<String> getServerLog() {
+           return serverLog;
+       }
+
+       public void setListener(ServerListener listener) {
+           this.listener = listener;
        }
     }
 }
