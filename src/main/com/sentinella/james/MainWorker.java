@@ -194,10 +194,6 @@ public class MainWorker {
         if (debug) System.err.println(String.format("[cswap|%02d]", cardNumber));
     }
 
-    public void sendQuit() {
-        if (outConnection!= null) outConnection.println("[cquit]");
-    }
-
     /**
      * Sends chat message(s) to server.
      * Breaks into 64 character chunks. Trims whitespace off ends.

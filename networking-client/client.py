@@ -155,7 +155,12 @@ def main():
         elif state == 3 and auto == True:                               # state 3 implies the server asked for a swap card to give to scumbag
             auto_Swap(con)                                              # auto implies we're in auto mode, so auto play, then set state to waiting for confirmation
             state = 4
-    con.close()
+    try:
+        con.send("[cquit]\n")
+        con.close()
+    except socket.error:
+        print "Unable to send quit message. Still quitting."
+        con.close()
 
 # Function for new thread for reading input.
 def input_thread(inQueue, lock):
@@ -403,8 +408,15 @@ def parse_server(cmd,msg):
         s_lobb(msg)
     elif cmd == "shand":
         s_hand(msg)
+    elif cmd == "squit":
+        s_quit(msg)
     else:
         print "Server sent unknown message type."
+
+# method to deal with a quit message from the server
+def s_quit(msg):
+    global keepalive
+    keepalive = 0
 
 # method to deal with the join message from a server
 def s_join(msg):

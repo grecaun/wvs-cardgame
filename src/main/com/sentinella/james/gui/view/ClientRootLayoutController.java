@@ -50,80 +50,21 @@ public class ClientRootLayoutController implements ClientCallback {
           private Menu              lobby;
           private SeparatorMenuItem menuSep;
 
-    public void setPrimaryStage(Stage pStage) {
-        this.primaryStage = pStage;
-    }
+    /*
+     * Getters and setters.
+     */
+    public void         setPrimaryStage(Stage pStage) {this.primaryStage = pStage;}
+    public void         setPlayController(ClientPlayLayoutController cont) {this.playController = cont;}
+    public void         setClient(WarlordVScumbagClient client) {this.client = client;}
+    public void         setWorker(MainWorker worker) {this.worker = worker;}
+    public MainWorker   getWorker() {return worker;}
+    public void         setDebug(boolean debug) {this.debug = debug;}
+    public String       getHostName() {return clientOptions.getHostname();}
+    public int          getHostPort() {return clientOptions.getHostport();}
 
-    public void setPlayController(ClientPlayLayoutController cont) {
-        this.playController = cont;
-    }
-
-    void setScreenSize(double width, double height) {
-        prevScreen[0] = primaryStage.getWidth();
-        prevScreen[1] = primaryStage.getHeight();
-        primaryStage.setWidth(width);
-        primaryStage.setHeight(height);
-        if (playController != null) playController.updateView();
-        if (width < 1200) {
-            if (playController != null) playController.updateLeftPane(200.00);
-        } else {
-            if (playController != null) playController.updateLeftPane(300.00);
-        }
-    }
-
-    @FXML
-    private void initialize() {
-        disconnect      = new MenuItem("Disconnect");
-        disconnect.setOnAction(e -> disconnect());
-        disconnect.setAccelerator(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN));
-        disconnect.setDisable(true);
-        menuSep         = new SeparatorMenuItem();
-        lobby           = new Menu("Lobby");
-        serverOptions   = new ServerOptionHolder();
-        clientOptions   = new ClientOptionHolder();
-    }
-
-    @FXML
-    private void serverLog() {
-        Stage newStage = new Stage();
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(WarlordVScumbagClient.class.getResource("view/ClientServerLogLayout.fxml"));
-        try {
-            newStage.setScene(new Scene(loader.load()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        ClientServerLogLayoutController cont = loader.getController();
-        cont.setStage(newStage);
-        cont.setLog(theServer.getServerLog());
-        theServer.setListener(()->{
-            Platform.runLater(cont::updateLog);
-        });
-        cont.updateLog();
-        newStage.show();
-    }
-
-    public void addMenuDisconnect() {
-        menu.getMenus().add(3, lobby);
-        file.getItems().add(2, disconnect);
-        file.getItems().add(3, menuSep);
-        disconnect.setDisable(false);
-    }
-
-    public void removeMenuDisconnect() {
-        menu.getMenus().remove(lobby);
-        file.getItems().remove(disconnect);
-        file.getItems().remove(menuSep);
-        disconnect.setDisable(true);
-    }
-
-    public void updateLobby(ArrayList<String> members) {
-        lobby.getItems().clear();
-        for (String person : members) {
-            lobby.getItems().add(new MenuItem(person));
-        }
-    }
-
+    /*
+     * File
+     */
     @FXML
     private void settings() {
         Stage newStage = new Stage();
@@ -183,6 +124,22 @@ public class ClientRootLayoutController implements ClientCallback {
     }
 
     @FXML
+    private void listAI() {
+        Stage newStage = new Stage();
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(WarlordVScumbagClient.class.getResource("view/ClientAIListLayout.fxml"));
+        try {
+            newStage.setScene(new Scene(loader.load()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        aiListController = loader.getController();
+        aiListController.setStage(newStage);
+        aiListController.setClients(AIClients);
+        newStage.show();
+    }
+
+    @FXML
     private void closeAI() {
         ArrayList<AIClient> closing = new ArrayList<>();
         for (AIClient client : AIClients) {
@@ -206,24 +163,8 @@ public class ClientRootLayoutController implements ClientCallback {
                     else curClient.quit();
                 }
             }
-            Platform.runLater(() -> updateCloseAIMenu());
+            Platform.runLater(this::updateCloseAIMenu);
         }).start();
-    }
-
-    @FXML
-    private void listAI() {
-        Stage newStage = new Stage();
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(WarlordVScumbagClient.class.getResource("view/ClientAIListLayout.fxml"));
-        try {
-            newStage.setScene(new Scene(loader.load()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        aiListController = loader.getController();
-        aiListController.setStage(newStage);
-        aiListController.setClients(AIClients);
-        newStage.show();
     }
 
     private void updateCloseAIMenu() {
@@ -242,11 +183,9 @@ public class ClientRootLayoutController implements ClientCallback {
         System.exit(0);
     }
 
-    @FXML
-    private void disconnect() {
-        client.disconnect();
-    }
-
+    /*
+     * Window Size
+     */
     @FXML
     private void previous() {
         setScreenSize(prevScreen[0],prevScreen[1]);
@@ -267,6 +206,22 @@ public class ClientRootLayoutController implements ClientCallback {
         newStage.show();
     }
 
+    void setScreenSize(double width, double height) {
+        prevScreen[0] = primaryStage.getWidth();
+        prevScreen[1] = primaryStage.getHeight();
+        primaryStage.setWidth(width);
+        primaryStage.setHeight(height);
+        if (playController != null) playController.updateView();
+        if (width < 1200) {
+            if (playController != null) playController.updateLeftPane(200.00);
+        } else {
+            if (playController != null) playController.updateLeftPane(300.00);
+        }
+    }
+
+    /*
+     * Server
+     */
     @FXML
     private void startServer() {
         if (theServer != null && !theServer.hasBeenClosed()) new Alert(Alert.AlertType.ERROR, "Server already running.", ButtonType.CLOSE).showAndWait();
@@ -361,6 +316,26 @@ public class ClientRootLayoutController implements ClientCallback {
     }
 
     @FXML
+    private void serverLog() {
+        Stage newStage = new Stage();
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(WarlordVScumbagClient.class.getResource("view/ClientServerLogLayout.fxml"));
+        try {
+            newStage.setScene(new Scene(loader.load()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ClientServerLogLayoutController cont = loader.getController();
+        cont.setStage(newStage);
+        cont.setLog(theServer.getServerLog());
+        theServer.setListener(()->{
+            Platform.runLater(cont::updateLog);
+        });
+        cont.updateLog();
+        newStage.show();
+    }
+
+    @FXML
     private void optionsServer() {
         Stage newStage = new Stage();
         FXMLLoader loader = new FXMLLoader();
@@ -377,6 +352,18 @@ public class ClientRootLayoutController implements ClientCallback {
         newStage.show();
     }
 
+    public void updateServerSettings() {
+        if (theServer == null) return;
+        theServer.setMaxClients(serverOptions.getMaxClients());
+        theServer.setMinPlayers(serverOptions.getMinPlayers());
+        theServer.setStrikesAllowed(serverOptions.getMaxStrikes());
+        theServer.setLobbyTimeOut(serverOptions.getLobbyTime());
+        theServer.setPlayTimeOut(serverOptions.getPlayTime());
+    }
+
+    /*
+     * Help
+     */
     @FXML
     private void howtoplay() {
         Stage newStage = new Stage();
@@ -405,9 +392,57 @@ public class ClientRootLayoutController implements ClientCallback {
         newStage.show();
     }
 
+    @FXML
+    private void initialize() {
+        disconnect      = new MenuItem("Disconnect");
+        disconnect.setOnAction(e -> disconnect());
+        disconnect.setAccelerator(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN));
+        disconnect.setDisable(true);
+        menuSep         = new SeparatorMenuItem();
+        lobby           = new Menu("Lobby");
+        serverOptions   = new ServerOptionHolder();
+        clientOptions   = new ClientOptionHolder();
+    }
+
+    /*
+     * Disconnect menu options.
+     */
+    public void addMenuDisconnect() {
+        menu.getMenus().add(3, lobby);
+        file.getItems().add(2, disconnect);
+        file.getItems().add(3, menuSep);
+        disconnect.setDisable(false);
+    }
+
+    public void removeMenuDisconnect() {
+        menu.getMenus().remove(lobby);
+        file.getItems().remove(disconnect);
+        file.getItems().remove(menuSep);
+        disconnect.setDisable(true);
+    }
+
+    public void updateLobby(ArrayList<String> members) {
+        lobby.getItems().clear();
+        for (String person : members) {
+            lobby.getItems().add(new MenuItem(person));
+        }
+    }
+
+    private void disconnect() {
+        client.disconnect();
+    }
+
+    public void closeEverything() {
+        closeAI();
+        closeServer();
+    }
+
+    /*
+     * ClientCallback methods
+     */
     @Override
-    public void finished() {
-        Platform.runLater(() -> client.returnToLogin());
+    public void setOutConnection(PrintWriter out) {
+        worker.setOutConnection(out);
     }
 
     @Override
@@ -419,48 +454,13 @@ public class ClientRootLayoutController implements ClientCallback {
     }
 
     @Override
-    public void setOutConnection(PrintWriter out) {
-        worker.setOutConnection(out);
+    public void finished() {
+        Platform.runLater(() -> client.returnToLogin());
     }
 
-    public void setClient(WarlordVScumbagClient client) {
-        this.client = client;
-    }
-
-    public void setWorker(MainWorker worker) {
-        this.worker = worker;
-    }
-
-    public MainWorker getWorker() {
-        return worker;
-    }
-
-    public void setDebug(boolean debug) {
-        this.debug = debug;
-    }
-
-    public String getHostName() {
-        return clientOptions.getHostname();
-    }
-
-    public int getHostPort() {
-        return clientOptions.getHostport();
-    }
-
-    public void updateServerSettings() {
-        if (theServer == null) return;
-        theServer.setMaxClients(serverOptions.getMaxClients());
-        theServer.setMinPlayers(serverOptions.getMinPlayers());
-        theServer.setStrikesAllowed(serverOptions.getMaxStrikes());
-        theServer.setLobbyTimeOut(serverOptions.getLobbyTime());
-        theServer.setPlayTimeOut(serverOptions.getPlayTime());
-    }
-
-    public void closeEverything() {
-        closeAI();
-        closeServer();
-    }
-
+    /*
+     * Classes
+     */
     class ClientOptionHolder {
         private String hostname = "localhost";
         private int    hostport = 36789;

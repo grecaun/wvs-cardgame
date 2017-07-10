@@ -126,6 +126,10 @@ public class Client implements Runnable {
                     message = null;
                 }
             }
+            outConnection.println("[cquit]");
+            outConnection.close();
+            inConnection.close();
+            socket.close();
         } catch (IOException e) {
             printer.printErrorMessage("Unable to establish connection to server. Program terminating.");
             if (uiThread!=null) uiThread.unableToConnect();

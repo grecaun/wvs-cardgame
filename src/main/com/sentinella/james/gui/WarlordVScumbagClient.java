@@ -116,7 +116,6 @@ public class WarlordVScumbagClient extends Application {
 
     public void disconnect() {
         synchronized (this) {
-            worker.sendQuit();
             theClient.quit();
         }
     }
