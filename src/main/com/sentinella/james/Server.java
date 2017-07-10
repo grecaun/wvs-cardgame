@@ -57,7 +57,7 @@ public class Server implements Runnable {
 
     @Override
     public void run() {
-        ServerSocketChannel socket = null;
+        ServerSocket socket = null;
         if (debug) {
             sTable.setDebug(true);
             sTable.setDebugStream(debugStream);
@@ -65,27 +65,17 @@ public class Server implements Runnable {
         try {
             if (debug) printer.printDebugMessage(String.format("%s server.run - Starting Procedure to Establish Socket", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
             printer.printString(String.format("Attempting to establish server on port %d",port));
-            Selector            selector    = Selector.open();
-            if (debug) printer.printDebugMessage(String.format("%s server.run - Opening Socket", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
-                                socket      = ServerSocketChannel.open();
-            InetSocketAddress   sockAddress = new InetSocketAddress(port);
-            if (debug) printer.printDebugMessage(String.format("%s server.run - Binding Socket to Port", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
-            socket.bind(sockAddress);
-            socket.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-            socket.configureBlocking(false);
+            socket = new ServerSocket(port);
+            socket.establishConnection();
             printer.printString(String.format("Server live at %s", InetAddress.getLocalHost().getHostAddress()));
             printer.printLine();
-            printer.printString("Clients connected: 0");
+            printer.printString(String.format("Clients connected: %d",cons.size()));
             printer.printLine();
-            int ops = socket.validOps();
-            socket.register(selector,ops);
             if (debug) printer.printDebugMessage(String.format("%s server.run - Setting server State to INSUFFICIENT PLAYERS", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
             state = SERVERSTATE.INSUFFPLAYERS;
             if (debug) printer.printDebugMessage(String.format("%s server.run - Starting Loop", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
             while (keepAlive) {
-                selector.select(1000);
-                Set<SelectionKey>       keys    = selector.selectedKeys();
-                Iterator<SelectionKey>  keyIter = keys.iterator();
+                Iterator<SelectionKey>  keyIter = socket.select(1000).iterator();
                 while (keyIter.hasNext()) {
                     SelectionKey thisKey = keyIter.next();
                     if (thisKey.isAcceptable()) {
@@ -97,12 +87,11 @@ public class Server implements Runnable {
                             cons.add(client);
                             printer.printString(String.format("Clients connected: %d", cons.size()));
                             printer.printLine();
-                            client.configureBlocking(false);
-                            client.register(selector, SelectionKey.OP_READ);
                         } else {
                             if (debug) printer.printDebugMessage(String.format("%s server.run - Too many clients.", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
                             PrintWriter outWriter = new PrintWriter(client.socket().getOutputStream(), true);
                             outWriter.println("[strik|81|0]");
+                            thisKey.cancel();
                             client.close();
                         }
                     } else if (thisKey.isReadable()) {
@@ -211,7 +200,6 @@ public class Server implements Runnable {
                 }
             }
             ((ServerLobby)sLobby).broadcastMessage("[squit]");
-            selector.close();
             socket.close();
         } catch (BindException e) {
             printer.printErrorMessage("Unable to establish server connection. Terminating.");
@@ -220,7 +208,7 @@ public class Server implements Runnable {
         } finally {
             try {
                 ((ServerLobby)sLobby).broadcastMessage("[squit]");
-                socket.close();
+                if (socket != null) socket.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }

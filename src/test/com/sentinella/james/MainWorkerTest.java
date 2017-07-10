@@ -28,7 +28,7 @@ public class MainWorkerTest {
 
     @Before
     public void setUp() throws Exception {
-        printer = new MainWorkerPrintWriter(new PrintWriter(System.out));
+        printer = new MainWorkerPrintWriter();
         worker  = new MainWorker(printer, false);
     }
 
@@ -89,13 +89,8 @@ public class MainWorkerTest {
         assertEquals("[cchat|                                                               ]",printer.getLastMessage());
     }
 
-    private class MainWorkerPrintWriter extends PrintWriter {
+    private class MainWorkerPrintWriter implements ClientConnection {
         private String lastMessage;
-
-        public MainWorkerPrintWriter(Writer out) {
-            super(out);
-            lastMessage = null;
-        }
 
         @Override
         public void println(String s) {

@@ -1,5 +1,6 @@
 package com.sentinella.james;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -8,9 +9,9 @@ import java.util.regex.Matcher;
  * Created by James on 4/10/2016.
  */
 public class MainWorker {
-    private PrintWriter outConnection;
-    private PlayerHand  hand;
-    private boolean     debug = false;
+    private ClientConnection outConnection;
+    private PlayerHand       hand;
+    private boolean          debug = false;
 
     /**
      * PrintWriter connection sends messages to server
@@ -18,13 +19,13 @@ public class MainWorker {
      *
      * @param newConnection
      */
-    public MainWorker(PrintWriter newConnection, boolean inDebug) {
+    public MainWorker(ClientConnection newConnection, boolean inDebug) {
         outConnection = newConnection;
         debug         = inDebug;
         hand          = new PlayerHand();
     }
 
-    public void setOutConnection(PrintWriter out) {
+    public void setOutConnection(ClientSocket out) {
         outConnection = out;
     }
 
@@ -114,7 +115,13 @@ public class MainWorker {
             numPlayed++;
         }
         outMessage.append("]");
-        if (outConnection!= null) outConnection.println(outMessage.toString());
+        if (outConnection!= null) {
+            try {
+                outConnection.println(outMessage.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         if (debug) System.err.println(outMessage.toString());
         else System.out.println(outMessage.toString());
     }
@@ -190,7 +197,13 @@ public class MainWorker {
         }                                   // transmits 52 if no number found in msg
         cardNumber = cardValue == -1 && cardSuit == -1 ? 52 : cardValue * 4 + cardSuit;
         hand.remove(cardNumber);
-        if (outConnection!= null) outConnection.println(String.format("[cswap|%02d]", cardNumber));
+        if (outConnection!= null) {
+            try {
+                outConnection.println(String.format("[cswap|%02d]", cardNumber));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         if (debug) System.err.println(String.format("[cswap|%02d]", cardNumber));
     }
 
@@ -242,8 +255,11 @@ public class MainWorker {
         for (String s: outMessages) {                           // print all messages
             assert(s.length() == 64);                           // messages length should match
             if (outConnection!= null) {
-                outConnection.println(String.format("[cchat|%s]",s));
-                outConnection.flush();
+                try {
+                    outConnection.println(String.format("[cchat|%s]",s));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
             if (debug) System.err.println(String.format("[cchat|%s]",s));
         }
@@ -265,14 +281,26 @@ public class MainWorker {
             numPlayed++;
         }
         outMessage.append("]");
-        if (outConnection!= null) outConnection.println(outMessage.toString());
+        if (outConnection!= null) {
+            try {
+                outConnection.println(outMessage.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         if (debug) System.err.println(outMessage.toString());
         else System.out.println(outMessage.toString());
     }
 
     public void sendSwap(int card) {
         hand.remove(card);
-        if (outConnection!= null) outConnection.println(String.format("[cswap|%02d]", card));
+        if (outConnection!= null) {
+            try {
+                outConnection.println(String.format("[cswap|%02d]", card));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         if (debug) System.err.println(String.format("[cswap|%02d]", card));
         else System.out.println(String.format("[cswap|%02d]", card));
     }

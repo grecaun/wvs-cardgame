@@ -3,7 +3,6 @@ package com.sentinella.james;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.UnknownHostException;
 import java.util.regex.Matcher;
 
@@ -83,7 +82,7 @@ public class Main {
 
                 @Override public void unableToConnect() {}
 
-                @Override public void setOutConnection(PrintWriter out) {
+                @Override public void setOutConnection(ClientSocket out) {
                     myWorker.setOutConnection(out);
                 }
             };

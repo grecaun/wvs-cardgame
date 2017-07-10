@@ -101,7 +101,7 @@ public class ServerTUI {
 
             @Override public void unableToConnect() {}
 
-            @Override public void setOutConnection(PrintWriter out) {}
+            @Override public void setOutConnection(ClientSocket out) {}
         };
         if (debug) debugStream.println(String.format("%s ServerTUI.Main - Setting Callback in server Thread.",LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
         theServer.setUiThread(lifeLine);

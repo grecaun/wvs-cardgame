@@ -14,7 +14,6 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -235,7 +234,7 @@ public class ClientRootLayoutController implements ClientCallback {
 
                 @Override public void unableToConnect() {}
 
-                @Override public void setOutConnection(PrintWriter out) {}
+                @Override public void setOutConnection(ClientSocket out) {}
             });
             if (debug) theServer.setPrinter(new Printer() {
                 @Override
@@ -441,7 +440,7 @@ public class ClientRootLayoutController implements ClientCallback {
      * ClientCallback methods
      */
     @Override
-    public void setOutConnection(PrintWriter out) {
+    public void setOutConnection(ClientSocket out) {
         worker.setOutConnection(out);
     }
 
@@ -562,7 +561,7 @@ public class ClientRootLayoutController implements ClientCallback {
 
         @Override public void unableToConnect() {}
 
-        @Override public void setOutConnection(PrintWriter out) { }
+        @Override public void setOutConnection(ClientSocket out) { }
 
         public boolean isFinished() {
             printer.printString("Someone is checking if I'm finished.");

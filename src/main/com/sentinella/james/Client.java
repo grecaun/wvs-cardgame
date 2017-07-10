@@ -4,10 +4,8 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.nio.channels.SelectionKey;
+import java.util.*;
 import java.util.regex.Matcher;
 
 
@@ -20,11 +18,11 @@ public class Client implements Runnable {
     private   boolean                     isAuto      = true;
     protected volatile ClientState        cState      = ClientState.INIT;
     private   boolean                     debug       = false;
-    private   PrintWriter                 outConnection;
     private   ClientCallback              uiThread;
 
     private   WvSUpdater          updater;
     protected Printer             printer = new BasicPrinter();
+    private   ClientSocket        socket;
 
     private   Table               cTable;
     private   Lobby               cLobby;
@@ -56,79 +54,76 @@ public class Client implements Runnable {
     @Override
     public void run() {
         try {
-            Socket socket = new Socket(hostName.getHostName(), hostPort);
+            socket = new ClientSocket(hostName.getHostName(), hostPort);
+            socket.establishConnection();
             String message;
             StringBuilder carryOver;
-            BufferedReader inConnection = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            outConnection = new PrintWriter(socket.getOutputStream(), true);
-            uiThread.setOutConnection(outConnection);
+            uiThread.setOutConnection(socket);
             int len = cName.length();
             if (len < 8) {
                 cName = cName + "       ".substring(0, 8 - len);
             }
-            outConnection.println(String.format("[cjoin|%8s]", cName));
+            socket.sendMessage(String.format("[cjoin|%8s]", cName));
             if (debug) printer.printDebugMessage(String.format("[cjoin|%8s]", cName));
             cState = ClientState.WAIT;
             while (cState != ClientState.QUIT) {
                 if (debug) printer.printDebugMessage("Start of main loop.");
                 carryOver = new StringBuilder();
-                message = null;
-                try {
-                    while (!inConnection.ready() && cState != ClientState.QUIT) {
-                        Thread.sleep(1500);
-                    }
-                    if (cState != ClientState.QUIT) message = inConnection.readLine();
-                } catch (IOException | InterruptedException e) {
-                    printer.printErrorMessage("Unable to receive message from server.");
-                    cState = ClientState.QUIT;
-                    uiThread.finished();
-                }
-                Matcher finder;
-                while (message != null || carryOver.length() != 0) {
-                    if (message == null) {
-                        message = carryOver.toString();
-                        carryOver.setLength(0);
-                    }
-                    finder = RegexPatterns.oneMessage.matcher(message);
-                    if (debug) printer.printDebugMessage(String.format("Message received from server: %s", message));
-                    if (finder.find()) {
-                        switch (parseMessage(finder.group(1))) {
-                            case NAMERR:
-                                printer.printErrorMessage("server sent you a name that's the wrong length. Oh the horror.");
-                                cState = ClientState.QUIT;
-                                break;
-                            case NOMATCH:
-                                printer.printErrorMessage("Unable to process the information in the message the server sent.");
-                                break;
-                            case STRIKERR:
-                                printer.printErrorMessage("server sent some weird message masquerading as a strike message.");
-                                break;
-                            case TABLERR:
-                                printer.printErrorMessage("server sent some random crap for a table message that isn't the right length");
-                                break;
-                            case SWAPERRW:
-                                printer.printErrorMessage("Something went wrong with the server's warlord swap message.");
-                                break;
-                            case SWAPERRS:
-                                printer.printErrorMessage("Something went wrong with the server's scumbag swap message.");
-                                break;
-                            case LOBBYERR:
-                                printer.printErrorMessage("The wrong number of people in the lobby reported.");
-                                break;
+                for (SelectionKey key : socket.select(1000)) {
+                    if (key.isReadable()) {
+                        try {
+                            message = socket.readLine();
+                        } catch (IOException e) {
+                            printer.printErrorMessage("Unable to receive message from server.");
+                            cState = ClientState.QUIT;
+                            break;
                         }
-                        carryOver.append(finder.group(2));
-                    } else {
-                        carryOver.append(message);
+                        Matcher finder;
+                        while (message != null && (message.length() > 0 || carryOver.length() != 0)) {
+                            if (message == null) {
+                                message = carryOver.toString();
+                                carryOver.setLength(0);
+                            }
+                            finder = RegexPatterns.oneMessage.matcher(message);
+                            if (debug) printer.printDebugMessage(String.format("Message received from server: %s", message));
+                            if (finder.find()) {
+                                switch (parseMessage(finder.group(1))) {
+                                    case NAMERR:
+                                        printer.printErrorMessage("server sent you a name that's the wrong length. Oh the horror.");
+                                        cState = ClientState.QUIT;
+                                        break;
+                                    case NOMATCH:
+                                        printer.printErrorMessage("Unable to process the information in the message the server sent.");
+                                        break;
+                                    case STRIKERR:
+                                        printer.printErrorMessage("server sent some weird message masquerading as a strike message.");
+                                        break;
+                                    case TABLERR:
+                                        printer.printErrorMessage("server sent some random crap for a table message that isn't the right length");
+                                        break;
+                                    case SWAPERRW:
+                                        printer.printErrorMessage("Something went wrong with the server's warlord swap message.");
+                                        break;
+                                    case SWAPERRS:
+                                        printer.printErrorMessage("Something went wrong with the server's scumbag swap message.");
+                                        break;
+                                    case LOBBYERR:
+                                        printer.printErrorMessage("The wrong number of people in the lobby reported.");
+                                        break;
+                                }
+                                carryOver.append(finder.group(2));
+                            } else {
+                                carryOver.append(message);
+                            }
+                            if (isAuto) {
+                                doSomething();
+                            }
+                            message = null;
+                        }
                     }
-                    if (isAuto) {
-                        doSomething();
-                    }
-                    message = null;
                 }
             }
-            outConnection.println("[cquit]");
-            outConnection.close();
-            inConnection.close();
+            socket.sendMessage("[cquit]");
             socket.close();
         } catch (IOException e) {
             printer.printErrorMessage("Unable to establish connection to server. Program terminating.");
@@ -180,7 +175,11 @@ public class Client implements Runnable {
         Card outCard = cHand.getLowest();
         printer.printString(String.format("Giving the %s to the scumbag.", outCard.getStringRep()));
         String output = String.format("[cswap|%02d]",outCard.getCardIndexNumber());
-        outConnection.println(output);
+        try {
+            socket.sendMessage(output);
+        } catch (IOException e) {
+            quit();
+        }
         if (debug) printer.printDebugMessage(String.format("Sending swap message: %s",output));
         return ClientState.WAITSWAP;
     }
@@ -199,12 +198,16 @@ public class Client implements Runnable {
         }
         outMsg.append("]");
         String output = outMsg.toString();
-        outConnection.println(outMsg.toString());
+        try {
+            socket.sendMessage(outMsg.toString());
+        } catch (IOException e) {
+            quit();
+        }
         if (debug) printer.printDebugMessage(String.format("Sending play message: %s",output));
         return ClientState.WAITTURN;
     }
 
-    public PrintWriter getOutConnection() { return outConnection; }
+    public ClientConnection getOutConnection() { return socket; }
 
     public errVal parseMessage(String iMessage) {
         Matcher lMatch = RegexPatterns.generalMessage.matcher(iMessage);
@@ -231,6 +234,7 @@ public class Client implements Runnable {
                 return dealWithSquit(information);
             }
         }
+        System.err.println(String.format("Can't match '%s'",iMessage));
         return errVal.NOMATCH;
     }
 
@@ -359,6 +363,7 @@ public class Client implements Runnable {
             updater.updatePlayer();
             return errVal.NOERR;
         }
+        System.err.println("Strike error.");
         return errVal.NOMATCH;
     }
 
@@ -399,6 +404,7 @@ public class Client implements Runnable {
             updater.updateStatus(cTable);
             return errVal.NOERR;
         }
+        System.err.println("Swap error");
         return errVal.NOMATCH;
     }
 
