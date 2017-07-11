@@ -3,7 +3,11 @@ package com.sentinella.james;
 import java.io.PrintStream;
 
 /**
- * Created by James on 4/7/2016.
+ * Copyright (c) 2017 James Sentinella.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 public class BasicPrinter implements Printer {
     PrintStream debugStream = System.out;

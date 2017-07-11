@@ -1,9 +1,14 @@
-package com.sentinella.james.gui;/**
- * Created by James on 6/30/2017.
+package com.sentinella.james.gui;
+
+/**
+ * Copyright (c) 2017 James Sentinella.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
 import com.sentinella.james.*;
-import com.sentinella.james.gui.view.ClientAIListLayoutController;
 import com.sentinella.james.gui.view.ClientLoginLayoutController;
 import com.sentinella.james.gui.view.ClientPlayLayoutController;
 import com.sentinella.james.gui.view.ClientRootLayoutController;
