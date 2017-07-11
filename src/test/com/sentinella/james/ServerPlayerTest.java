@@ -106,10 +106,15 @@ public class ServerPlayerTest {
         player1.sendSwapW(Card.CardCreator(51));
         player1.sendSwapW(Card.CardCreator(0));
         player1.sendSwapW(null);
+        assertEquals("[shand|31,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52]",player1.getLastMessage());
         assertEquals("[swapw|31]",player1.getLastMessage());
+        assertEquals("[shand|04,31,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52]",player1.getLastMessage());
         assertEquals("[swapw|04]",player1.getLastMessage());
+        assertEquals("[shand|04,31,51,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52]",player1.getLastMessage());
         assertEquals("[swapw|51]",player1.getLastMessage());
+        assertEquals("[shand|00,04,31,51,52,52,52,52,52,52,52,52,52,52,52,52,52,52]",player1.getLastMessage());
         assertEquals("[swapw|00]",player1.getLastMessage());
+        assertEquals("[shand|00,04,31,51,52,52,52,52,52,52,52,52,52,52,52,52,52,52]",player1.getLastMessage());
         assertEquals("[swapw|52]",player1.getLastMessage());
     }
 

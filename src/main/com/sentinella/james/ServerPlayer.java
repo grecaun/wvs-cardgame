@@ -70,7 +70,7 @@ public class ServerPlayer extends Player {
         addCard(warlordCard);
         sortHand();
         if (sendHand() == CONERROR.NOERROR) {
-            return sendMessage(String.format("[swapw|%02d]",warlordCard.getCardIndexNumber()));
+            return sendMessage(String.format("[swapw|%02d]",warlordCard == null? 52 :warlordCard.getCardIndexNumber()));
         }
         return CONERROR.UNABLETOSEND;
     }

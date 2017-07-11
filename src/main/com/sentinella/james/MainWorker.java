@@ -253,7 +253,7 @@ public class MainWorker {
         }
         assert(outMessages.size() > 0);                         // guaranteed to have a single message
         for (String s: outMessages) {                           // print all messages
-            assert(s.length() == 64);                           // messages length should match
+            assert(s.length() == 63);                           // messages length should match
             if (outConnection!= null) {
                 try {
                     outConnection.println(String.format("[cchat|%s]",s));
