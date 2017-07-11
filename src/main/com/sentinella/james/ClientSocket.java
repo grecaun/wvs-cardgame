@@ -49,7 +49,7 @@ public class ClientSocket implements ClientConnection {
             }
             bSize = socket.read(buffer);
         } while (bSize > 0);
-        return strbuf.toString().trim();
+        return strbuf.toString();
     }
 
     public boolean ready() throws IOException {

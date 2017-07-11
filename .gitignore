@@ -1,0 +1,7 @@
+out
+.idea
+*.iml
+debug*
+*.pyc
+testlines.txt
+testingArena.java

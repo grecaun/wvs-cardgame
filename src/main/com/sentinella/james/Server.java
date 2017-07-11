@@ -91,7 +91,6 @@ public class Server implements Runnable {
                             if (debug) printer.printDebugMessage(String.format("%s server.run - Too many clients.", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
                             PrintWriter outWriter = new PrintWriter(client.socket().getOutputStream(), true);
                             outWriter.println("[strik|81|0]");
-                            thisKey.cancel();
                             client.close();
                         }
                     } else if (thisKey.isReadable()) {

@@ -71,6 +71,7 @@ public class ServerSocket {
     }
 
     public void close() throws IOException {
+        selector.close();
         socket.close();
     }
 

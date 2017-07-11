@@ -66,9 +66,9 @@ public class Client implements Runnable {
             socket.sendMessage(String.format("[cjoin|%8s]", cName));
             if (debug) printer.printDebugMessage(String.format("[cjoin|%8s]", cName));
             cState = ClientState.WAIT;
+            carryOver = new StringBuilder();
             while (cState != ClientState.QUIT) {
                 if (debug) printer.printDebugMessage("Start of main loop.");
-                carryOver = new StringBuilder();
                 for (SelectionKey key : socket.select(1000)) {
                     if (key.isReadable()) {
                         try {
@@ -79,46 +79,45 @@ public class Client implements Runnable {
                             break;
                         }
                         Matcher finder;
-                        while (message != null && (message.length() > 0 || carryOver.length() != 0)) {
-                            if (message == null) {
-                                message = carryOver.toString();
-                                carryOver.setLength(0);
+                        if ( message != null && message.length() > 0 ) {
+                            carryOver.append(message);
+                        }
+                        message = carryOver.toString();
+                        carryOver.setLength(0);
+                        finder = RegexPatterns.oneMessage.matcher(message);
+                        if (debug) printer.printDebugMessage(String.format("Messages to be processed: %s", message));
+                        while (finder.find()) {
+                            printer.printErrorMessage(String.format("First group: '%s' Second group: '%s'", finder.group(1), finder.group(2)));
+                            switch (parseMessage(finder.group(1))) {
+                                case NAMERR:
+                                    printer.printErrorMessage("server sent you a name that's the wrong length. Oh the horror.");
+                                    cState = ClientState.QUIT;
+                                    break;
+                                case NOMATCH:
+                                    printer.printErrorMessage("Unable to process the information in the message the server sent.");
+                                    break;
+                                case STRIKERR:
+                                    printer.printErrorMessage("server sent some weird message masquerading as a strike message.");
+                                    break;
+                                case TABLERR:
+                                    printer.printErrorMessage("server sent some random crap for a table message that isn't the right length");
+                                    break;
+                                case SWAPERRW:
+                                    printer.printErrorMessage("Something went wrong with the server's warlord swap message.");
+                                    break;
+                                case SWAPERRS:
+                                    printer.printErrorMessage("Something went wrong with the server's scumbag swap message.");
+                                    break;
+                                case LOBBYERR:
+                                    printer.printErrorMessage("The wrong number of people in the lobby reported.");
+                                    break;
                             }
+                            message = finder.group(2);
                             finder = RegexPatterns.oneMessage.matcher(message);
-                            if (debug) printer.printDebugMessage(String.format("Message received from server: %s", message));
-                            if (finder.find()) {
-                                switch (parseMessage(finder.group(1))) {
-                                    case NAMERR:
-                                        printer.printErrorMessage("server sent you a name that's the wrong length. Oh the horror.");
-                                        cState = ClientState.QUIT;
-                                        break;
-                                    case NOMATCH:
-                                        printer.printErrorMessage("Unable to process the information in the message the server sent.");
-                                        break;
-                                    case STRIKERR:
-                                        printer.printErrorMessage("server sent some weird message masquerading as a strike message.");
-                                        break;
-                                    case TABLERR:
-                                        printer.printErrorMessage("server sent some random crap for a table message that isn't the right length");
-                                        break;
-                                    case SWAPERRW:
-                                        printer.printErrorMessage("Something went wrong with the server's warlord swap message.");
-                                        break;
-                                    case SWAPERRS:
-                                        printer.printErrorMessage("Something went wrong with the server's scumbag swap message.");
-                                        break;
-                                    case LOBBYERR:
-                                        printer.printErrorMessage("The wrong number of people in the lobby reported.");
-                                        break;
-                                }
-                                carryOver.append(finder.group(2));
-                            } else {
-                                carryOver.append(message);
-                            }
-                            if (isAuto) {
-                                doSomething();
-                            }
-                            message = null;
+                        }
+                        carryOver.append(message);
+                        if (isAuto) {
+                            doSomething();
                         }
                     }
                 }
@@ -377,6 +376,7 @@ public class Client implements Runnable {
     }
 
     private errVal dealWithSwapW(String iInformation) {
+        printer.printErrorMessage("Received card from scumbag. Need to send new card out.");
         if (iInformation.length() != 2) {
             return errVal.SWAPERRW;
         }
