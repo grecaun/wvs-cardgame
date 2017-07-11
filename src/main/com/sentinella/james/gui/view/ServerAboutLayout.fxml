@@ -5,17 +5,18 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
+
 <AnchorPane prefHeight="300.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sentinella.james.gui.view.HelpController">
    <children>
-      <Label layoutX="29.0" layoutY="60.0" text="Warlords Vs Scumbags">
+      <Label layoutX="29.0" layoutY="56.0" text="Warlords Vs Scumbags">
          <font>
             <Font size="24.0" />
          </font>
       </Label>
-      <Label layoutX="77.0" layoutY="166.0" text="Created by James Sentinella" />
-      <Label layoutX="118.0" layoutY="126.0" text="Version 0.01" />
-      <Label layoutX="95.0" layoutY="188.0" text="james@sentinella.me" />
-      <Button layoutX="129.0" layoutY="224.0" mnemonicParsing="false" onAction="#close" text="Close" />
-      <Label layoutX="113.0" layoutY="107.0" text="Client Version" />
+      <Label layoutX="77.0" layoutY="162.0" text="Created by James Sentinella" />
+      <Label layoutX="118.0" layoutY="122.0" text="Version 0.01" />
+      <Label layoutX="95.0" layoutY="184.0" text="james@sentinella.me" />
+      <Button layoutX="129.0" layoutY="220.0" mnemonicParsing="false" onAction="#close" text="Close" />
+      <Label layoutX="112.0" layoutY="103.0" text="Server Version" />
    </children>
 </AnchorPane>

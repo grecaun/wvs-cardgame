@@ -10,9 +10,9 @@ import javafx.stage.Stage;
  */
 public class ClientServerOptionsLayoutController {
 
-    private ClientRootLayoutController.ServerOptionHolder   options;
-    private ClientRootLayoutController                      rootLayoutController;
-    private Stage                                           stage;
+    private ServerOptionHolder          options;
+    private ClientRootLayoutController  rootLayoutController;
+    private Stage                       stage;
 
     @FXML private TextField portNumber;
     @FXML private TextField lobbyTimeOut;
@@ -116,7 +116,7 @@ public class ClientServerOptionsLayoutController {
     @FXML
     private void cancel() { this.stage.close(); }
 
-    public void setOptions(ClientRootLayoutController.ServerOptionHolder options) {
+    public void setOptions(ServerOptionHolder options) {
         this.options = options;
         portNumber.setPromptText(String.valueOf(options.getPortNumber()));
         lobbyTimeOut.setPromptText(String.valueOf(options.getLobbyTime()));

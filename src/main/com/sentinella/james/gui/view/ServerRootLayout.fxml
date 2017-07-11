@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sentinella.james.gui.view.ServerRootLayoutController">
+   <center>
+      <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button layoutX="6.0" layoutY="290.0" mnemonicParsing="false" onAction="#submit" text="Start" />
+            <TextField fx:id="lobbyTO" layoutX="1.0" layoutY="31.0" />
+            <Label layoutX="2.0" layoutY="14.0" text="Lobby Timeout" />
+            <TextField fx:id="playTO" layoutX="1.0" layoutY="78.0" />
+            <TextField fx:id="minPlayers" layoutX="1.0" layoutY="123.0" />
+            <TextField fx:id="maxClients" layoutX="1.0" layoutY="167.0" />
+            <Label layoutX="2.0" layoutY="59.0" text="Play/Swap Timeout" />
+            <Label layoutX="2.0" layoutY="106.0" text="Minimum Players per Game" />
+            <Label layoutX="2.0" layoutY="151.0" text="Max Clients Connected" />
+            <Label layoutX="2.0" layoutY="196.0" text="Strikes Before Disconnect" />
+            <Label fx:id="portLabel" layoutX="2.0" layoutY="242.0" text="Port Number" />
+            <TextField fx:id="maxStrikes" layoutX="1.0" layoutY="214.0" />
+            <TextField fx:id="portText" layoutX="1.0" layoutY="259.0" />
+            <Button fx:id="disconnect" layoutX="69.0" layoutY="290.0" mnemonicParsing="false" onAction="#disconnect" text="Disconnect" visible="false" />
+         </children>
+      </AnchorPane>
+   </center>
+   <top>
+      <MenuBar BorderPane.alignment="CENTER">
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+              <MenuItem mnemonicParsing="false" onAction="#close" text="Close" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+                  <MenuItem mnemonicParsing="false" onAction="#help" text="Help" />
+              <MenuItem mnemonicParsing="false" onAction="#about" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
+   <left>
+      <VBox fx:id="log" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="300.0" visible="false" BorderPane.alignment="CENTER" />
+   </left>
+   <right>
+      <VBox fx:id="clients" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="150.0" BorderPane.alignment="CENTER" />
+   </right>
+</BorderPane>

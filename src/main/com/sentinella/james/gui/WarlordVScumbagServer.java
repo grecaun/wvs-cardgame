@@ -1,0 +1,47 @@
+package com.sentinella.james.gui;/**
+ * Created by James on 7/10/2017.
+ */
+
+import com.sentinella.james.Server;
+import com.sentinella.james.gui.view.ServerRootLayoutController;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
+
+import java.io.IOException;
+
+public class WarlordVScumbagServer extends Application {
+    private Stage                       primaryStage;
+    private BorderPane                  rootLayout;
+    private ServerRootLayoutController  rootController;
+
+    private Server                      theServer;
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+        this.primaryStage = primaryStage;
+        this.primaryStage.setTitle("Warlords Vs Scumbags");
+        this.primaryStage.setResizable(false);
+
+        initRootLayout();
+    }
+
+    private void initRootLayout() {
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(WarlordVScumbagServer.class.getResource("view/ServerRootLayout.fxml"));
+            rootLayout = loader.load();
+            primaryStage.setScene(new Scene(rootLayout));
+            primaryStage.show();
+            rootController = loader.getController();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}

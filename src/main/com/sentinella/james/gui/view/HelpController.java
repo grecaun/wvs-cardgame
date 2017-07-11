@@ -6,7 +6,7 @@ import javafx.stage.Stage;
 /**
  * Created by James on 7/1/2017.
  */
-public class ClientHelpController {
+public class HelpController {
     private Stage stage;
 
     public void setStage(Stage stage) {
