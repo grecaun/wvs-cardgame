@@ -21,8 +21,6 @@ public class WarlordVScumbagServer extends Application {
     private BorderPane                  rootLayout;
     private ServerRootLayoutController  rootController;
 
-    private Server                      theServer;
-
     public static void main(String[] args) {
         launch(args);
     }
@@ -34,6 +32,11 @@ public class WarlordVScumbagServer extends Application {
         this.primaryStage.setResizable(false);
 
         initRootLayout();
+    }
+
+    @Override
+    public void stop() {
+        if (rootController != null) rootController.closeEverything();
     }
 
     private void initRootLayout() {

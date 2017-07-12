@@ -34,7 +34,7 @@ public class WarlordVScumbagClient extends Application {
     private MainWorker          worker;
 
     private Thread              clientThread;
-            boolean             debug = true;
+            boolean             debug = false;
 
     public static void main(String[] args) {
         launch(args);

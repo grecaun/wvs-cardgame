@@ -6,7 +6,6 @@ import java.io.PrintWriter;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
-import java.rmi.server.ExportException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -20,28 +19,28 @@ import java.util.regex.Matcher;
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 public class Server implements Runnable {
-    private ServerTable     sTable;
-    private Lobby           sLobby;
-    private ClientCallback  uiThread;
-    private Printer         printer = new BasicPrinter();
-    private boolean         keepAlive = true;
+    private   ServerTable     sTable;
+    protected Lobby           sLobby;
+    private   ClientCallback  uiThread;
+    private   Printer         printer = new BasicPrinter();
+    private   boolean         keepAlive = true;
 
-    private int             handsDealt  = 1;
-    private SERVERSTATE     state;
-    private long            timeoutTime = 0;
-    private long            lobbyTime   = 0;
+    private   int             handsDealt  = 1;
+    private   SERVERSTATE     state;
+    private   long            timeoutTime = 0;
+    private   long            lobbyTime   = 0;
 
-    private ArrayList<SocketChannel> cons;
+    protected ArrayList<SocketChannel> cons;
 
-    private int                 port    = 36789;
-    private int                 lobbyTimeOut;
-    private int                 playTimeOut;
-    private int                 minPlayers;
-    private int                 strikesAllowed;
-    private int                 maxClients;
-    private int                 lobbyInterval = 10000;
-    private int                 clientSinceBroadcast = 0;
-    private boolean             debug;
+    private   int             port    = 36789;
+    private   int             lobbyTimeOut;
+    private   int             playTimeOut;
+    private   int             minPlayers;
+    private   int             strikesAllowed;
+    private   int             maxClients;
+    private   int             lobbyInterval = 10000;
+    private   int             clientSinceBroadcast = 0;
+    private   boolean         debug;
 
     private PrintStream debugStream;
 
@@ -89,6 +88,7 @@ public class Server implements Runnable {
                         if (cons.size() < maxClients) {
                             if (debug) printer.printDebugMessage(String.format("%s server.run - Adding Client", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
                             cons.add(client);
+                            updateClients();
                             printer.printString(String.format("Clients connected: %d", cons.size()));
                             printer.printLine();
                         } else {
@@ -111,19 +111,19 @@ public class Server implements Runnable {
                         try {
                             bufSz = client.read(buffer);
                         } catch (IOException e) {
-                            removeClient(client, thisKey);
+                            removeClient(client);
                         }
                         do {
                             if (bufSz == -1) {
                                 if (debug) printer.printDebugMessage(String.format("%s server.run - No Message, Remove Client", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
-                                removeClient(client, thisKey);
+                                removeClient(client);
                             } else {
                                 thisGuy.addItem(new String(buffer.array()).trim());
                             }
                             try {
                                 bufSz = client.read(buffer);
                             } catch (IOException e) {
-                                removeClient(client, thisKey);
+                                removeClient(client);
                             }
                         } while (bufSz > 0);
                         processMessage(thisGuy);
@@ -236,7 +236,7 @@ public class Server implements Runnable {
                 if (debug) printer.printDebugMessage(String.format("%s server.processMessage - Message found. Total: '%s' Cmd: '%s' Msg: '%s'", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),leftOvers, cmd, msg));
                 switch (cmd.toLowerCase()) {
                     case "cquit":
-                        removeClient(thisGuy.getCon(), thisGuy.getKey());
+                        removeClient(thisGuy.getCon());
                         break;
                     case "cjoin":
                         dealWithJoin(thisGuy, msg);
@@ -311,14 +311,15 @@ public class Server implements Runnable {
         }
         String finalName = clientName.substring(0,8);
         if (thisGuy.sendMessage(String.format("[sjoin|%-8s]",finalName)) == ServerPlayer.CONERROR.UNABLETOSEND) {
-            removeClient(thisGuy.getCon(),thisGuy.getKey());
+            removeClient(thisGuy.getCon());
             return;
         }
         thisGuy.setName(finalName.trim());
         broadcastLobby(thisGuy, false);
         if (state == SERVERSTATE.WAITFORPLAYMSG) {
-            if (thisGuy.sendMessage(sTable.getTableMessage()) == ServerPlayer.CONERROR.UNABLETOSEND) removeClient(thisGuy.getCon(),thisGuy.getKey());
+            if (thisGuy.sendMessage(sTable.getTableMessage()) == ServerPlayer.CONERROR.UNABLETOSEND) removeClient(thisGuy.getCon());
         }
+        updateClients();
     }
 
     private void broadcastLobby(ServerPlayer thisGuy, boolean force) {
@@ -331,9 +332,11 @@ public class Server implements Runnable {
             lobbyTime = newTime;
         } else if (thisGuy != null) {
             clientSinceBroadcast++;
-            if (thisGuy.sendMessage(lobbyString) == ServerPlayer.CONERROR.UNABLETOSEND) removeClient(thisGuy.getCon(),thisGuy.getKey());
+            if (thisGuy.sendMessage(lobbyString) == ServerPlayer.CONERROR.UNABLETOSEND) removeClient(thisGuy.getCon());
         }
     }
+
+    protected void updateClients() {}
 
     private boolean isLetter(char c) {
         return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
@@ -363,7 +366,7 @@ public class Server implements Runnable {
         if (debug) printer.printDebugMessage(String.format("%s server.dealWithPlay - User: '%s' Msg: '%s'", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),thisGuy.getName(),msg));
         Matcher cardMatcher = RegexPatterns.clientPlay.matcher(msg);
         if (thisGuy.getName() == null) {
-            removeClient(thisGuy.getCon(),thisGuy.getKey());
+            removeClient(thisGuy.getCon());
             return;
         } if (((ServerLobby)sLobby).isInLobby(thisGuy)) {
             sendStrike(thisGuy,31);
@@ -424,7 +427,7 @@ public class Server implements Runnable {
 
     private void dealWithHand(ServerPlayer thisGuy) {
         if (debug) printer.printDebugMessage(String.format("%s server.dealWithHand - User: '%s'", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),thisGuy.getName()));
-        if (sTable.isAtTable(thisGuy) && thisGuy.sendHand() == ServerPlayer.CONERROR.UNABLETOSEND) removeClient(thisGuy.getCon(),thisGuy.getKey());
+        if (sTable.isAtTable(thisGuy) && thisGuy.sendHand() == ServerPlayer.CONERROR.UNABLETOSEND) removeClient(thisGuy.getCon());
     }
 
     private void dealWithSwap(ServerPlayer thisGuy, String msg) {
@@ -469,8 +472,8 @@ public class Server implements Runnable {
         if (debug) printer.printDebugMessage(String.format("%s server.sendStrike - User: '%s' No: '%d'", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),player.getName(),strikeNo));
         printer.printString(String.format("Sending strike to %s because: %s",player.getName(),StrikeErrors.getErrorMessage(strikeNo)));
         printer.printLine();
-        if (player.sendStrike(strikeNo) == ServerPlayer.CONERROR.UNABLETOSEND) removeClient(player.getCon(),player.getKey());
-        else if (player.getNumStrikes() >= strikesAllowed) removeClient(player.getCon(),player.getKey());
+        if (player.sendStrike(strikeNo) == ServerPlayer.CONERROR.UNABLETOSEND) removeClient(player.getCon());
+        else if (player.getNumStrikes() >= strikesAllowed) removeClient(player.getCon());
     }
 
     public void setUiThread(ClientCallback uiThread) {
@@ -481,12 +484,11 @@ public class Server implements Runnable {
         keepAlive = false;
     }
 
-    public void removeClient(SocketChannel client, SelectionKey thisKey) {
+    public void removeClient(SocketChannel client) {
         if (debug) printer.printDebugMessage(String.format("%s server.dealWithChat - Removing Client", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
-        thisKey.cancel(); // Ensure Select doesn't show us as connected.
         try {
             client.close();
-        } catch (IOException e) { }
+        } catch (IOException e) { printer.printErrorMessage("Unable to close socket."); }
         ((ServerLobby)sLobby).removePlayer(client);
         broadcastLobby(null, false);
         if (cons.contains(client)) {
@@ -494,6 +496,7 @@ public class Server implements Runnable {
             printer.printString(String.format("Clients connected: %d",cons.size()));
             printer.printLine();
         }
+        updateClients();
     }
 
     public void done() { }
