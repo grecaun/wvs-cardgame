@@ -16,7 +16,7 @@
 
 <AnchorPane minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sentinella.james.gui.view.ClientPlayLayoutController">
    <children>
-      <SplitPane dividerPositions="0.5" prefHeight="561.0" prefWidth="800.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <SplitPane dividerPositions="0.5" mouseTransparent="true" prefHeight="561.0" prefWidth="800.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <items>
             <BorderPane fx:id="leftPane" maxWidth="200.0" minWidth="200.0" prefWidth="200.0">
                <center>
@@ -29,8 +29,8 @@
                <bottom>
                 <AnchorPane maxHeight="25.0" minHeight="25.0" minWidth="200.0" prefHeight="25.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                      <children>
-                        <TextField fx:id="chatText" accessibleRole="LIST_VIEW" maxHeight="25.0" maxWidth="155.0" minHeight="25.0" minWidth="155.0" onKeyReleased="#checkEnter" prefHeight="25.0" prefWidth="155.0" promptText="Chat With Others" snapToPixel="false" AnchorPane.leftAnchor="0.0" />
-                        <Button fx:id="sendChat" layoutX="255.0" mnemonicParsing="false" onAction="#sendChatMsg" prefWidth="45.0" text="Send" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                        <TextField fx:id="chatText" accessibleRole="LIST_VIEW" maxHeight="25.0" maxWidth="145.0" minHeight="25.0" minWidth="145.0" onKeyReleased="#checkEnter" prefHeight="25.0" prefWidth="145.0" promptText="Chat With Others" snapToPixel="false" AnchorPane.leftAnchor="0.0" />
+                        <Button fx:id="sendChat" layoutX="255.0" mnemonicParsing="false" onAction="#sendChatMsg" prefWidth="55.0" text="Send" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                      </children>
                   </AnchorPane>
                </bottom>

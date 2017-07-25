@@ -679,8 +679,8 @@ public class ClientPlayLayoutController implements WvSUpdater {
         leftPane.setMinWidth(width);
         chatMessages.setMinWidth(width-2);
         chatMessages.setMaxWidth(width-2);
-        chatText.setMaxWidth(width-45.0);
-        chatText.setMinWidth(width-45.0);
+        chatText.setMaxWidth(width-55.0);
+        chatText.setMinWidth(width-55.0);
         for (Node node : chatMessages.getChildren()) {
             ((Label) node).setMinWidth(messageWidth);
             ((Label) node).setMaxWidth(messageWidth);
