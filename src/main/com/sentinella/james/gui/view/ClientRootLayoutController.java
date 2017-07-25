@@ -17,6 +17,7 @@ import java.io.PrintStream;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Objects;
 
 /**
  * Copyright (c) 2017 James Sentinella.
@@ -26,7 +27,7 @@ import java.util.Iterator;
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 public class ClientRootLayoutController implements ClientCallback {
-    private double[]                     prevScreen = {816.0,639.0};
+    private double[]                     prevScreen = {816.00, 639.00};
     private Stage                        primaryStage;
     private ClientPlayLayoutController   playController;
 
@@ -397,6 +398,7 @@ public class ClientRootLayoutController implements ClientCallback {
 
     @FXML
     private void initialize() {
+        prevScreen[1] = Objects.equals(System.getProperty("os.name"), "Mac OS X") ? 661.00 : 639.00;
         disconnect      = new MenuItem("Disconnect");
         disconnect.setOnAction(e -> disconnect());
         disconnect.setAccelerator(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN));

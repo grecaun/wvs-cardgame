@@ -5,6 +5,8 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.stage.Stage;
 
+import java.util.Objects;
+
 /**
  * Copyright (c) 2017 James Sentinella.
  *
@@ -24,7 +26,7 @@ public class ClientScreenOptionsLayoutController {
         if (res.getSelectedToggle() != null) {
             switch (((RadioButton)res.getSelectedToggle()).getText()) {
                 case "800x600":
-                    rootController.setScreenSize(816.00,639.00);
+                    rootController.setScreenSize(816.00,Objects.equals(System.getProperty("os.name"), "Mac OS X") ? 661.00 : 639.00);
                     break;
                 case "1280x720":
                     rootController.setScreenSize(1280.00,720.00);
