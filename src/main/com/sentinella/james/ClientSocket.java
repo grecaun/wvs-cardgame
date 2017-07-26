@@ -22,6 +22,8 @@ public class ClientSocket implements ClientConnection {
     private InetAddress   hostname;
     private int           port;
 
+    protected LogBook log = new LogBook();
+
     public ClientSocket(String hostname, int port) throws UnknownHostException {
         this.hostname = InetAddress.getByName(hostname);
         this.port     = port;
@@ -30,6 +32,11 @@ public class ClientSocket implements ClientConnection {
     public ClientSocket() throws UnknownHostException {
         this.hostname = InetAddress.getLocalHost();
         this.port     = 36788;
+    }
+
+    public ClientSocket(String hostname, int port, LogBook l, String debugStr) throws UnknownHostException {
+        this(hostname,port);
+        this.log = LogBookFactory.getLogBook(l,debugStr);
     }
 
     public void sendMessage(String message) throws IOException {

@@ -1,5 +1,7 @@
 package com.sentinella.james;
 
+import java.util.ArrayList;
+
 /**
  * Copyright (c) 2017 James Sentinella.
  *
@@ -12,10 +14,16 @@ public class Table {
     protected Card[]      inPlay;
     protected Player[]    players;
 
+    protected LogBook log = new LogBook();
+
     public Table() {
         isNotRanked = false;
         inPlay      = new Card[4];
         players     = new Player[7];
+    }
+
+    public void setLogBookInfo(LogBook l, String debugStr) {
+        this.log = LogBookFactory.getLogBook(l,debugStr);
     }
 
     public boolean isNotRanked() {
@@ -108,7 +116,8 @@ public class Table {
         return pStatus.NOTFOUND;
     }
 
-    public synchronized void printTable(String playerName) {
+    public synchronized ArrayList<String> printTable(String playerName) {
+        ArrayList<String> output = new ArrayList<>();
         String statusString;
         for (int i=0; i<7; i++) {
             if (players[i]!=null) {
@@ -129,8 +138,7 @@ public class Table {
                         default:
                             statusString = " Your status is unknown.";
                     }
-                    System.out.printf("You are player %d.%s%n",i+1,statusString);
-
+                    output.add(String.format("You are player %d.%s%n",i+1,statusString));
                 } else {
                     switch (players[i].getStatus()) {
                         case ACTIVE:
@@ -148,15 +156,15 @@ public class Table {
                         default:
                             statusString = " Their status is unknown.";
                     }
-                    System.out.printf("Player %d is %s, who has %d cards left.%s%n",i+1,players[i].getName().trim(),players[i].getNumCards(),statusString);
+                    output.add(String.format("Player %d is %s, who has %d cards left.%s%n",i+1,players[i].getName().trim(),players[i].getNumCards(),statusString));
                 }
             }
         }
-        if (isNotRanked) System.out.println("This round is not ranked.");
-        else System.out.println("This round is ranked.");
+        if (isNotRanked) output.add("This round is not ranked.");
+        else output.add("This round is ranked.");
         sortInPlay();
         if (inPlay[0] == null) {
-            System.out.println("It's the beginning of a new round.");
+            output.add("It's the beginning of a new round.");
         } else {
             StringBuilder cardString = new StringBuilder();
             cardString.append("These cards are on the table:");
@@ -166,8 +174,9 @@ public class Table {
                     cardString.append(inPlay[j].getStringRep());
                 }
             }
-            System.out.println(cardString.toString());
+            output.add(cardString.toString());
         }
+        return output;
     }
 
     public pStatus getSeatStatus(int seatNo) {

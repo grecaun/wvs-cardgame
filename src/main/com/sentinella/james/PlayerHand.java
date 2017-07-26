@@ -14,15 +14,18 @@ import java.util.List;
  */
 public class PlayerHand {
     private ArrayList<Card> tHand;
-    private boolean         debug = false;
-    private Printer         printer;
+
+    protected LogBook log = new LogBook();
 
     public PlayerHand() {
         tHand   = new ArrayList<>();
-        printer = new BasicPrinter();
     }
 
     public synchronized void clear() { tHand.clear(); }
+
+    public void setLogBookInfo(LogBook l, String debugStr) {
+        this.log = LogBookFactory.getLogBook(l,debugStr);
+    }
 
     public synchronized void add(Card iCard) {
         if (iCard == null || hasCard(iCard.getCardIndexNumber())) return;
@@ -61,7 +64,6 @@ public class PlayerHand {
         int cardsInHand = tHand.size(), maxOffset = numCards > 0 ? numCards-1 : 0;
         if (cardsInHand <= 0) return output;
         sort();
-        if (debug) printHand();
         for (int i=0;i<cardsInHand-maxOffset;i++) {
             int curCardNumVal = tHand.get(i).getCardNumericFaceValue();
             if (!tHand.get(i).isLessThan(valToMatch, false) && i+maxOffset < tHand.size() && tHand.get(i+maxOffset).getCardNumericFaceValue()==curCardNumVal) {
@@ -80,14 +82,14 @@ public class PlayerHand {
         return output;
     }
 
-    public void printHand() {
+    public String printHand() {
         StringBuilder output = new StringBuilder();
         output.append("Your cards are:");
         for (Iterator<Card> iterator = tHand.iterator(); iterator.hasNext();) {
             output.append(" ");
             output.append(iterator.next().getStringRep());
         }
-        printer.printString(output.toString());
+        return output.toString();
     }
 
     @Override
@@ -125,14 +127,6 @@ public class PlayerHand {
     }
 
     public synchronized void sort() { Collections.sort(tHand); }
-
-    public void setDebug(boolean debug) {
-        this.debug = debug;
-    }
-
-    public void setPrinter(Printer printer) {
-        this.printer = printer;
-    }
 
     public ArrayList<Card> getHand() { return tHand; }
 }

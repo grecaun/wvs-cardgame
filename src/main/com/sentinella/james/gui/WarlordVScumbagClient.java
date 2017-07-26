@@ -34,7 +34,7 @@ public class WarlordVScumbagClient extends Application {
     private MainWorker          worker;
 
     private Thread              clientThread;
-            boolean             debug = false;
+    private LogBook log = new GUILogBook(3,true,"GUICLIENT");
 
     public static void main(String[] args) {
         launch(args);
@@ -73,7 +73,7 @@ public class WarlordVScumbagClient extends Application {
             rootController = loader.getController();
             rootController.setPrimaryStage(primaryStage);
             rootController.setClient(this);
-            rootController.setDebug(debug);
+            rootController.setLogBookInfo(log,String.format("%s:%s",log.getDebugStr(),"ROOTCONTROLLER"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -86,30 +86,11 @@ public class WarlordVScumbagClient extends Application {
         }
         try {
             theClient    = new GUIClient(rootController.getHostName(), rootController.getHostPort(), conName, false);
-            worker       = new MainWorker(null, debug);
+            worker       = new MainWorker(null);
             clientThread = new Thread(theClient);
             worker.setHand(theClient.getHand());
             theClient.setUiThread(rootController);
             rootController.setWorker(worker);
-            theClient.setDebug(debug);
-            theClient.setPrinter(new Printer() {
-                @Override public void printString(String string) { System.out.println(String.format("CLIENT: MSG: %s",string)); }
-
-                @Override public void printErrorMessage(String string) { System.err.println(String.format("CLIENT: ERR: %s",string)); }
-
-                @Override public void printDebugMessage(String string) { System.out.println(String.format("CLIENT: DBG: %s",string)); }
-
-                @Override public void printLine() { }
-
-                @Override
-                public void setDebugStream(PrintStream stream) { }
-
-                @Override
-                public void setErrorStream(PrintStream stream) { }
-
-                @Override
-                public void setOutputStream(PrintStream stream) { }
-            });
         } catch (UnknownHostException e) {
             new Alert(Alert.AlertType.ERROR, "Unable to connect.", ButtonType.CLOSE).showAndWait();
             returnToLogin();
@@ -141,7 +122,7 @@ public class WarlordVScumbagClient extends Application {
                 cont.setPrimaryStage(primaryStage);
                 cont.setClient(theClient);
                 cont.setRootController(rootController);
-                cont.setDebug(debug);
+                cont.setLogBookInfo(log,String.format("%s:%s",log.getDebugStr(),"PLAYCONTROLLER"));
                 new Thread(() -> {
                     while (!theClient.isRunning()) {
                         try {

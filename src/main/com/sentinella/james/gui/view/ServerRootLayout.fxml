@@ -46,7 +46,7 @@
             </ScrollPane>
             <ScrollPane layoutX="311.0" layoutY="6.0" prefWidth="295.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <content>
-                  <VBox fx:id="log" maxHeight="6000.0" maxWidth="-Infinity" minHeight="0.0" minWidth="-Infinity" prefHeight="370.0" prefWidth="280.0">
+                  <VBox fx:id="logBox" maxHeight="6000.0" maxWidth="-Infinity" minHeight="0.0" minWidth="-Infinity" prefHeight="370.0" prefWidth="280.0">
                      <padding>
                         <Insets left="5.0" right="5.0" />
                      </padding></VBox>

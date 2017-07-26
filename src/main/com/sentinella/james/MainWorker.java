@@ -1,7 +1,6 @@
 package com.sentinella.james;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 
@@ -15,7 +14,8 @@ import java.util.regex.Matcher;
 public class MainWorker {
     private ClientConnection outConnection;
     private PlayerHand       hand;
-    private boolean          debug = false;
+
+    protected LogBook log = new LogBook();
 
     /**
      * PrintWriter connection sends messages to server
@@ -23,10 +23,14 @@ public class MainWorker {
      *
      * @param newConnection
      */
-    public MainWorker(ClientConnection newConnection, boolean inDebug) {
+    public MainWorker(ClientConnection newConnection) {
         outConnection = newConnection;
-        debug         = inDebug;
         hand          = new PlayerHand();
+    }
+
+    public MainWorker(ClientConnection newCon, LogBook l, String debugStr) {
+        this(newCon);
+        log = LogBookFactory.getLogBook(l,debugStr);
     }
 
     public void setOutConnection(ClientSocket out) {
@@ -38,6 +42,7 @@ public class MainWorker {
      * @param msg List of cards. No spaces required.
      */
     public void sendPlay(String msg) {
+        log.printDebMsg("sendPlay (TUI VERSION) - START", 3);
         ArrayList<Integer> outCardNumbers = new ArrayList<>();
         Matcher cardMatcher               = RegexPatterns.inputCardMatch.matcher(msg);
         int cardValue, cardSuit;
@@ -121,13 +126,13 @@ public class MainWorker {
         outMessage.append("]");
         if (outConnection!= null) {
             try {
+                log.printDebConMsg(outMessage.toString());
                 outConnection.println(outMessage.toString());
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        if (debug) System.err.println(outMessage.toString());
-        else System.out.println(outMessage.toString());
+        log.printDebMsg("sendPlay - END", 3);
     }
 
     /**
@@ -135,6 +140,7 @@ public class MainWorker {
      * @param msg Card value given. Ignores multiples. If invalid card given first, uses it.
      */
     public void sendSwap(String msg) {
+        log.printDebMsg("sendSwap (TUI version) - START", 3);
         Matcher cardMatcher               = RegexPatterns.inputCardMatch.matcher(msg);
         int cardValue = -1, cardSuit = -1, cardNumber = 52;
         if (cardMatcher.find()) {
@@ -203,12 +209,13 @@ public class MainWorker {
         hand.remove(cardNumber);
         if (outConnection!= null) {
             try {
+                log.printDebConMsg(String.format("[cswap|%02d]", cardNumber));
                 outConnection.println(String.format("[cswap|%02d]", cardNumber));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        if (debug) System.err.println(String.format("[cswap|%02d]", cardNumber));
+        log.printDebMsg("sendSwap (TUI version) - END", 3);
     }
 
     /**
@@ -217,11 +224,12 @@ public class MainWorker {
      * @param msg Message to be transmitted to server.
      */
     public void sendChat(String msg) {
+        log.printDebMsg("sendChat - START", 3);
         ArrayList<String> outMessages = new ArrayList<>();      // array for strings to send
         String trimmed = msg.trim();                            // start by trimming incoming message
         String spacePad = "                                                                      ";
         if (trimmed.length() > 63) {                            // max message length of 64
-            String[] subStrings = trimmed.split("\\s+");        // split on whitespace
+            String[] subStrings = trimmed.split("\\s+");  // split on whitespace
             int numSubStrings = subStrings.length;              // get number of messages
             StringBuilder outBuilder = new StringBuilder(100);
             String workInProgress;
@@ -260,16 +268,18 @@ public class MainWorker {
             assert(s.length() == 63);                           // messages length should match
             if (outConnection!= null) {
                 try {
+                    log.printDebConMsg(String.format("[cchat|%s]",s));
                     outConnection.println(String.format("[cchat|%s]",s));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-            if (debug) System.err.println(String.format("[cchat|%s]",s));
         }
+        log.printDebMsg("sendChat - END", 3);
     }
 
     public void sendPlay(int[] cards) {
+        log.printDebMsg("sendPlay (array of int) - START", 3);
         StringBuilder outMessage = new StringBuilder();
         outMessage.append("[cplay|");       // build string, max of 4 cards can be played
         int endIndex = cards.length > 4 ? 4 : cards.length, numPlayed = 0;
@@ -287,29 +297,32 @@ public class MainWorker {
         outMessage.append("]");
         if (outConnection!= null) {
             try {
+                log.printDebConMsg(outMessage.toString());
                 outConnection.println(outMessage.toString());
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        if (debug) System.err.println(outMessage.toString());
-        else System.out.println(outMessage.toString());
+        log.printDebMsg("sendPlay (array of int) - END", 3);
     }
 
     public void sendSwap(int card) {
+        log.printDebMsg("sendSwap (int) - START", 3);
         hand.remove(card);
         if (outConnection!= null) {
             try {
+                log.printDebConMsg(String.format("[cswap|%02d]", card));
                 outConnection.println(String.format("[cswap|%02d]", card));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        if (debug) System.err.println(String.format("[cswap|%02d]", card));
-        else System.out.println(String.format("[cswap|%02d]", card));
+        log.printDebMsg("sendSwap (int) - END", 3);
     }
 
     public void setHand(PlayerHand iHand) {
+        log.printDebMsg("setHand - START", 3);
         this.hand = iHand;
+        log.printDebMsg("setHand - END", 3);
     }
 }

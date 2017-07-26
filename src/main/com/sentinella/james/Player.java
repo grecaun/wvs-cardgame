@@ -14,6 +14,8 @@ public class Player {
     protected int         strikes;
     protected PlayerHand  cards;
 
+    protected LogBook log = new LogBook();
+
     public Player(String iName, pStatus iStatus, int iStrikes, int iNumCards) {
         name     = iName == null? null : iName.trim();
         status   = iStatus;
@@ -28,6 +30,10 @@ public class Player {
         strikes  = 0;
         numCards = 0;
         cards    = new PlayerHand();
+    }
+
+    public void setLogBookInfo(LogBook l, String debugStr) {
+        this.log = LogBookFactory.getLogBook(l,debugStr);
     }
 
     public void updatePlayer(String iName, pStatus iStatus, int iStrikes, int iNumCards) {

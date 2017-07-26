@@ -11,11 +11,13 @@ import java.util.ArrayList;
  */
 public interface WvSUpdater {
     void updateTable(Table table);
-    void updatePlayer();
-    void updatePlayer(String name);
+    void updateJoin(String name);
     void updateStatus(Table table);
     void updateLobby(ArrayList<String> names);
     void updateChat(String name, String message);
-    void updateAll();
     void updateHand(ArrayList<Card> cards);
+    void updateStrike(int strikeVal, int numStrikes);
+    void updateSwapW(Card newCard);
+    void updateSwapS(Card newCard, Card oldCard);
+    void setLogBookInfo(LogBook log, String debugStr);
 }

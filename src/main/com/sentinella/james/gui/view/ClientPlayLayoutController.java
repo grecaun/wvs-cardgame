@@ -16,12 +16,9 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 /**
  * Copyright (c) 2017 James Sentinella.
@@ -66,7 +63,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
     private MainWorker                  worker;
     private ClientRootLayoutController  rootController;
 
-    private boolean     debug = false;
+    private LogBook     log = new GUILogBook();
 
     @FXML
     private void initialize() {
@@ -225,7 +222,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
     }
 
     public void updateView() {
-        if (debug) System.out.println("ClientPlayLayoutController.updateView");
+        log.printDebMsg("ClientPlayLayoutController.updateView",3);
         // window attributes
         double  paneWidth   = primaryStage.getWidth();
         paneWidth -= paneWidth < 1200 ? 200 : 300;
@@ -404,13 +401,13 @@ public class ClientPlayLayoutController implements WvSUpdater {
 
     @Override
     public void updateTable(Table table) {
-        if (debug) System.out.println("ClientPlayLayoutController.updateTable");
+        log.printDebMsg("ClientPlayLayoutController.updateTable",3);
         Platform.runLater(() -> runLaterUpdateTable(table));
     }
 
     private void runLaterUpdateTable(Table table) {
-        if (debug) System.out.println("ClientPlayLayoutController.runLaterUpdateTable");
-        updatePlayer();
+        log.printDebMsg("ClientPlayLayoutController.runLaterUpdateTable",3);
+        updateJoin(null);
         for (int i = 0; i < playerAvatar.length; i++) {
             StringBuilder avatarURL = new StringBuilder("/com/sentinella/james/gui/view/images/avatars/");
             switch (i) {
@@ -520,31 +517,25 @@ public class ClientPlayLayoutController implements WvSUpdater {
     }
 
     @Override
-    public void updatePlayer() {
-        if (debug) System.out.println("ClientPlayLayoutController.updatePlayer");
-        Platform.runLater(()->runLaterUpdatePlayer(client.getName()));
+    public void updateJoin(String name) {
+        log.printDebMsg("ClientPlayLayoutController.updatePlayer(name)",3);
+        Platform.runLater(()-> runLaterUpdateJoin(client.getName()));
     }
 
-    @Override
-    public void updatePlayer(String name) {
-        if (debug) System.out.println("ClientPlayLayoutController.updatePlayer(name)");
-        Platform.runLater(()->runLaterUpdatePlayer(client.getName()));
-    }
-
-    private void runLaterUpdatePlayer(String name) {
-        if (debug) System.out.println("ClientPlayLayoutController.runLaterUpdatePlayer");
+    private void runLaterUpdateJoin(String name) {
+        log.printDebMsg("ClientPlayLayoutController.runLaterUpdateJoin",3);
         myNameString = name.trim();
         runLaterUpdateStatus(client.getTable());
     }
 
     @Override
     public void updateStatus(Table table) {
-        if (debug) System.out.println("ClientPlayLayoutController.updateStatus");
+        log.printDebMsg("ClientPlayLayoutController.updateStatus",3);
         Platform.runLater(() -> runLaterUpdateStatus(client.getTable()));
     }
 
     private void runLaterUpdateStatus(Table table) {
-        if (debug) System.out.println("ClientPlayLayoutController.runLaterUpdateStatus");
+        log.printDebMsg("ClientPlayLayoutController.runLaterUpdateStatus",3);
         String statusString;
         switch (table.getPlayerStatus(myNameString)) {
             case PASSED:
@@ -584,18 +575,18 @@ public class ClientPlayLayoutController implements WvSUpdater {
 
     @Override
     public void updateLobby(ArrayList<String> names) {
-        if (debug) System.out.println("ClientPlayLayoutController.updateLobby");
+        log.printDebMsg("ClientPlayLayoutController.updateLobby",3);
         Platform.runLater(() -> rootController.updateLobby(names));
     }
 
     @Override
     public void updateChat(String name, String message) {
-        if (debug) System.out.println("ClientPlayLayoutController.updateChat");
+        log.printDebMsg("ClientPlayLayoutController.updateChat",3);
         Platform.runLater(() -> runLaterUpdateChat(name,message));
     }
 
     public void runLaterUpdateChat(String name, String message) {
-        if (debug) System.out.println("ClientPlayLayoutController.runLaterUpdateChat");
+        log.printDebMsg("ClientPlayLayoutController.runLaterUpdateChat",3);
         Label newMsg = new Label(String.format("%8s: %s", name, message));
         newMsg.setWrapText(true);
         newMsg.setMinWidth(messageWidth);
@@ -604,18 +595,33 @@ public class ClientPlayLayoutController implements WvSUpdater {
     }
 
     @Override
-    public void updateAll() {
-        if (debug) System.out.println("ClientPlayLayoutController.updateAll");
-    }
-
-    @Override
     public void updateHand(ArrayList<Card> cards) {
-        if (debug) System.out.println("ClientPlayLayoutController.updateHand");
+        log.printDebMsg("ClientPlayLayoutController.updateHand",3);
         Platform.runLater(() -> runLaterUpdateHand(cards));
     }
 
+    @Override
+    public void updateStrike(int strikeVal, int numStrikes) {
+
+    }
+
+    @Override
+    public void updateSwapW(Card newCard) {
+
+    }
+
+    @Override
+    public void updateSwapS(Card newCard, Card oldCard) {
+
+    }
+
+    @Override
+    public void setLogBookInfo(LogBook log, String debugStr) {
+        this.log = LogBookFactory.getLogBook(log, debugStr);
+    }
+
     private void runLaterUpdateHand(ArrayList<Card> cards) {
-        if (debug) System.out.println("ClientPlayLayoutController.runLaterUpdateHand");
+        log.printDebMsg("ClientPlayLayoutController.runLaterUpdateHand",3);
         int index;
         for (index = 0; index < cards.size(); index++) {
             StringBuilder url = new StringBuilder("/com/sentinella/james/gui/view/images/playingcards/");
@@ -701,10 +707,6 @@ public class ClientPlayLayoutController implements WvSUpdater {
 
     public void setRootController(ClientRootLayoutController rootController) {
         this.rootController = rootController;
-    }
-
-    public void setDebug(boolean debug) {
-        this.debug = debug;
     }
 
     private enum ScreenSize {SMALL, MEDIUM, LARGE}

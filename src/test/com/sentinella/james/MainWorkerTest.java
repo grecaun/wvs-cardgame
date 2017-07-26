@@ -33,7 +33,7 @@ public class MainWorkerTest {
     @Before
     public void setUp() throws Exception {
         printer = new MainWorkerPrintWriter();
-        worker  = new MainWorker(printer, false);
+        worker  = new MainWorker(printer);
     }
 
     @Test

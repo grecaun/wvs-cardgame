@@ -15,6 +15,7 @@ import java.util.regex.Matcher;
  */
 public class Main {
     private static boolean keepAlive = true;
+    private static final LogBook log = new LogBook(3,true,"TUIMAIN");
 
     public static void main(String[] args) {
         Client              theClient;
@@ -27,7 +28,6 @@ public class Main {
         String      host  = null;
         int         port  = 0;
         boolean     auto  = true;
-        boolean     debug = false;
         int         argc  = args.length;
         int         delay = 0;
         for (int i=0; i<argc; i++) {
@@ -41,7 +41,7 @@ public class Main {
                     try {
                         port = Integer.parseInt(args[++i]);
                     } catch (Exception e) {
-                        System.out.println("Unknown value given for as a port number.");
+                        log.printErrMsg("Unknown value given for as a port number.");
                     }
                     break;
                 case "-n":
@@ -54,27 +54,35 @@ public class Main {
                     break;
                 case "-d":
                 case "-D":
-                    debug = true;
+                    try {
+                        log.setDebugLvl(Integer.parseInt(args[++i]));
+                    } catch (Exception e) {
+                        log.printErrMsg("Unknown value given for a debug level.");
+                    }
+                    break;
+                case "-l":
+                case "-L":
+                    try {
+                        log.setDebugLvl(Integer.parseInt(args[++i]));
+                    } catch (Exception e) {
+                        log.printErrMsg("Unknown value given for a debug level.");
+                    }
                     break;
                 case "a":
                 case "A":
-                    try {
-                        delay = Integer.parseInt(args[++i]);
-                    } catch (Exception e) {
-                        System.out.println("Unknown value given for a delay.");
-                    }
+                    log.setDebugCon(args[++i].equalsIgnoreCase("true"));
                     break;
                 default:
-                    System.out.println("-s <servername> Sets the server IP address.");
-                    System.out.println("-p <portnumber> Sets the server's port number.");
-                    System.out.println("-n <name> Sets the name you wish to use while playing. 8 character limit.");
-                    System.out.println("-a <delay> Sets the time (seconds) the AI will wait before sending a play/swap message.");
-                    System.out.println("-m Tells the client to run in manual mode instead of auto.");
+                    log.printOutMsg("-s <servername> Sets the server IP address.");
+                    log.printOutMsg("-p <portnumber> Sets the server's port number.");
+                    log.printOutMsg("-n <name> Sets the name you wish to use while playing. 8 character limit.");
+                    log.printOutMsg("-a <delay> Sets the time (seconds) the AI will wait before sending a play/swap message.");
+                    log.printOutMsg("-m Tells the client to run in manual mode instead of auto.");
             }
         }
         try {
-            theClient     = new Client(host,port,name,auto);
-            myWorker      = new MainWorker(theClient.getOutConnection(),debug);
+            theClient     = new Client(host,port,name,auto,log,"TUICLIENT");
+            myWorker      = new MainWorker(theClient.getOutConnection(),log,"TUIMAINWORKER");
             clientLobby   = theClient.getLobby();
             clientTable   = theClient.getTable();
             theClient.setDelay(delay);
@@ -83,7 +91,7 @@ public class Main {
             ClientCallback lifeLine = new ClientCallback() {
                 @Override
                 public void finished() {
-                    System.out.println("Client thread no longer running.");
+                    log.printOutMsg("Client thread no longer running.");
                     keepAlive = false;
                 }
 
@@ -94,10 +102,9 @@ public class Main {
                 }
             };
             theClient.setUiThread(lifeLine);
-            theClient.setDebug(debug);
             clientThread.start();
         } catch (UnknownHostException e) {
-            System.out.println("Unable to connect to server.");
+            log.printErrMsg("Unable to connect to server.");
             return;
         }
         BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
@@ -117,7 +124,7 @@ public class Main {
                 cmd = matcher.group(1);
                 msg = matcher.group(2);
                 if (cmd.equalsIgnoreCase("quit") || cmd.equalsIgnoreCase("q")) {
-                    System.out.println("Goodbye.");
+                    log.printOutMsg("Goodbye.");
                     theClient.quit();
                     keepAlive = false;
                     break;
@@ -134,7 +141,7 @@ public class Main {
                 } else if (cmd.equalsIgnoreCase("lobby") || cmd.equalsIgnoreCase("l")) {
                     System.out.println(clientLobby.getLobbyString());
                 } else {
-                    System.out.println("I don't quite understand that command. If you need help type 'help' for information on terminal input commands.");
+                    log.printOutMsg("I don't quite understand that command. If you need help type 'help' for information on terminal input commands.");
                 }
             }
         }
@@ -146,14 +153,14 @@ public class Main {
     }
 
     private static void printHelp() {
-        System.out.println("Typing 'c' or 'chat' followed by a message will send the message to everyone connected to the server.");
-        System.out.println("Typing 'q' or 'quit' will exit the game.");
-        System.out.println("Typing 'h' or 'help' will bring up this message.");
-        System.out.println("Typing 't' or 'table' will display the current table information.");
-        System.out.println("Typing 'l' or 'lobby' will display the list of people in the lobby.");
-        System.out.println("Typing 's' or 'swap' followed by a number from 2-10 or A, J, K, Q, then the suit C, S, D, H will indicate to the server what card you wish to give to the scumbag.");
-        System.out.println("Typing 'p' or 'play' followed by a number from 2-10 or A, J, K, Q, then the suit C, S, D, H will indicate to the server the cards you wish to play.");
-        System.out.println("Both the play and swap message do not require the suit, if you have a card of the value indicated it will be found and transmitted.  If you do not it assumes the suit is clubs.");
-        System.out.println("Both of these messages will transmit a card that you do not have.");
+        log.printOutMsg("Typing 'c' or 'chat' followed by a message will send the message to everyone connected to the server.");
+        log.printOutMsg("Typing 'q' or 'quit' will exit the game.");
+        log.printOutMsg("Typing 'h' or 'help' will bring up this message.");
+        log.printOutMsg("Typing 't' or 'table' will display the current table information.");
+        log.printOutMsg("Typing 'l' or 'lobby' will display the list of people in the lobby.");
+        log.printOutMsg("Typing 's' or 'swap' followed by a number from 2-10 or A, J, K, Q, then the suit C, S, D, H will indicate to the server what card you wish to give to the scumbag.");
+        log.printOutMsg("Typing 'p' or 'play' followed by a number from 2-10 or A, J, K, Q, then the suit C, S, D, H will indicate to the server the cards you wish to play.");
+        log.printOutMsg("Both the play and swap message do not require the suit, if you have a card of the value indicated it will be found and transmitted.  If you do not it assumes the suit is clubs.");
+        log.printOutMsg("Both of these messages will transmit a card that you do not have.");
     }
 }

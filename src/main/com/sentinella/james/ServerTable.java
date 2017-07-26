@@ -16,16 +16,13 @@ import java.util.Random;
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 public class ServerTable extends Table {
-    private Printer     printer = new BasicPrinter();
     private ServerLobby lobby;
 
-    ArrayList<Player>   finishedPlayers;
+    private ArrayList<Player>   finishedPlayers;
 
     private int         minPlayers;
     private int         currentSeat = 0;
     private Card        warlordCard;
-
-    private boolean     debug = false;
 
     public ServerTable(int minPlayers, ServerLobby lobby) {
         super();
@@ -35,45 +32,45 @@ public class ServerTable extends Table {
     }
 
     public Server.SERVERSTATE newHand() {
-        if (debug) printer.printDebugMessage(String.format("%s ServerTable.newHand", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
-        printer.printString("Arranging the table.");
-        printer.printLine();
+        log.printDebMsg(String.format("%s ServerTable.newHand", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))),3);
+        log.printOutMsg("Arranging the table.");
+        log.printOutLine();
         arrangeTable();
         if (getActivePlayers() < minPlayers) {
-            printer.printString("Insufficient players. Returning players to lobby until more clients join.");
-            printer.printLine();
+            log.printOutMsg("Insufficient players. Returning players to lobby until more clients join.");
+            log.printOutLine();
             insufficientPlayers();
-            if (debug) printer.printDebugMessage(String.format("%s ServerTable.newHand - Setting State to INSUFFPLAYERS", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+            log.printDebMsg(String.format("%s ServerTable.newHand - Setting State to INSUFFPLAYERS", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))),2);
             return Server.SERVERSTATE.INSUFFPLAYERS;
         }
-        printer.printString("Setup up cards on table.");
-        printer.printLine();
+        log.printOutMsg("Setup up cards on table.");
+        log.printOutLine();
         resetCards();
-        printer.printString("Shuffling deck.");
-        printer.printLine();
+        log.printOutMsg("Shuffling deck.");
+        log.printOutLine();
         if (shuffle()) {
-            printer.printString("Something went wrong with the shuffle.");
-            printer.printLine();
+            log.printOutMsg("Something went wrong with the shuffle.");
+            log.printOutLine();
             insufficientPlayers();
-            if (debug) printer.printDebugMessage(String.format("%s ServerTable.newHand - Shuffle problems. Setting to INSUFFPLAYERS", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+            log.printDebMsg(String.format("%s ServerTable.newHand - Shuffle problems. Setting to INSUFFPLAYERS", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))),2);
             return Server.SERVERSTATE.INSUFFPLAYERS;
         }
         if (isNotRanked) {
-            printer.printString("Starting unranked game. Player with three of clubs goes first.");
-            printer.printLine();
-            if (debug) printer.printDebugMessage(String.format("%s ServerTable.newHand - Unranked Start, returning startGame() value", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+            log.printOutMsg("Starting unranked game. Player with three of clubs goes first.");
+            log.printOutLine();
+            log.printDebMsg(String.format("%s ServerTable.newHand - Unranked Start, returning startGame() value", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))),2);
             return startGame();
         }
-        printer.printString("Performing card swap.");
-        printer.printLine();
-        if (debug) printer.printDebugMessage(String.format("%s ServerTable.newHand - Ranked start, swapping cards, returning swap() value", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+        log.printOutMsg("Performing card swap.");
+        log.printOutLine();
+        log.printDebMsg(String.format("%s ServerTable.newHand - Ranked start, swapping cards, returning swap() value", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))),2);
         return swap();
     }
 
     public Server.SERVERSTATE startGame() {
-        if (debug) printer.printDebugMessage(String.format("%s ServerTable.startGame", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+        log.printDebMsg(String.format("%s ServerTable.startGame", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))),3);
         if (isNotRanked) {
-            if (debug) printer.printDebugMessage(String.format("%s ServerTable.startGame - unranked start, find card 0", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+            log.printDebMsg(String.format("%s ServerTable.startGame - unranked start, find card 0", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))),2);
             for (int i=0;i<7;i++) {
                 if (players[i].hasCard(0)) {
                     setCurrentSeat(i);
@@ -87,44 +84,44 @@ public class ServerTable extends Table {
         for (Player p : players) {
             if (p != null) {
                 ((ServerPlayer) p).sendHand();
-                printer.printString(String.format("%s has %s%s", p.getName(),p.getNumCards()==0?"no cards. ":"these cards: ", p.getHand().toString()));
+                log.printOutMsg(String.format("%s has %s%s", p.getName(),p.getNumCards()==0?"no cards. ":"these cards: ", p.getHand().toString()));
             }
         }
-        printer.printLine();
-        if (debug) printer.printDebugMessage(String.format("%s ServerTable.startGame - Returning play() value", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+        log.printOutLine();
+        log.printDebMsg(String.format("%s ServerTable.startGame - Returning play() value", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))),2);
         return play();
     }
 
     public Server.SERVERSTATE play() {
-        if (debug) printer.printDebugMessage(String.format("%s ServerTable.play", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+        log.printDebMsg(String.format("%s ServerTable.play", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))),3);
         if (players[currentSeat] == null || players[currentSeat].getNumCards() < 1) nextPlayer();
         if (playersWithCards() < 2) {
             addLastPlayer();
-            if (debug) printer.printDebugMessage(String.format("%s ServerTable.play - Less than 2 players with cards - State NEWGAME", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+            log.printDebMsg(String.format("%s ServerTable.play - Less than 2 players with cards - State NEWGAME", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))),2);
             return Server.SERVERSTATE.NEWGAME;
         }
         checkStatus();
         lobby.broadcastMessage(getTableMessage());
-        if (debug) printer.printDebugMessage(String.format("%s ServerTable.play - State WAITFORPLAYMSG", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+        log.printDebMsg(String.format("%s ServerTable.play - State WAITFORPLAYMSG", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))),2);
         return Server.SERVERSTATE.WAITFORPLAYMSG;
     }
 
     private Server.SERVERSTATE swap() {
-        if (debug) printer.printDebugMessage(String.format("%s ServerTable.swap", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+        log.printDebMsg(String.format("%s ServerTable.swap", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))),3);
         warlordCard = players[getScumbagSeat()].getHand().getHighest();
         setCurrentSeat(getWarlordSeat());
         if (((ServerPlayer)(players[getWarlordSeat()])).sendSwapW(warlordCard) == ServerPlayer.CONERROR.UNABLETOSEND) {
-            if (debug) printer.printDebugMessage(String.format("%s ServerTable.swap - unable to contact warlord", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
-            printer.printString("Unable to send swap message to warlord.");
-            printer.printLine();
+            log.printDebMsg(String.format("%s ServerTable.swap - unable to contact warlord", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))),2);
+            log.printOutMsg("Unable to send swap message to warlord.");
+            log.printOutLine();
             players[getWarlordSeat()].removeCard(warlordCard);
             players[getScumbagSeat()].addCard(warlordCard);
             ((ServerPlayer)players[getScumbagSeat()]).sendSwapS(null, null);
             nextPlayer();
-            if (debug) printer.printDebugMessage(String.format("%s ServerTable.swap - returning startGame value", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+            log.printDebMsg(String.format("%s ServerTable.swap - returning startGame value", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))),2);
             return startGame();
         }
-        if (debug) printer.printDebugMessage(String.format("%s ServerTable.swap - State WAITFORSWAPMSG", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+        log.printDebMsg(String.format("%s ServerTable.swap - State WAITFORSWAPMSG", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))),2);
         return Server.SERVERSTATE.WAITFORSWAPMSG;
     }
 
@@ -163,7 +160,7 @@ public class ServerTable extends Table {
     }
 
     public void arrangeTable() {
-        if (debug) printer.printDebugMessage(String.format("%s ServerTable.arrangeTable", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+        log.printDebMsg(String.format("%s ServerTable.arrangeTable", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))),3);
         initializeVariables();
         int numAtTable = 0;
         while (finishedPlayers.size() > 0 && numAtTable < 7) {
@@ -187,8 +184,8 @@ public class ServerTable extends Table {
             }
         }
         if (numAtTable > 7) {
-            printer.printString("Counted too many players at the table.");
-            printer.printLine();
+            log.printOutMsg("Counted too many players at the table.");
+            log.printOutLine();
         }
         if (players[currentSeat]!=null) players[currentSeat].setStatus(pStatus.ACTIVE);
     }
@@ -217,7 +214,7 @@ public class ServerTable extends Table {
     }
 
     private boolean shuffle() {
-        if (debug) printer.printDebugMessage(String.format("%s ServerTable.shuffle", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+        log.printDebMsg(String.format("%s ServerTable.shuffle", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))),3);
         ArrayList<Integer>  deck      = new ArrayList<>();
         Random              generator = new Random();
         for (int i=0; i<52; i++) deck.add(i);
@@ -240,7 +237,7 @@ public class ServerTable extends Table {
      * @return
      */
     public boolean nextPlayer() {
-        if (debug) printer.printDebugMessage(String.format("%s ServerTable.nextPlayer", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+        log.printDebMsg(String.format("%s ServerTable.nextPlayer", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))),3);
         int oldPlayer = currentSeat;
         for (int i=1;i<8;i++) {
             setCurrentSeat((oldPlayer + i) % 7);
@@ -270,7 +267,7 @@ public class ServerTable extends Table {
                 finishedPlayers.add(players[i]);
             }
         }
-        if (count > 1) { printer.printErrorMessage("More than one player left."); }
+        if (count > 1) { log.printErrMsg("More than one player left."); }
     }
 
     private void checkStatus() {
@@ -299,7 +296,7 @@ public class ServerTable extends Table {
     }
 
     public String getTableMessage() {
-        if (debug) printer.printDebugMessage(String.format("%s ServerTable.getTableMessage", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+        log.printDebMsg(String.format("%s ServerTable.getTableMessage", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))),3);
         StringBuilder outBuild = new StringBuilder("[stabl|");
         for (int i=0; i<7; i++) {
             if (players[i] != null) {
@@ -331,7 +328,7 @@ public class ServerTable extends Table {
     public int getWarlordSeat() {return 0; }
 
     public int checkPlay(int[] play) {
-        if (debug) printer.printDebugMessage(String.format("%s ServerTable.checkPlay", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))));
+        log.printDebMsg(String.format("%s ServerTable.checkPlay", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH))),3);
         if (currentSeat < 0 || currentSeat > 6 || players[currentSeat] == null) return 99;
         int        currentNumCards = 0;
         boolean    match           = false;
@@ -380,19 +377,5 @@ public class ServerTable extends Table {
 
     public boolean isWarlord(Player player) {
         return players[getWarlordSeat()] != null && players[getWarlordSeat()].isPlayer(player);
-    }
-
-    public void setDebugStream(PrintStream debugStream) {
-        printer.setDebugStream(debugStream);
-        lobby.setDebugStream(debugStream);
-    }
-
-    public void setDebug(boolean inVal) {
-        this.debug = inVal;
-        lobby.setDebug(inVal);
-    }
-
-    public void setPrinter(Printer printer) {
-        this.printer = printer;
     }
 }

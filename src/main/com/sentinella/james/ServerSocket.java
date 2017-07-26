@@ -23,12 +23,18 @@ public class ServerSocket {
     int ops;
     int port;
 
+    protected LogBook log = new LogBook();
+
     public ServerSocket(int port) {
         this.port = port;
     }
 
     public ServerSocket() {
         this.port = 36788;
+    }
+
+    public void setLogBookInfo(LogBook l, String debugStr) {
+        this.log = LogBookFactory.getLogBook(l,debugStr);
     }
 
     public void establishConnection(int port) {

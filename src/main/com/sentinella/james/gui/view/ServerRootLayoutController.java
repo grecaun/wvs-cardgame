@@ -12,7 +12,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.channels.SocketChannel;
@@ -35,10 +34,11 @@ public class ServerRootLayoutController {
 
     private GUIServer theServer;
     private Thread    serverThread;
-    private boolean   debug = false;
+
+    private LogBook log = new GUILogBook();
 
     @FXML private VBox      clients;
-    @FXML private VBox      log;
+    @FXML private VBox      logBox;
     @FXML private TextField lobbyTO;
     @FXML private TextField playTO;
     @FXML private TextField minPlayers;
@@ -50,6 +50,10 @@ public class ServerRootLayoutController {
     @FXML private Label     connectionInfo;
     @FXML private Button    start;
     @FXML private Button    disconnect;
+
+    public void setLogBookInfo(LogBook l, String debugStr) {
+        this.log = LogBookFactory.getLogBook(l,debugStr);
+    }
 
     @FXML
     public void initialize() {
@@ -70,7 +74,7 @@ public class ServerRootLayoutController {
             //
             if (theServer != null && !theServer.hasBeenClosed()) new Alert(Alert.AlertType.ERROR, "Server already running.", ButtonType.CLOSE).showAndWait();
             try {
-                theServer = new GUIServer(options.getLobbyTime(),options.getPlayTime(),options.getMinPlayers(),options.getMaxStrikes(),options.getMaxClients(),options.getPortNumber(),debug);
+                theServer = new GUIServer(options.getLobbyTime(),options.getPlayTime(),options.getMinPlayers(),options.getMaxStrikes(),options.getMaxClients(),options.getPortNumber(),log,String.format("%s:%s",log.getDebugStr(),"SERVER"));
                 theServer.setUiThread(new ClientCallback() {
                     @Override
                     public void finished() {
@@ -81,60 +85,19 @@ public class ServerRootLayoutController {
 
                     @Override public void setOutConnection(ClientSocket out) {}
                 });
+                ((GUILogBook) log).setCallback(theServer);
                 theServer.setListener(() -> Platform.runLater(()->{
-                    System.err.println("Updating log.");
+                    log.printErrMsg("Updating logBox.");
                     ArrayList<String> messages  = new ArrayList<>();
                     List<String>      serverLog = theServer.getServerLog();
                     messages.addAll(serverLog);
                     serverLog.removeAll(messages);
-                    System.err.println(String.format("Log messages to display: %d",messages.size()));
+                    log.printErrMsg(String.format("Log messages to display: %d",messages.size()));
                     for (String message : messages) {
-                        System.err.println(String.format("Message: '%s'",message));
-                        log.getChildren().add(new Label(message));
+                        log.printErrMsg(String.format("Message: '%s'",message));
+                        logBox.getChildren().add(new Label(message));
                     }
                 }));
-                if (debug) theServer.setPrinter(new Printer() {
-                    @Override
-                    public void printString(String string) {
-                        System.out.println(String.format("SERV: MSG: %s",string));
-                        theServer.addToServerLog(string);
-                    }
-
-                    @Override
-                    public void printErrorMessage(String string) { System.out.println(String.format("SERV: ERR: %s",string)); }
-
-                    @Override
-                    public void printDebugMessage(String string) { System.out.println(String.format("SERV: DBG: %s",string)); }
-
-                    @Override
-                    public void printLine() { printString("----------------------------------------"); }
-
-                    @Override
-                    public void setDebugStream(PrintStream stream) { }
-
-                    @Override
-                    public void setErrorStream(PrintStream stream) { }
-
-                    @Override
-                    public void setOutputStream(PrintStream stream) { }
-                });
-                else theServer.setPrinter(new Printer() {
-                    @Override public void printString(String string) {
-                        theServer.addToServerLog(string);
-                    }
-
-                    @Override public void printErrorMessage(String string) {}
-
-                    @Override public void printDebugMessage(String string) {}
-
-                    @Override public void printLine() { printString("----------------------------------------"); }
-
-                    @Override public void setDebugStream(PrintStream stream) {}
-
-                    @Override public void setErrorStream(PrintStream stream) {}
-
-                    @Override public void setOutputStream(PrintStream stream) {}
-                });
                 serverThread = new Thread(theServer);
                 serverThread.start();
                 enableDisconnectButton();
@@ -312,14 +275,15 @@ public class ServerRootLayoutController {
         }
     }
 
-    class GUIServer extends Server {
+    class GUIServer extends Server implements LogBookCallback {
         private ConcurrentHashMap<SocketChannel, Label> displayed = new ConcurrentHashMap<>();
         private List<String>                  serverLog = Collections.synchronizedList(new ArrayList<String>());
         private ServerListener                listener;
         private boolean                       hasBeenClosed = false;
 
-        public GUIServer(int lobbyTimeOut, int playTimeOut, int minPlayers, int strikesAllowed, int maxClients, int port, boolean debug) throws UnknownHostException {
-            super(lobbyTimeOut, playTimeOut, minPlayers, strikesAllowed, maxClients, port, debug);
+        public GUIServer(int lobbyTimeOut, int playTimeOut, int minPlayers, int strikesAllowed, int maxClients, int port, LogBook l, String debStr) throws UnknownHostException {
+            super(lobbyTimeOut, playTimeOut, minPlayers, strikesAllowed, maxClients, port);
+            this.log = LogBookFactory.getLogBook(l,debStr);
         }
 
         public boolean hasBeenClosed() {
@@ -363,7 +327,7 @@ public class ServerRootLayoutController {
                             try {
                                 clients.getChildren().remove(container);
                             } catch (Exception ex) {
-                                System.err.println("Unable to remove client from list of displayed clients.");
+                                log.printErrMsg("Unable to remove client from list of displayed clients.");
                             }
                         });
                     }).start());
@@ -372,7 +336,7 @@ public class ServerRootLayoutController {
             }
         }
 
-        public void addToServerLog(String string) {
+        public void addToMessages(String string) {
             serverLog.add(string);
             if (listener != null) listener.updateServerLog();
         }

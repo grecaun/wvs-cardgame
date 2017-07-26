@@ -41,7 +41,7 @@ public class ClientRootLayoutController implements ClientCallback {
     private ArrayList<AIClient>          AIClients = new ArrayList<>();
     private ClientAIListLayoutController aiListController;
 
-    private boolean                      debug = false;
+    private LogBook log = new GUILogBook();
 
     @FXML private MenuBar           menu;
     @FXML private Menu              file;
@@ -54,6 +54,10 @@ public class ClientRootLayoutController implements ClientCallback {
           private Menu              lobby;
           private SeparatorMenuItem menuSep;
 
+    public void setLogBookInfo(LogBook l, String debugStr) {
+        this.log = LogBookFactory.getLogBook(l,debugStr);
+    }
+
     /*
      * Getters and setters.
      */
@@ -62,7 +66,6 @@ public class ClientRootLayoutController implements ClientCallback {
     public void         setClient(WarlordVScumbagClient client) {this.client = client;}
     public void         setWorker(MainWorker worker) {this.worker = worker;}
     public MainWorker   getWorker() {return worker;}
-    public void         setDebug(boolean debug) {this.debug = debug;}
     public String       getHostName() {return clientOptions.getHostname();}
     public int          getHostPort() {return clientOptions.getHostport();}
 
@@ -91,33 +94,6 @@ public class ClientRootLayoutController implements ClientCallback {
             AIClients.add(newClient);
             newClient.setDelay(clientOptions.getDelay());
             newClient.setUiThread(newClient);
-            if (debug) newClient.setPrinter(new Printer() {
-                private final int AINum = AIClients.size();
-
-                @Override
-                public void printString(String string) {
-                    System.out.println(String.format("AI%d: MSG: %s",AINum,string));
-                }
-
-                @Override
-                public void printErrorMessage(String string) {
-                    System.err.println(String.format("AI%d: ERR: %s",AINum,string));
-                }
-
-                @Override
-                public void printDebugMessage(String string) {
-                    System.out.println(String.format("AI%d: DBG: %s",AINum,string));
-                }
-
-                @Override public void printLine() {}
-
-                @Override public void setDebugStream(PrintStream stream) {}
-
-                @Override public void setErrorStream(PrintStream stream) {}
-
-                @Override public void setOutputStream(PrintStream stream) {}
-            });
-            newClient.setDebug(debug);
             new Thread(newClient).start();
             closeAIMenuItem.setDisable(false);
             listAIMenuItem.setDisable(false);
@@ -230,7 +206,7 @@ public class ClientRootLayoutController implements ClientCallback {
     private void startServer() {
         if (theServer != null && !theServer.hasBeenClosed()) new Alert(Alert.AlertType.ERROR, "Server already running.", ButtonType.CLOSE).showAndWait();
         try {
-            theServer = new GUIServer(serverOptions.getLobbyTime(),serverOptions.getPlayTime(),serverOptions.getMinPlayers(),serverOptions.getMaxStrikes(),serverOptions.getMaxClients(),serverOptions.getPortNumber(),debug);
+            theServer = new GUIServer(serverOptions.getLobbyTime(),serverOptions.getPlayTime(),serverOptions.getMinPlayers(),serverOptions.getMaxStrikes(),serverOptions.getMaxClients(),serverOptions.getPortNumber(),log,String.format("%s:%s",log.getDebugStr(),"SERVER"));
             theServer.setUiThread(new ClientCallback() {
                 @Override
                 public void finished() {
@@ -241,48 +217,7 @@ public class ClientRootLayoutController implements ClientCallback {
 
                 @Override public void setOutConnection(ClientSocket out) {}
             });
-            if (debug) theServer.setPrinter(new Printer() {
-                @Override
-                public void printString(String string) {
-                    System.out.println(String.format("SERV: MSG: %s",string));
-                    theServer.addToServerLog(string);
-                }
-
-                @Override
-                public void printErrorMessage(String string) { System.out.println(String.format("SERV: ERR: %s",string)); }
-
-                @Override
-                public void printDebugMessage(String string) { System.out.println(String.format("SERV: DBG: %s",string)); }
-
-                @Override
-                public void printLine() { printString("----------------------------------------"); }
-
-                @Override
-                public void setDebugStream(PrintStream stream) { }
-
-                @Override
-                public void setErrorStream(PrintStream stream) { }
-
-                @Override
-                public void setOutputStream(PrintStream stream) { }
-            });
-            else theServer.setPrinter(new Printer() {
-                @Override public void printString(String string) {
-                    theServer.addToServerLog(string);
-                }
-
-                @Override public void printErrorMessage(String string) {}
-
-                @Override public void printDebugMessage(String string) {}
-
-                @Override public void printLine() { printString("----------------------------------------"); }
-
-                @Override public void setDebugStream(PrintStream stream) {}
-
-                @Override public void setErrorStream(PrintStream stream) {}
-
-                @Override public void setOutputStream(PrintStream stream) {}
-            });
+            ((GUILogBook)log).setCallback(theServer);
             Thread serverThread = new Thread(theServer);
             serverThread.start();
             enableCloseServer();
@@ -503,7 +438,7 @@ public class ClientRootLayoutController implements ClientCallback {
 
         @Override
         public void finished() {
-            printer.printString("Setting finished to true.");
+            log.printOutMsg("Setting finished to true.");
             finished = true;
             Platform.runLater(ClientRootLayoutController.this::updateCloseAIMenu);
         }
@@ -513,17 +448,18 @@ public class ClientRootLayoutController implements ClientCallback {
         @Override public void setOutConnection(ClientSocket out) { }
 
         public boolean isFinished() {
-            printer.printString("Someone is checking if I'm finished.");
+            log.printOutMsg("Someone is checking if I'm finished.");
             return finished; }
     }
 
-    class GUIServer extends Server {
+    class GUIServer extends Server implements LogBookCallback {
        private ArrayList<String> serverLog = new ArrayList<>();
        private ServerListener    listener;
        private boolean           hasBeenClosed = false;
 
-       public GUIServer(int lobbyTimeOut, int playTimeOut, int minPlayers, int strikesAllowed, int maxClients, int port, boolean debug) throws UnknownHostException {
-           super(lobbyTimeOut, playTimeOut, minPlayers, strikesAllowed, maxClients, port, debug);
+       public GUIServer(int lobbyTimeOut, int playTimeOut, int minPlayers, int strikesAllowed, int maxClients, int port, LogBook l, String debStr) throws UnknownHostException {
+           super(lobbyTimeOut, playTimeOut, minPlayers, strikesAllowed, maxClients, port);
+           this.log = LogBookFactory.getLogBook(l,debStr);
        }
 
        public boolean hasBeenClosed() {
@@ -535,7 +471,7 @@ public class ClientRootLayoutController implements ClientCallback {
            hasBeenClosed = true;
        }
 
-       public void addToServerLog(String string) {
+       public void addToMessages(String string) {
            serverLog.add(string);
            if (listener != null) listener.updateServerLog();
        }

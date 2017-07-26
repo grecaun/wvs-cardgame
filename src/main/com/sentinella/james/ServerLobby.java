@@ -17,8 +17,6 @@ import java.util.Locale;
 public class ServerLobby extends Lobby {
     private ArrayList<Player>               atTable;
 
-    private Printer printer = new BasicPrinter();
-
     private boolean     debug = false;
 
     public ServerLobby() {
@@ -26,12 +24,8 @@ public class ServerLobby extends Lobby {
         atTable       = new ArrayList<>();
     }
 
-    public void setPrinter(Printer printer) {
-        this.printer = printer;
-    }
-
     public void broadcastMessage(String message) {
-        if (debug) printer.printDebugMessage(String.format("%s ServerLobby.broadcastMessage - Message: '%s'", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),message));
+        log.printDebMsg(String.format("%s ServerLobby.broadcastMessage - Message: '%s'", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH)),message),3);
         ArrayList<Player> toRemove = new ArrayList<>();
         for (Player p: players) {
             if (((ServerPlayer)p).sendMessage(message) == ServerPlayer.CONERROR.UNABLETOSEND) {
@@ -72,7 +66,7 @@ public class ServerLobby extends Lobby {
     }
 
     public void addToLobby(Player player) {
-        if (!atTable.contains(player)) printer.printErrorMessage("Unknown player at table.");
+        if (!atTable.contains(player)) log.printErrMsg("Unknown player at table.");
         else {
             atTable.remove(player);
             players.add(0, player);
@@ -130,9 +124,5 @@ public class ServerLobby extends Lobby {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
-    }
-
-    public void setDebugStream(PrintStream debugStream) {
-        printer.setDebugStream(debugStream);
     }
 }

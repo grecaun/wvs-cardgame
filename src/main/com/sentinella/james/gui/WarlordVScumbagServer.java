@@ -6,6 +6,8 @@ package com.sentinella.james.gui; /**
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+import com.sentinella.james.GUILogBook;
+import com.sentinella.james.LogBook;
 import com.sentinella.james.Server;
 import com.sentinella.james.gui.view.ServerRootLayoutController;
 import javafx.application.Application;
@@ -20,6 +22,7 @@ public class WarlordVScumbagServer extends Application {
     private Stage                       primaryStage;
     private BorderPane                  rootLayout;
     private ServerRootLayoutController  rootController;
+    private LogBook log = new GUILogBook(3,true,"GUISERVER");
 
     public static void main(String[] args) {
         launch(args);
@@ -47,6 +50,7 @@ public class WarlordVScumbagServer extends Application {
             primaryStage.setScene(new Scene(rootLayout));
             primaryStage.show();
             rootController = loader.getController();
+            rootController.setLogBookInfo(log,String.format("%s:%s",log.getDebugStr(),"ROOTCONTROLLER"));
         } catch (IOException e) {
             e.printStackTrace();
         }

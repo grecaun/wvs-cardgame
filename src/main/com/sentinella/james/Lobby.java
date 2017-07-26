@@ -11,6 +11,11 @@ import java.util.ArrayList;
  */
 public class Lobby {
     protected ArrayList<Player> players;
+    protected LogBook log = new LogBook();
+
+    public void setLogBookInfo(LogBook l, String debugStr) {
+        this.log = LogBookFactory.getLogBook(l,debugStr);
+    }
 
     public Lobby() {
         players = new ArrayList<>();
