@@ -2,6 +2,7 @@ package com.sentinella.james.gui.view;
 
 import com.sentinella.james.*;
 import com.sentinella.james.gui.WarlordVScumbagClient;
+import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -30,6 +31,7 @@ public class ClientRootLayoutController implements ClientCallback {
     private double[]                     prevScreen = {816.00, 639.00};
     private Stage                        primaryStage;
     private ClientPlayLayoutController   playController;
+    private HostServices                 hostServices;
 
     private WarlordVScumbagClient        client;
     private MainWorker                   worker;
@@ -68,6 +70,7 @@ public class ClientRootLayoutController implements ClientCallback {
     public MainWorker   getWorker() {return worker;}
     public String       getHostName() {return clientOptions.getHostname();}
     public int          getHostPort() {return clientOptions.getHostport();}
+    public void         setHostServices(HostServices hs) {this.hostServices=hs;}
 
     /*
      * File
@@ -328,6 +331,7 @@ public class ClientRootLayoutController implements ClientCallback {
             e.printStackTrace();
         }
         ((HelpController)loader.getController()).setStage(newStage);
+        ((HelpController)loader.getController()).setHostServices(hostServices);
         newStage.show();
     }
 

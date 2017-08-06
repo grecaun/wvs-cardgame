@@ -1,6 +1,9 @@
 package com.sentinella.james.gui.view;
 
+import javafx.application.HostServices;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Hyperlink;
 import javafx.stage.Stage;
 
 /**
@@ -12,13 +15,18 @@ import javafx.stage.Stage;
  */
 public class HelpController {
     private Stage stage;
+    private HostServices hostServices;
 
-    public void setStage(Stage stage) {
-        this.stage = stage;
-    }
+    public void setStage(Stage stage) {this.stage = stage;}
+    public void setHostServices(HostServices hs) {this.hostServices=hs;}
 
     @FXML
     private void close() {
         stage.close();
+    }
+
+    @FXML
+    private void handleURL(ActionEvent event) {
+        hostServices.showDocument(((Hyperlink)event.getSource()).getText());
     }
 }

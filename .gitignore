@@ -5,3 +5,4 @@ debug*
 *.pyc
 testlines.txt
 testingArena.java
+MANIFEST.MF

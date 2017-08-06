@@ -74,6 +74,7 @@ public class WarlordVScumbagClient extends Application {
             rootController.setPrimaryStage(primaryStage);
             rootController.setClient(this);
             rootController.setLogBookInfo(log,String.format("%s:%s",log.getDebugStr(),"ROOTCONTROLLER"));
+            rootController.setHostServices(getHostServices());
         } catch (IOException e) {
             e.printStackTrace();
         }
