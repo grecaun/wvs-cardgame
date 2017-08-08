@@ -90,12 +90,24 @@ All CLI (command line interface) versions must be launched from a shell.  Powers
     ```
     python server.py [-l LOBBYTIMEOUT] [-t PLAYTIMEOUT] [-m MINPLAYERS] [-s NUMSTRIKES] [-c MAXCLIENTS] [-h]
     ```
-    * -l LOBBYTIMEOUT  Sets the amount of time (in seconds) the server waits before starting a game once enough players are connected.
-    * -t PLAYTIMEOUT   Sets the amount of time (in seconds) the server will wait for a player to send a play message once it is their term. (0 for no timeout)
-    * -m MINPLAYERS    Sets the minimum number of players required to be connected to the server before a game will start. (Default 3)
-    * -s NUMSTRIKES    Sets the number of strikes the server will give a client before disconnecting them. (Default 3)
-    * -c MAXCLIENTS    Sets the maximum number of clients the server will allow to connect to it.
-    * -h               Displays a help message detailing these options then exits.
+    * -l LOBBYTIMEOUT
+      * Sets the amount of time (in seconds) the server waits before starting a game once enough players are connected.
+    * -t PLAYTIMEOUT
+      * Sets the amount of time (in seconds) the server will wait for a player to send a play message once it is their term. (0 for no timeout)
+    * -m MINPLAYERS
+      * Sets the minimum number of players required to be connected to the server before a game will start. (Default 3)
+    * -s NUMSTRIKES
+      * Sets the number of strikes the server will give a client before disconnecting them. (Default 3)
+    * -c MAXCLIENTS
+      * Sets the maximum number of clients the server will allow to connect to it.
+    * -h
+      * Displays a help message detailing these options then exits.
+
+  * Server Commands when running
+    * q | quit
+      * Stops the Server.
+    * h | help - (Java only)
+      * Displays a help message.
 
   * Client - [Python 2.7][6] - [Java][2]
     ```
@@ -104,12 +116,34 @@ All CLI (command line interface) versions must be launched from a shell.  Powers
     ```
     python client.py [-s SERVERNAME] [-p PORTNUMBER] [-n NAME] [-d DELAY] [-m] [-h]
     ```
-    * -s SERVERNAME  Server IP Address / Domain Name. (Default localhost)
-    * -p PORTNUMBER  Server port number. (Default 36789)
-    * -n NAME        Sets the name you wish to use while playing. May be changed by server. Randomly chosen if none given.
-    * -d DELAY       Sets a delay (in seconds) that the AI will wait before sending a play.
-    * -m             Runs the client in manual mode instead of auto.
-    * -h             Displays a help message which details these options then exits.
+    * -s SERVERNAME
+      * Server IP Address / Domain Name. (Default localhost)
+    * -p PORTNUMBER
+      * Server port number. (Default 36789)
+    * -n NAME
+      * Sets the name you wish to use while playing. May be changed by server. Randomly chosen if none given.
+    * -d DELAY
+      * Sets a delay (in seconds) that the AI will wait before sending a play.
+    * -m
+      * Runs the client in manual mode instead of auto.
+    * -h
+      * Displays a help message which details these options then exits.
+
+  * Client Commands when running
+    * c MESSAGE | chat MESSAGE
+      * Sends MESSAGE to everyone connected to the server.
+    * s CARD | swap CARD
+      * Sends CARD as a swap message.  Will take cards you do not have in your hand. CARD is defined as a number from 2-10 or one of the letters A, J, K, Q followed by the suit C, S, D, H.
+    * p CARD \[CARD\] \[CARD\] \[CARD\] | play CARD \[CARD\] \[CARD\] \[CARD\]
+      * Sends the CARD(S) you wish to play. Will take cards you do not have in your hand. CARD is defined as a number from 2-10 or one of the letters A, J, K, Q followed by the suit C, S, D, H.
+    * q | quit
+      * Stops the client.
+    * h | help
+      * Displays a help message.
+    * l | lobby - (Java only)
+      * Displays a list of people in the lobby.
+    * t | table - (Java only)
+      * Displays the current table information.
 
 ### GUI Versions
 #### [Client GUI][3]
