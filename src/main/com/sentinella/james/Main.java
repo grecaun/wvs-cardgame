@@ -15,7 +15,7 @@ import java.util.regex.Matcher;
  */
 public class Main {
     private static boolean keepAlive = true;
-    private static final LogBook log = new LogBook(3,true,"TUIMAIN");
+    private static final LogBook log = new LogBook(0,false,"TUIMAIN");
 
     public static void main(String[] args) {
         Client              theClient;
@@ -78,6 +78,7 @@ public class Main {
                     log.printOutMsg("-n <name> Sets the name you wish to use while playing. 8 character limit.");
                     log.printOutMsg("-a <delay> Sets the time (seconds) the AI will wait before sending a play/swap message.");
                     log.printOutMsg("-m Tells the client to run in manual mode instead of auto.");
+                    System.exit(0);
             }
         }
         try {

@@ -34,7 +34,7 @@ public class WarlordVScumbagClient extends Application {
     private MainWorker          worker;
 
     private Thread              clientThread;
-    private LogBook log = new GUILogBook(3,true,"GUICLIENT");
+    private LogBook log = new GUILogBook(0,false,"GUICLIENT");
 
     public static void main(String[] args) {
         launch(args);

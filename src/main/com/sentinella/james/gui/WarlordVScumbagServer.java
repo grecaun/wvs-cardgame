@@ -22,7 +22,7 @@ public class WarlordVScumbagServer extends Application {
     private Stage                       primaryStage;
     private BorderPane                  rootLayout;
     private ServerRootLayoutController  rootController;
-    private LogBook log = new GUILogBook(3,true,"GUISERVER");
+    private LogBook log = new GUILogBook(0,false,"GUISERVER");
 
     public static void main(String[] args) {
         launch(args);

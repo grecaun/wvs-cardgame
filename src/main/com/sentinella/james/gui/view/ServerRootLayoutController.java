@@ -28,7 +28,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 public class ServerRootLayoutController {
-    private WarlordVScumbagServer serverGUI;
     private ServerOptionHolder    options;
     private boolean               serverRunning = false;
 
@@ -86,15 +85,16 @@ public class ServerRootLayoutController {
                     @Override public void setOutConnection(ClientSocket out) {}
                 });
                 ((GUILogBook) log).setCallback(theServer);
+                log.printDebMsg("HMM",1);
                 theServer.setListener(() -> Platform.runLater(()->{
-                    log.printErrMsg("Updating logBox.");
+                    log.printDebMsg("Updating logBox.",1);
                     ArrayList<String> messages  = new ArrayList<>();
                     List<String>      serverLog = theServer.getServerLog();
                     messages.addAll(serverLog);
                     serverLog.removeAll(messages);
-                    log.printErrMsg(String.format("Log messages to display: %d",messages.size()));
+                    log.printDebMsg(String.format("Log messages to display: %d",messages.size()),1);
                     for (String message : messages) {
-                        log.printErrMsg(String.format("Message: '%s'",message));
+                        log.printDebMsg(String.format("Message: '%s'",message), 1);
                         logBox.getChildren().add(new Label(message));
                     }
                 }));
@@ -337,6 +337,7 @@ public class ServerRootLayoutController {
         }
 
         public void addToMessages(String string) {
+            log.printDebMsg(String.format("Adding '%s' to output. Listener is %s",string, listener == null?" null":" not null"),1);
             serverLog.add(string);
             if (listener != null) listener.updateServerLog();
         }

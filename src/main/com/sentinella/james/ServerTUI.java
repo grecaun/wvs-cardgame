@@ -15,7 +15,7 @@ import java.util.regex.Matcher;
  */
 public class ServerTUI {
     private static boolean keepAlive = true;
-    private static final LogBook log = new LogBook(3,true,"SERVERTUI");
+    private static final LogBook log = new LogBook(0,false,"SERVERTUI");
 
     public static void main(String[] args) {
         Thread          serverThread;
@@ -27,9 +27,6 @@ public class ServerTUI {
         int             strikesAllowed      = 3;
         int             maxClients          = 35;
         int             port                = 36789;
-        boolean         debug               = false;
-
-        PrintStream debugStream = null;
 
         int             argc                = args.length;
         for (int i=0; i<argc; i++) {
@@ -62,9 +59,13 @@ public class ServerTUI {
                     break;
                 case "-d":
                 case "-D":
-                    debug = true;
                     try {
-                        debugStream = new PrintStream(new FileOutputStream(new File("debug_log.txt")));
+                        log.setDebugLvl(Integer.parseInt(args[++i]));
+                    } catch (Exception e) {
+                        log.printErrMsg("Unknown value given for a debug level.");
+                    }
+                    try {
+                        log.setDebStream(new PrintStream(new FileOutputStream(new File("debug_log.txt"))));
                     } catch (FileNotFoundException e) {
                         log.printErrMsg("Unable to establish debug log file.");
                         return;
@@ -77,6 +78,7 @@ public class ServerTUI {
                     log.printOutMsg("-m <number> Sets the minimum number of players for a game to run.");
                     log.printOutMsg("-s <number> Sets the number of strikes given out before disconnecting a client. Default is 3. Set to 0 to never disconnect people.");
                     log.printOutMsg("-c <number> Sets the maximum number of clients allowed in the lobby. Default of 35.");
+                    System.exit(0);
             }
         }
 
