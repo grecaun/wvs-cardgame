@@ -1,5 +1,5 @@
 # Warlords vs Scumbags (President)
-[Warlords vs Scumbags is a very simple card game, usually played as a drinking game.  It may be more commonly known as President.][1]
+[Warlords vs Scumbags is a very simple card game, usually played as a drinking game.  It may be more commonly known as President.][wikipedia]
 
 ## Table of Contents
   * [How to Play](#how-to-play)
@@ -12,6 +12,7 @@
     * [GUI Versions](#gui-versions)
   * [Building Your Own](#building-your-own)
   * [Known Issues](#known-issues)
+  * [Artwork](#artwork)
 
 ## How To Play
 Let's establish some terminology I'll use that may differ from the above linked wikipedia page.
@@ -64,18 +65,18 @@ There are two differences between a ranked hand and an unranked hand
 ## Downloads
 There are multiple ways to play this game with the code in this repository.
 
-  * [Java CLI Client][2]
-  * [Java GUI Client][3]
-  * [Java CLI Server][4]
-  * [Java GUI Server][5]
-  * [Python 2.7 CLI Client][6]
-  * [Python 2.7 CLI Server][7]
+  * [Java CLI Client][java-cli-client]
+  * [Java GUI Client][java-gui-client]
+  * [Java CLI Server][java-cli-server]
+  * [Java GUI Server][java-gui-server]
+  * [Python 2.7 CLI Client][python-client]
+  * [Python 2.7 CLI Server][python-server]
 
 The easiest way to play this is going to be the Java version with a GUI.  This version can launch a server and multiple AI's so you can play essentially by yourself.
 
-The java version requires Java 8 which you can find [here][8].
+The java version requires Java 8 which you can find [here][java-8].
 
-You can find Python 2.7 for download [here][9].
+You can find Python 2.7 for download [here][python-2.7].
 
 ## Running The Game
 
@@ -83,7 +84,7 @@ All CLI (command line interface) versions must be launched from a shell.  Powers
 
 ### CLI Versions
 
-  * Server - [Python 2.7][7] - [Java][4]
+  * Server - [Python 2.7][python-server] - [Java][java-cli-server]
     ```
     java -jar 'WvS ServCLI 0.1.jar' [-l LOBBYTIMEOUT] [-t PLAYTIMEOUT] [-m MINPLAYERS] [-s NUMSTRIKES] [-c MAXCLIENTS] [-h]
     ```
@@ -109,7 +110,7 @@ All CLI (command line interface) versions must be launched from a shell.  Powers
     * h | help - (Java only)
       * Displays a help message.
 
-  * Client - [Python 2.7][6] - [Java][2]
+  * Client - [Python 2.7][python-client] - [Java][java-cli-client]
     ```
     java -jar 'WvS ClientCLI 0.1.jar' [-s SERVERNAME] [-p PORTNUMBER] [-n NAME] [-a DELAY] [-m] [-h]
     ```
@@ -146,31 +147,47 @@ All CLI (command line interface) versions must be launched from a shell.  Powers
       * Displays the current table information.
 
 ### GUI Versions
-#### [Client GUI][3]
+#### [Client GUI][java-gui-client]
 Options for connecting to a server in the Client version are found under File->Settings.  Changing these settings while connected to a server will not disconnect you, but will affect any AI you try to spin up.
 
 Server options are found under Server->Options.  Changing server settings while a server is running *should* change the settings the server is using.
 
 You can disconnect and reconnect at any point in time.  You can start AI clients and close them all from the menu, you can even list them and close them individually.
 
-#### [Server GUI][5]
+#### [Server GUI][java-gui-server]
 Options for the server can be updated at any point in time.  On the left is a list of connected clients which can be closed individually. On the right is a log of people connecting, hands being dealt, when people run out of cards, etc.
 
 ## Building Your Own
 I'll be updating this later with information on how to build upon or utilize this code for yourself.
 
 ## Known issues
-  * Server list of clients doesn't properly update when the client disconnects themself.
-  * Client list of AI's doesn't update if an AI is forcibly disconnected or disconnects without being told to do so via the client.  Reopening updates the list properly.
+  * None...
+
+## Artwork
+Most of the artwork found in this game is from the public domain.  Some of the artwork has been modified from it's original to fit the purposes of this game.  Listed below are the original sources for the work.
+
+  * [Cards created with this][my-cards] and [based upon the work done by Byron Knoll.][cards-base]
+  * [Heartbeat][hb]
+  * [Farmer's Hat][farmer]
+  * [Crown][crown]
+  * [Chair][chair]
+  * [Avatars][avatar]
 
 
 
- [1]: https://en.wikipedia.org/wiki/President_(card_game)
- [2]: https://github.com/grecaun/wvs-cardgame/raw/master/jar/executable/WvS%20ClientCLI%200.1.jar
- [3]: https://github.com/grecaun/wvs-cardgame/raw/master/jar/executable/WvS%200.1.jar
- [4]: https://github.com/grecaun/wvs-cardgame/raw/master/jar/executable/WvS%20ServCLI%200.1.jar
- [5]: https://github.com/grecaun/wvs-cardgame/raw/master/jar/executable/WvS%20Server%200.1.jar
- [6]: https://github.com/grecaun/wvs-cardgame/raw/master/python/python-client.zip
- [7]: https://github.com/grecaun/wvs-cardgame/raw/master/python/python-server.zip
- [8]: https://java.com/en/download/manual.jsp
- [9]: https://www.python.org/download/releases/2.7/
+ [wikipedia]: https://en.wikipedia.org/wiki/President_(card_game)
+ [java-cli-client]: https://github.com/grecaun/wvs-cardgame/raw/master/jar/executable/WvS%20ClientCLI%200.1.jar
+ [java-gui-client]: https://github.com/grecaun/wvs-cardgame/raw/master/jar/executable/WvS%200.2.jar
+ [java-cli-server]: https://github.com/grecaun/wvs-cardgame/raw/master/jar/executable/WvS%20ServCLI%200.1.jar
+ [java-gui-server]: https://github.com/grecaun/wvs-cardgame/raw/master/jar/executable/WvS%20Server%200.1.jar
+ [python-client]: https://github.com/grecaun/wvs-cardgame/raw/master/python/python-client.zip
+ [python-server]: https://github.com/grecaun/wvs-cardgame/raw/master/python/python-server.zip
+ [java-8]: https://java.com/en/download/manual.jsp
+ [python-2.7]: https://www.python.org/download/releases/2.7/
+ [my-cards]:https://github.com/grecaun/vector-playing-cards-simple
+ [cards-base]:https://code.google.com/p/vector-playing-cards/
+ [hb]:https://pixabay.com/en/heartbeat-ekg-ecg-pulse-heart-rate-304130/
+ [farmer]:clipartpen.com/clipart-pen/farmer-hat-clipart-free-3672/
+ [crown]:https://commons.wikimedia.org/wiki/File:Crown_of_Saint_Edward.svg
+ [chair]:http://www.clipartlord.com/category/home-clip-art/furniture-clip-art/chair-clip-art/
+ [avatar]:http://recipes.wikia.com/wiki/File:Avatar.svg
