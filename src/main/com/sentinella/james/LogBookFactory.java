@@ -10,7 +10,6 @@ package com.sentinella.james;
 public class LogBookFactory {
     public static LogBook getLogBook(LogBook l, String debugStr){
         if (l instanceof GUILogBook) {
-            System.err.println(String.format("GUILogbook found - %s", debugStr));
             return new GUILogBook((GUILogBook) l,debugStr);
         }
         return new LogBook(l,debugStr);

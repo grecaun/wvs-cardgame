@@ -123,7 +123,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
             tableCards[i].setPreserveRatio(true);
             tableCards[i].setSmooth(true);
             tableCards[i].setCache(true);
-            //tableCards[i].setVisible(false);
+            tableCards[i].setVisible(false);
             displPane.getChildren().add(tableCards[i]);
         }
         for (int i=0; i<handCards.length; i++) {
@@ -134,7 +134,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
             handCards[i].setCache(true);
             handCards[i].setOnMouseClicked(this::handCardClick);
             handCards[i].setId(String.valueOf(i));
-            //handCards[i].setVisible(false);
+            handCards[i].setVisible(false);
             displPane.getChildren().add(handCards[i]);
         }
         sendPlay = new Button();
