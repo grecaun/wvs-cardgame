@@ -48,8 +48,8 @@ public class ClientPlayLayoutController implements WvSUpdater {
     private Label[]     playerCards = {null,null,null,null,null,null,null};
     private Label[]     playerStrikes = {null,null,null,null,null,null,null};
 
-    private ImageView[] tableCards = {null,null,null,null};
-    private ImageView[] handCards = {null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null};
+    private CardImageView[] tableCards = {null,null,null,null};
+    private CardImageView[] handCards = {null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null};
     private boolean[]   handCardSelected = {false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false};
     private int         numberHandCardSelected = 0;
     private int         maxHandCardsSelected = 4;
@@ -64,6 +64,8 @@ public class ClientPlayLayoutController implements WvSUpdater {
     private ClientRootLayoutController  rootController;
 
     private LogBook     log = new GUILogBook();
+
+    private String      cardDirString = "/com/sentinella/james/gui/view/images/cards-sm/";
 
     @FXML
     private void initialize() {
@@ -116,23 +118,23 @@ public class ClientPlayLayoutController implements WvSUpdater {
             displPane.getChildren().add(playerStrikes[i]);
         }
         for (int i=0; i<tableCards.length; i++) {
-            tableCards[i] = new ImageView();
-            tableCards[i].setImage(new Image("/com/sentinella/james/gui/view/images/playingcards/02_clubs.png"));
+            tableCards[i] = new CardImageView();
+            tableCards[i].setCard(cardDirString ,"02_clubs.png");
             tableCards[i].setPreserveRatio(true);
             tableCards[i].setSmooth(true);
             tableCards[i].setCache(true);
-            tableCards[i].setVisible(false);
+            //tableCards[i].setVisible(false);
             displPane.getChildren().add(tableCards[i]);
         }
         for (int i=0; i<handCards.length; i++) {
-            handCards[i] = new ImageView();
-            handCards[i].setImage(new Image("/com/sentinella/james/gui/view/images/playingcards/02_clubs.png"));
+            handCards[i] = new CardImageView();
+            handCards[i].setCard(cardDirString ,"02_clubs.png");
             handCards[i].setPreserveRatio(true);
             handCards[i].setSmooth(true);
             handCards[i].setCache(true);
             handCards[i].setOnMouseClicked(this::handCardClick);
             handCards[i].setId(String.valueOf(i));
-            handCards[i].setVisible(false);
+            //handCards[i].setVisible(false);
             displPane.getChildren().add(handCards[i]);
         }
         sendPlay = new Button();
@@ -268,6 +270,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
                 // Name Label Vals
                 topMyNameAnchor = topHandCardAnchor + 101;
                 myName.setFont(Font.font(25.0));
+                cardDirString = "/com/sentinella/james/gui/view/images/cards-sm/";
                 break;
             case MEDIUM:
                 // Players @ Table
@@ -288,6 +291,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
                 // Name Label Vals
                 topMyNameAnchor = topHandCardAnchor + 119;
                 myName.setFont(Font.font(35.0));
+                cardDirString = "/com/sentinella/james/gui/view/images/cards-md/";
                 break;
             default:
                 // Players @ Table
@@ -308,6 +312,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
                 // Name Label Vals
                 topMyNameAnchor = topHandCardAnchor + 185;
                 myName.setFont(Font.font(45.0));
+                cardDirString = "/com/sentinella/james/gui/view/images/cards-lg/";
         }
         for (int i=0; i<playerNames.length; i++) {
             switch (screenSize) {
@@ -363,8 +368,9 @@ public class ClientPlayLayoutController implements WvSUpdater {
             anchor += (spacer + avatarWidth);
         }
 
-        for (ImageView tableCard : tableCards) {
+        for (CardImageView tableCard : tableCards) {
             tableCard.setFitWidth(cardWidth);
+            tableCard.updateCard(cardDirString);
             AnchorPane.setTopAnchor(tableCard, topTableCardAnchor);
             AnchorPane.setLeftAnchor(tableCard, leftTableCardAnchor);
             leftTableCardAnchor += cardWidth + spacer;
@@ -373,6 +379,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
         AnchorPane.setLeftAnchor(sendPlay, leftTableCardAnchor + 45);
         for (int i=0;i<handCards.length;i++) {
             handCards[i].setFitWidth(cardWidth);
+            handCards[i].updateCard(cardDirString);
             if (handCardSelected[i]) {
                 AnchorPane.setTopAnchor(handCards[i], topHandCardAnchor - 20);
             } else {
@@ -473,7 +480,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
             if (inPlay[i] < 52) {
                 int cardV = inPlay[i] / 4;
                 int cardS = inPlay[i] % 4;
-                StringBuilder url = new StringBuilder("/com/sentinella/james/gui/view/images/playingcards/");
+                StringBuilder url = new StringBuilder();
                 switch (cardV) {
                     case 8:
                         url.append("ja_");
@@ -506,7 +513,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
                     default:
                         url.append("spades.png");
                 }
-                tableCards[i].setImage(new Image(url.toString()));
+                tableCards[i].setCard(cardDirString,url.toString());
                 tableCards[i].setVisible(true);
             } else {
                 tableCards[i].setVisible(false);
@@ -624,7 +631,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
         log.printDebMsg("ClientPlayLayoutController.runLaterUpdateHand",3);
         int index;
         for (index = 0; index < cards.size(); index++) {
-            StringBuilder url = new StringBuilder("/com/sentinella/james/gui/view/images/playingcards/");
+            StringBuilder url = new StringBuilder();
             int cardNo = cards.get(index).getCardNumericFaceValue();
             int cardSuit = cards.get(index).getCardIndexNumber() % 4;
             switch (cardNo) {
@@ -659,7 +666,7 @@ public class ClientPlayLayoutController implements WvSUpdater {
                 default:
                     url.append("spades.png");
             }
-            handCards[index].setImage(new Image(url.toString()));
+            handCards[index].setCard(cardDirString,url.toString());
             handCards[index].setVisible(true);
         }
         for (; index < 18; index++) {
@@ -710,4 +717,17 @@ public class ClientPlayLayoutController implements WvSUpdater {
     }
 
     private enum ScreenSize {SMALL, MEDIUM, LARGE}
+
+    private class CardImageView extends ImageView {
+        String curCard      = "02_clubs.png";
+
+        public void setCard(String cardDir, String cardFilename) {
+            curCard = cardFilename;
+            this.setImage(new Image(cardDir+curCard));
+        }
+
+        public void updateCard(String cardDir) {
+            this.setImage(new Image(cardDir+curCard));
+        }
+    }
 }

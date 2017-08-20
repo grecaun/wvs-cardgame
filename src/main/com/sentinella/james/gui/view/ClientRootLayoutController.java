@@ -12,13 +12,12 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.stage.Stage;
+import sun.rmi.runtime.Log;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Copyright (c) 2017 James Sentinella.
@@ -93,7 +92,7 @@ public class ClientRootLayoutController implements ClientCallback {
     @FXML
     private void startAI() {
         try {
-            AIClient newClient = new AIClient(clientOptions.getHostname(),clientOptions.getHostport(),null,true);
+            AIClient newClient = new AIClient(clientOptions.getHostname(),clientOptions.getHostport(),null,true,log,"AICLIENT");
             AIClients.add(newClient);
             newClient.setDelay(clientOptions.getDelay());
             newClient.setUiThread(newClient);
@@ -153,6 +152,7 @@ public class ClientRootLayoutController implements ClientCallback {
     private void updateCloseAIMenu() {
         Iterator<AIClient> iterator = AIClients.iterator();
         while (iterator.hasNext()) if (iterator.next().isFinished()) iterator.remove();
+        if (aiListController != null) aiListController.setClients(AIClients);
         if (AIClients.size() < 1) {
             if (aiListController != null) aiListController.setClients(AIClients);
             closeAIMenuItem.setDisable(true);
@@ -220,7 +220,6 @@ public class ClientRootLayoutController implements ClientCallback {
 
                 @Override public void setOutConnection(ClientSocket out) {}
             });
-            ((GUILogBook)log).setCallback(theServer);
             Thread serverThread = new Thread(theServer);
             serverThread.start();
             enableCloseServer();
@@ -274,6 +273,7 @@ public class ClientRootLayoutController implements ClientCallback {
             Platform.runLater(cont::updateLog);
         });
         cont.updateLog();
+        cont.setServer(theServer);
         newStage.show();
     }
 
@@ -436,13 +436,13 @@ public class ClientRootLayoutController implements ClientCallback {
     class AIClient extends Client implements ClientCallback {
         private boolean finished = false;
 
-        AIClient(String iHostName, int iHostPort, String iName, boolean iIsAuto) throws UnknownHostException {
-            super(iHostName, iHostPort, iName, iIsAuto);
+        AIClient(String iHostName, int iHostPort, String iName, boolean iIsAuto, LogBook iLog, String iDebStr) throws UnknownHostException {
+            super(iHostName,iHostPort,iName,iIsAuto,iLog,iDebStr);
         }
 
         @Override
         public void finished() {
-            log.printOutMsg("Setting finished to true.");
+            log.printDebMsg("Setting finished to true.",1);
             finished = true;
             Platform.runLater(ClientRootLayoutController.this::updateCloseAIMenu);
         }
@@ -452,18 +452,21 @@ public class ClientRootLayoutController implements ClientCallback {
         @Override public void setOutConnection(ClientSocket out) { }
 
         public boolean isFinished() {
-            log.printOutMsg("Someone is checking if I'm finished.");
+            log.printDebMsg("Someone is checking if I'm finished.",1);
             return finished; }
     }
 
     class GUIServer extends Server implements LogBookCallback {
-       private ArrayList<String> serverLog = new ArrayList<>();
+       private List<String>      serverLog = Collections.synchronizedList(new ArrayList<>());
        private ServerListener    listener;
        private boolean           hasBeenClosed = false;
 
        public GUIServer(int lobbyTimeOut, int playTimeOut, int minPlayers, int strikesAllowed, int maxClients, int port, LogBook l, String debStr) throws UnknownHostException {
            super(lobbyTimeOut, playTimeOut, minPlayers, strikesAllowed, maxClients, port);
            this.log = LogBookFactory.getLogBook(l,debStr);
+           ((GUILogBook)log).setCallback(this);
+           sLobby.setLogBookInfo(log,String.format("%s:%s",debStr,"SERVERLOBBY"));
+           sTable.setLogBookInfo(log,String.format("%s:%s",debStr,"SERVERTABLE"));
        }
 
        public boolean hasBeenClosed() {
@@ -480,8 +483,12 @@ public class ClientRootLayoutController implements ClientCallback {
            if (listener != null) listener.updateServerLog();
        }
 
-       public ArrayList<String> getServerLog() {
+       public List<String> getServerLog() {
            return serverLog;
+       }
+
+       public void closeListener() {
+           listener = null;
        }
 
        public void setListener(ServerListener listener) {

@@ -277,6 +277,7 @@ public class ServerRootLayoutController {
 
     class GUIServer extends Server implements LogBookCallback {
         private ConcurrentHashMap<SocketChannel, Label> displayed = new ConcurrentHashMap<>();
+        private ConcurrentHashMap<SocketChannel, HBox> containers = new ConcurrentHashMap<>();
         private List<String>                  serverLog = Collections.synchronizedList(new ArrayList<String>());
         private ServerListener                listener;
         private boolean                       hasBeenClosed = false;
@@ -319,10 +320,12 @@ public class ServerRootLayoutController {
                     nameLabel.setFont(Font.font(18.0));
                     container.setSpacing(5.0);
                     displayed.put(con,nameLabel);
+                    containers.put(con,container);
                     clients.getChildren().add(container);
                     close.setOnAction(e-> new Thread(()->{
                         removeClient(con);
                         displayed.remove(con);
+                        containers.remove(con);
                         Platform.runLater(()->{
                             try {
                                 clients.getChildren().remove(container);
@@ -333,6 +336,18 @@ public class ServerRootLayoutController {
                     }).start());
                 }
                 nameLabel.setText(name);
+            }
+            ArrayList<SocketChannel> consNotFound = new ArrayList<>(displayed.keySet());
+            consNotFound.removeAll(cons);
+            for (SocketChannel con : consNotFound) {
+                try {
+                    clients.getChildren().remove(containers.get(con));
+                } catch (Exception ex) {
+                    log.printErrMsg("Unable to remove client from list of displayed clients.");
+                }
+                removeClient(con);
+                displayed.remove(con);
+                containers.remove(con);
             }
         }
 

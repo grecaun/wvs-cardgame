@@ -20,7 +20,7 @@
          </font>
       </Label>
       <Label layoutX="77.0" layoutY="135.0" text="Created by James Sentinella" />
-      <Label layoutX="118.0" layoutY="95.0" text="Version 0.01" />
+      <Label layoutX="122.0" layoutY="95.0" text="Version 0.2" />
       <Label layoutX="95.0" layoutY="157.0" text="james@sentinella.me" />
       <Button layoutX="128.0" layoutY="450.0" mnemonicParsing="false" onAction="#close" text="Close" />
       <Label layoutX="113.0" layoutY="76.0" text="Client Version" />
@@ -29,8 +29,8 @@
       <Hyperlink layoutX="25.0" layoutY="335.0" maxWidth="250.0" onAction="#handleURL" text="http://www.clipartlord.com/category/home-clip-art/furniture-clip-art/chair-clip-art/" wrapText="true" />
       <Hyperlink layoutX="25.0" layoutY="375.0" onAction="#handleURL" text="http://recipes.wikia.com/wiki/File:Avatar.svg" />
       <Hyperlink layoutX="25.0" layoutY="398.0" maxWidth="250.0" onAction="#handleURL" text="https://commons.wikimedia.org/wiki/File:Crown_of_Saint_Edward.svg" wrapText="true" />
-      <Hyperlink layoutX="25.0" layoutY="215.0" maxWidth="250.0" onAction="#handleURL" text="https://github.com/notpeter/Vector-Playing-Cards" wrapText="true" />
-      <Label layoutX="102.0" layoutY="194.0" text="Artwork From">
+      <Hyperlink layoutX="25.0" layoutY="215.0" maxWidth="250.0" onAction="#handleURL" text="https://code.google.com/p/vector-playing-cards/" wrapText="true" />
+      <Label layoutX="65.0" layoutY="194.0" text="Artwork From/Based On">
          <font>
             <Font name="System Bold" size="15.0" />
          </font>

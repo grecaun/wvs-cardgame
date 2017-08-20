@@ -18,7 +18,7 @@ import java.util.regex.Matcher;
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 public class Server implements Runnable {
-    private   ServerTable     sTable;
+    protected ServerTable     sTable;
     protected Lobby           sLobby;
     private   ClientCallback  uiThread;
     private   boolean         keepAlive = true;

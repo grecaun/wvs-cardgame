@@ -8,7 +8,7 @@ package com.sentinella.james;
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 public class GUILogBook extends LogBook {
-    private static LogBookCallback callback = msg -> { };
+    private LogBookCallback callback = msg -> { };
 
     public GUILogBook(int dL, boolean dC, String dS) {
         super(dL,dC,dS);
@@ -16,8 +16,9 @@ public class GUILogBook extends LogBook {
 
     public GUILogBook() {}
 
-    public GUILogBook(LogBook l, String dStr) {
+    public GUILogBook(GUILogBook l, String dStr) {
         super(l,dStr);
+        this.callback = l.callback;
     }
 
     private void printMsg(String msg, LogStream stream) {
@@ -26,6 +27,7 @@ public class GUILogBook extends LogBook {
                 debStream.println(String.format("%s: %s",debugStr,msg));
                 break;
             default:
+                printDebMsg(msg,1);
                 callback.addToMessages(msg);
         }
     }
