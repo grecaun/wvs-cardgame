@@ -1,0 +1,56 @@
+<resources>
+    <string name="app_name">Warlords vs Scumbags</string>
+    <string name="con_name_label">Name</string>
+    <string name="connect_button">Connect</string>
+    <string name="submit_button">Submit</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="close_button">Close</string>
+    <string name="attempt_connect_title">Attempting to Connect.</string>
+    <string name="attempt_connect_message">Please wait.</string>
+    <!-- Settings Strings -->
+    <string name="settings_ip_label">Server IP/Hostname</string>
+    <string name="settings_port_label">Port Number</string>
+    <!-- Server Settings Strings -->
+    <string name="settings_lobby_timeout">Lobby Timeout</string>
+    <string name="settings_play_timeout">Play/Swap Timeout</string>
+    <string name="settings_min_players">Minimum Players per Game</string>
+    <string name="settings_max_clients">Max Clients Connected</string>
+    <string name="settings_max_strikes">Strikes Before Disconnect</string>
+    <!-- Menu Strings -->
+    <string name="menu_con_settings">Settings</string>
+    <string name="menu_start_ai">Start AI Client</string>
+    <string name="menu_list_ai">List AI Clients</string>
+    <string name="menu_close_ai">Close AI Clients</string>
+    <string name="menu_server_start">Start Server</string>
+    <string name="menu_server_log">Server Log</string>
+    <string name="menu_server_stop">Stop Server</string>
+    <string name="menu_server_options">Server Options</string>
+    <string name="menu_how_to_play">How To Play</string>
+    <string name="menu_about">About</string>
+
+    <!-- About Strings -->
+    <string name="about_version">Version 0.1</string>
+    <string name="about_created">Created by James Sentinella</string>
+    <string name="about_email">james@sentinella.me</string>
+    <string name="about_art_label">Artwork From/Based On</string>
+    <string name="about_label_cards">code.google.com/archive/p/vector-playing-cards/</string>
+    <string name="about_label_dead">pixabay.com/en/heartbeat-ekg-ecg-pulse-heart-rate-304130/</string>
+    <string name="about_label_hat">clipartpen.com/clipart-pen/farmer-hat-clipart-free-3672/</string>
+    <string name="about_label_chair">www.clipartlord.com/category/home-clip-art/furniture-clip-art/chair-clip-art/</string>
+    <string name="about_label_avatar">recipes.wikia.com/wiki/File:Avatar.svg</string>
+    <string name="about_label_crown">commons.wikimedia.org/wiki/File:Crown_of_Saint_Edward.svg</string>
+    <!-- How To Play Strings -->
+    <string name="htp_label">How To Play</string>
+    <string name="htp_instr1">When it is your turn to play a card you must play an equal number of, or up to 4, cards of greater or equal face value than the card(s) on the table.</string>
+    <string name="htp_instr2">Aces are considered the second highest card. Twos are considered to be of greater value than any other card. When a two is played a new round is initiated.</string>
+    <string name="htp_instr3">If the face values and number of cards match what is on the table exactly, the person who would play next is automatically skipped.</string>
+    <string name="htp_instr4">Should everyone pass after you\'ve played a card, a new round starts with you.</string>
+    <string name="htp_instr5">You may choose to pass on your turn.  Press send turn without selecting a card to pass.</string>
+    <string name="htp_instr6">At the beginning of each new round any card(s) may be played on the table.</string>
+    <string name="htp_unranked">Unranked</string>
+    <string name="htp_unranked_instr">In an unranked game, the person with the three of clubs goes first, and the three of clubs must be played first.  The server may or may not enforce this.</string>
+    <string name="htp_ranked">Ranked</string>
+    <string name="htp_ranked_instr1">In a ranked game the Warlord receives the Scumbag\'s best card in a swap and must give a card back to the Scumbag.</string>
+    <string name="htp_ranked_instr2">Warlord - Ranked Game Only - The first person in the last game to run out of cards.</string>
+    <string name="htp_ranked_instr3">Scumbag - Ranked Game Only - The last person in the last game to run out of cards.</string>
+</resources>

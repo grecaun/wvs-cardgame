@@ -6,3 +6,11 @@ debug*
 testlines.txt
 testingArena.java
 MANIFEST.MF
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+.DS_Store
+/build
+/captures
+.externalNativeBuild

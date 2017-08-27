@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group>
+        <item
+        android:id="@+id/conSettings"
+        android:orderInCategory="1"
+        android:title="@string/menu_con_settings"
+        android:contentDescription="@string/menu_con_settings"/>
+    </group>
+    <!--
+    <group>
+        <item
+            android:id="@+id/startAI"
+            android:orderInCategory="2"
+            android:title="@string/menu_start_ai"
+            android:contentDescription="@string/menu_start_ai" />
+        <item
+            android:id="@+id/listAI"
+            android:orderInCategory="3"
+            android:title="@string/menu_list_ai"
+            android:contentDescription="@string/menu_list_ai"
+            android:enabled="false" />
+        <item
+            android:id="@+id/closeAI"
+            android:orderInCategory="4"
+            android:title="@string/menu_close_ai"
+            android:contentDescription="@string/menu_close_ai"
+            android:enabled="false" />
+    </group>
+    --><!--
+    <group>
+        <item
+            android:id="@+id/controlServer"
+            android:orderInCategory="5"
+            android:title="@string/menu_server_start"
+            android:contentDescription="@string/menu_server_start" />
+        <item
+            android:id="@+id/serverLog"
+            android:orderInCategory="6"
+            android:title="@string/menu_server_log"
+            android:contentDescription="@string/menu_server_log"
+            android:enabled="false" />
+        <item
+            android:id="@+id/serverOptions"
+            android:orderInCategory="7"
+            android:title="@string/menu_server_options"
+            android:contentDescription="@string/menu_server_options" />
+    </group>
+    -->
+    <group>
+        <item
+            android:id="@+id/howToPlay"
+            android:orderInCategory="8"
+            android:title="@string/menu_how_to_play"
+            android:contentDescription="@string/menu_how_to_play" />
+        <item
+            android:id="@+id/about"
+            android:orderInCategory="9"
+            android:title="@string/menu_about"
+            android:contentDescription="@string/menu_about" />
+    </group>
+</menu>
